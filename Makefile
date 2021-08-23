@@ -1,11 +1,6 @@
+# VERSION=`git describe --tags`
 VERSION=`git rev-parse --short HEAD`
-#flags=-ldflags="-s -w -X main.version=${VERSION}"
-OS := $(shell uname)
-ifeq ($(OS),Darwin)
-flags=-ldflags="-s -w -X main.version=${VERSION}"
-else
-flags=-ldflags="-s -w -X main.version=${VERSION} -extldflags -static"
-endif
+flags=-ldflags="-s -w -X main.gitVersion=${VERSION} -extldflags -static"
 
 all: build
 

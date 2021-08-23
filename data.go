@@ -6,6 +6,7 @@ type VaultData struct {
 }
 
 type VaultRecord struct {
+	ID      int64
 	Name    string
 	Aliases []string
 	Data    []VaultData
