@@ -7,43 +7,103 @@ import (
 	"log"
 	"os"
 	"strings"
+	"syscall"
 	"text/tabwriter"
+
+	"golang.org/x/term"
 )
 
-func write(vault, secret string) {
-	// if vault exists
-	//     data, err := read(vault, secret)
-	//     if err != nil {
-	//         log.Fatal(err)
-	//     }
+// helper function to read vault secret from stdin
+func secret(verbose int) (string, error) {
+	fmt.Print("Enter vault secret: ")
+	bytes, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		log.Println("unable to read stdin, error ", err)
+		return "", err
+	}
+	salt := strings.Replace(string(bytes), "\n", "", -1)
+	fmt.Println()
+	if verbose > 0 {
+		log.Printf("vault secret '%s'", salt)
+	}
+	return salt, nil
+}
+
+// helper function to get user input
+func input(verbose int) (VaultRecord, error) {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("\nEnter Username: ")
+	username, err := reader.ReadString('\n')
+	if err != nil {
+		return VaultRecord{}, err
+	}
+	username = strings.Replace(username, "\n", "", -1)
+	fmt.Print("Enter Password: ")
+	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return VaultRecord{}, err
+	}
+	password := string(bytePassword)
+	password = strings.Replace(password, "\n", "", -1)
+	fmt.Print("\nEnter note: ")
+	note, err := reader.ReadString('\n')
+	if err != nil {
+		return VaultRecord{}, err
+	}
+	note = strings.Replace(note, "\n", " ", -1)
 
 	// replace with input for data record
-	vd := VaultData{Name: "test", Value: "value"}
-	rec := VaultRecord{Name: "record", Data: []VaultData{vd, vd}, Note: "some note"}
+	recLogin := VaultData{Name: "login", Value: username}
+	recPassword := VaultData{Name: "password", Value: password}
+	rec := VaultRecord{Name: "record", Data: []VaultData{recLogin, recPassword}, Note: note}
+	return rec, nil
+}
 
-	// our output will consist of set of records
-	var records [][]byte
+// update given records in our vault
+func update(rec VaultRecord, records []VaultRecord, verbose int) []VaultRecord {
+	// TODO: so far we add record to the list of records
+	// but I need to implement searhc for that record and if there is one
+	// we need to update it in place
 
-	// marshall single record
-	data, err := json.Marshal(rec)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// encrypt our record
-	data, err = encrypt(data, secret)
-	if err != nil {
-		log.Fatal(err)
-	}
 	// add record to the final list of records
-	records = append(records, data)
+	records = append(records, rec)
+	return records
+}
+
+// helper function to write vault record
+func write(vault, secret, cipher string, records []VaultRecord, verbose int) {
+	// TODO: make backup vault first
 
 	file, err := os.Create(vault)
+	if err != nil {
+		log.Fatal(err)
+	}
 	w := bufio.NewWriter(file)
 	for _, rec := range records {
-		w.Write(rec)
-		w.Write([]byte("\n"))
+		// marshall single record
+		data, err := json.Marshal(rec)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// encrypt our record
+		if verbose > 0 {
+			log.Printf("record '%s' secret '%s'\n", string(data), secret)
+		}
+		edata := data
+		if cipher != "" {
+			edata, err = encrypt(data, secret, cipher)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		if verbose > 0 {
+			log.Printf("write data record\n%v\nsecret %v", edata, secret)
+		}
+		w.Write(edata)
+		w.Write([]byte("---\n"))
+		w.Flush()
 	}
-	w.Flush()
 
 	// write our records back to vault
 	//     err = ioutil.WriteFile(vault, records, 0777)
@@ -52,47 +112,72 @@ func write(vault, secret string) {
 	//     }
 }
 
-func read(vault, secret string) ([]VaultRecord, error) {
+// helper function to read vault and return list of records
+func read(vault, secret, cipher string, verbose int) ([]VaultRecord, error) {
 	var records []VaultRecord
-	//     data, err := ioutil.ReadFile(vault)
-	//     if err != nil {
-	//         return records, err
-	//     }
+
+	// check first if file exsist
+	if _, err := os.Stat(vault); os.IsNotExist(err) {
+		return records, nil
+	}
+
 	// open file
-	f, err := os.Open(vault)
+	file, err := os.Open(vault)
 	if err != nil {
+		log.Println("unable to open a vault", err)
 		return records, err
 	}
 	// remember to close the file at the end of the program
-	defer f.Close()
+	defer file.Close()
 
 	// read the file line by line using scanner
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(file)
+	scanner.Split(pwmSplitFunc)
 	for scanner.Scan() {
-		data, err := decrypt([]byte(scanner.Text()), secret)
-		if err != nil {
-			return records, err
+		text := scanner.Text()
+		//         if verbose > 0 {
+		//             log.Printf("read '%v'", text)
+		//         }
+		textData := []byte(text)
+		if verbose > 0 {
+			log.Printf("read record\n%v\nsecret %v", textData, secret)
 		}
+
+		data := textData
+		if cipher != "" {
+			data, err = decrypt(textData, secret, cipher)
+			if err != nil {
+				log.Printf("unable to decrypt data\n%v\nerror %v", textData, err)
+				return records, err
+			}
+		}
+
 		var rec VaultRecord
 		err = json.Unmarshal(data, &rec)
 		if err != nil {
+			log.Println("ERROR: unable to unmarshal the data", err)
 			return records, err
 		}
 		records = append(records, rec)
 	}
 	return records, nil
 }
-func find(vault, secret, pat string) {
-	records, err := read(vault, secret)
+
+// helper function to find given pattern in vault records
+func find(vault, secret, cipher, pat string, verbose int) {
+	records, err := read(vault, secret, cipher, verbose)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, rec := range records {
-		fmt.Printf("json record %+v", rec)
+		if verbose > 0 {
+			fmt.Printf("json record %+v", rec)
+		}
 		printRecord(rec)
 	}
 }
 
+// helper function to print the record
 func printRecord(rec VaultRecord) {
 	// initialize tabwriter
 	w := new(tabwriter.Writer)
@@ -107,7 +192,7 @@ func printRecord(rec VaultRecord) {
 	fmt.Fprintf(w, "Note\t%s\n", rec.Note)
 	fmt.Fprintf(w, "Records:\n")
 	for _, r := range rec.Data {
-		fmt.Fprintf(w, "%s\t%s\n", r.Name, r.Value)
+		fmt.Fprintf(w, "%s\t\t%s\n", r.Name, r.Value)
 		fmt.Fprintf(w, "---\n")
 	}
 	fmt.Fprintf(w, "\n")
