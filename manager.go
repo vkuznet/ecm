@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"text/tabwriter"
 
+	"github.com/google/uuid"
+	"github.com/rivo/tview"
 	"golang.org/x/term"
 )
 
@@ -31,13 +33,29 @@ func secret(verbose int) (string, error) {
 
 // helper function to get user input
 func input(verbose int) (VaultRecord, error) {
+	app := tview.NewApplication()
+	rec := inputForm(app)
+	return rec, nil
+}
+
+// helper function to get user input
+func inputOld(verbose int) (VaultRecord, error) {
 	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("\nEnter record name: ")
+	name, err := reader.ReadString('\n')
+	if err != nil {
+		return VaultRecord{}, err
+	}
+	name = strings.Replace(name, "\n", " ", -1)
+
 	fmt.Print("\nEnter Username: ")
 	username, err := reader.ReadString('\n')
 	if err != nil {
 		return VaultRecord{}, err
 	}
 	username = strings.Replace(username, "\n", "", -1)
+
 	fmt.Print("Enter Password: ")
 	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
@@ -45,6 +63,14 @@ func input(verbose int) (VaultRecord, error) {
 	}
 	password := string(bytePassword)
 	password = strings.Replace(password, "\n", "", -1)
+
+	fmt.Print("\nEnter URL: ")
+	rurl, err := reader.ReadString('\n')
+	if err != nil {
+		return VaultRecord{}, err
+	}
+	rurl = strings.Replace(rurl, "\n", " ", -1)
+
 	fmt.Print("\nEnter note: ")
 	note, err := reader.ReadString('\n')
 	if err != nil {
@@ -53,9 +79,11 @@ func input(verbose int) (VaultRecord, error) {
 	note = strings.Replace(note, "\n", " ", -1)
 
 	// replace with input for data record
-	recLogin := VaultData{Name: "login", Value: username}
-	recPassword := VaultData{Name: "password", Value: password}
-	rec := VaultRecord{Name: "record", Data: []VaultData{recLogin, recPassword}, Note: note}
+	recLogin := VaultItem{Name: "login", Value: username}
+	recPassword := VaultItem{Name: "password", Value: password}
+	recUrl := VaultItem{Name: "url", Value: rurl}
+	uid := uuid.NewString()
+	rec := VaultRecord{ID: uid, Name: name, Items: []VaultItem{recLogin, recPassword, recUrl}, Note: note}
 	return rec, nil
 }
 
@@ -97,7 +125,7 @@ func write(vault, secret, cipher string, records []VaultRecord, verbose int) {
 				log.Fatal(err)
 			}
 		}
-		if verbose > 0 {
+		if verbose > 1 {
 			log.Printf("write data record\n%v\nsecret %v", edata, secret)
 		}
 		w.Write(edata)
@@ -188,10 +216,11 @@ func printRecord(rec VaultRecord) {
 	defer w.Flush()
 	fmt.Fprintf(w, "\n")
 	fmt.Fprintf(w, "Name\t%s\n", rec.Name)
-	fmt.Fprintf(w, "Aliases\t%s\n", strings.Join(rec.Aliases, ","))
+	fmt.Fprintf(w, "URL\t%s\n", rec.URL)
+	fmt.Fprintf(w, "Tags\t%s\n", strings.Join(rec.Tags, ","))
 	fmt.Fprintf(w, "Note\t%s\n", rec.Note)
 	fmt.Fprintf(w, "Records:\n")
-	for _, r := range rec.Data {
+	for _, r := range rec.Items {
 		fmt.Fprintf(w, "%s\t\t%s\n", r.Name, r.Value)
 		fmt.Fprintf(w, "---\n")
 	}

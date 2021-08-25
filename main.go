@@ -7,6 +7,8 @@ import (
 	"os"
 	"runtime"
 	"time"
+
+	"github.com/rivo/tview"
 )
 
 // version of the code
@@ -57,10 +59,6 @@ func main() {
 	if err != nil {
 		log.Fatal("unable to read vault, error ", err)
 	}
-	//     log.Println("### existing records")
-	//     for _, rec := range records {
-	//         log.Println("rec", rec)
-	//     }
 
 	// perform vault operation
 	if add {
@@ -70,7 +68,15 @@ func main() {
 		}
 		newRecords := update(rec, records, verbose)
 		write(vault, salt, cipher, newRecords, verbose)
-		return
+		//         return
 	}
-	find(vault, salt, cipher, pat, verbose)
+
+	records, err = read(vault, salt, cipher, verbose)
+	if err != nil {
+		log.Fatal("unable to read vault, error ", err)
+	}
+	app := tview.NewApplication()
+	listForm(app, records)
+
+	//     find(vault, salt, cipher, pat, verbose)
 }
