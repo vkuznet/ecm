@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	tcell "github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
 	"github.com/rivo/tview"
@@ -62,17 +64,18 @@ func gridView(app *tview.Application, records []VaultRecord) {
 	// set tag list form
 	tagList := []string{"Tag1", "tag2", "bla"}
 	tags := tview.NewList()
-	for idx, tag := range tagList {
-		//         sid := fmt.Sprintf("%d", idx)
-		tags.AddItem(tag, "", rune(idx), nil)
+	for _, tag := range tagList {
+		tags.AddItem(tag, "", rune('-'), nil)
 	}
+	tags.AddItem("Quit", "press to exit", rune('q'), func() {
+		app.Stop()
+	})
 	tags.SetBorder(true).SetTitle("Tags")
 
 	// set main record list
 	main := tview.NewList()
-	for idx, rec := range records {
-		//         sid := fmt.Sprintf("%d", idx)
-		main.AddItem(rec.Name, "", rune(idx), nil)
+	for _, rec := range records {
+		main.AddItem(rec.Name, "", rune('-'), nil)
 	}
 	main.AddItem("Quit", "Press to exit", 'q', func() {
 		app.Stop()
@@ -88,6 +91,11 @@ func gridView(app *tview.Application, records []VaultRecord) {
 	form.AddPasswordField("Password", password, 10, '*', nil)
 	form.AddInputField("URL", rurl, 100, nil, nil)
 	form.AddInputField("Note", note, 20, nil, nil)
+	form.AddButton("Save", func() {
+		vrec := saveForm(form)
+		log.Println("saved record", vrec)
+		// TODO: update our records
+	})
 	form.AddButton("Quit", func() {
 		app.Stop()
 	})
@@ -95,8 +103,9 @@ func gridView(app *tview.Application, records []VaultRecord) {
 
 	// construct grid view
 	grid := tview.NewGrid()
+	grid.SetRows(1)
 	grid.SetColumns(10, 0, 50)
-	grid.SetBorders(true)
+	grid.SetBorders(false)
 
 	// Layout for screens wider than 100 cells.
 	grid.AddItem(tags, 1, 0, 1, 1, 0, 100, false)
