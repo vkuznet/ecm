@@ -76,7 +76,8 @@ func main() {
 		log.Fatal("unable to read vault, error ", err)
 	}
 	app := tview.NewApplication()
-	listForm(app, records)
+	//     listForm(app, records)
+	gridView(app, records)
 
 	//     find(vault, salt, cipher, pat, verbose)
 }

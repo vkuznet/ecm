@@ -1,6 +1,7 @@
 package main
 
 import (
+	tcell "github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
 	"github.com/rivo/tview"
 )
@@ -53,6 +54,112 @@ func listForm(app *tview.Application, records []VaultRecord) {
 		app.Stop()
 	})
 	if err := app.SetRoot(list, true).EnableMouse(true).Run(); err != nil {
+		panic(err)
+	}
+}
+
+func gridView(app *tview.Application, records []VaultRecord) {
+	// set tag list form
+	tagList := []string{"Tag1", "tag2", "bla"}
+	tags := tview.NewList()
+	for idx, tag := range tagList {
+		//         sid := fmt.Sprintf("%d", idx)
+		tags.AddItem(tag, "", rune(idx), nil)
+	}
+	tags.SetBorder(true).SetTitle("Tags")
+
+	// set main record list
+	main := tview.NewList()
+	for idx, rec := range records {
+		//         sid := fmt.Sprintf("%d", idx)
+		main.AddItem(rec.Name, "", rune(idx), nil)
+	}
+	main.AddItem("Quit", "Press to exit", 'q', func() {
+		app.Stop()
+	})
+	main.SetBorder(true).SetTitle("Records")
+
+	// set current record form view
+	rec := records[0]
+	name, rurl, login, password, note := rec.Details()
+	form := tview.NewForm()
+	form.AddInputField("Name", name, 20, nil, nil)
+	form.AddInputField("Login", login, 20, nil, nil)
+	form.AddPasswordField("Password", password, 10, '*', nil)
+	form.AddInputField("URL", rurl, 100, nil, nil)
+	form.AddInputField("Note", note, 20, nil, nil)
+	form.AddButton("Quit", func() {
+		app.Stop()
+	})
+	form.SetBorder(true).SetTitle("Form").SetTitleAlign(tview.AlignLeft)
+
+	// construct grid view
+	grid := tview.NewGrid()
+	grid.SetColumns(10, 0, 50)
+	grid.SetBorders(true)
+
+	// Layout for screens wider than 100 cells.
+	grid.AddItem(tags, 1, 0, 1, 1, 0, 100, false)
+	grid.AddItem(main, 1, 1, 1, 1, 0, 100, true) // default focus, index 1
+	grid.AddItem(form, 1, 2, 1, 1, 0, 100, false)
+
+	focusIndex := 1 // defaul focus index
+
+	grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		key := event.Key()
+		switch key {
+		//         case tcell.KeyRune:
+		//             switch event.Rune() {
+		//             case 'T', 't':
+		//                 app.SetFocus(tags)
+		//                 return event
+		//             case 'F', 'f':
+		//                 app.SetFocus(form)
+		//                 return event
+		//             case 'M', 'm':
+		//                 app.SetFocus(main)
+		//                 return event
+		//             }
+		case tcell.KeyCtrlN:
+			if focusIndex == 0 {
+				app.SetFocus(main)
+				focusIndex = 1
+			} else if focusIndex == 1 {
+				app.SetFocus(form)
+				focusIndex = 2
+			} else if focusIndex == 2 {
+				app.SetFocus(tags)
+				focusIndex = 0
+			}
+			return event
+		case tcell.KeyCtrlB:
+			if focusIndex == 0 {
+				app.SetFocus(form)
+				focusIndex = 2
+			} else if focusIndex == 1 {
+				app.SetFocus(tags)
+				focusIndex = 0
+			} else if focusIndex == 2 {
+				app.SetFocus(main)
+				focusIndex = 1
+			}
+			return event
+		case tcell.KeyHome:
+			app.SetFocus(main)
+			return event
+			//         case tcell.KeyLeft:
+			//             app.SetFocus(tags)
+			//             log.Println("left key")
+			//             return event
+			//         case tcell.KeyRight:
+			//             app.SetFocus(form)
+			//             log.Println("right key")
+			//             return event
+		}
+		return event
+	})
+	//     if err := tview.NewApplication().SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
+	if err := app.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 }
