@@ -48,6 +48,25 @@ func main() {
 		log.SetFlags(log.LstdFlags)
 	}
 
+	// determine vault location and if it is not provided or does not exists
+	// creat $HOME/.pwm area and assign new vault file there
+	_, err := os.Stat(vault)
+	if vault == "" || os.IsNotExist(err) {
+		udir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		vdir := fmt.Sprintf("%s/.pwm", udir)
+		if verbose > 0 {
+			log.Println("create vault dir", vdir)
+		}
+		err = os.MkdirAll(vdir, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
+		vault = fmt.Sprintf("%s/vault.aes", vdir)
+	}
+
 	// get vault secret
 	salt, err := secret(verbose)
 	if err != nil {
