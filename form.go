@@ -61,21 +61,21 @@ func listForm(app *tview.Application, records []VaultRecord) {
 }
 
 func gridView(app *tview.Application, records []VaultRecord) {
-	// set tag list form
-	tagList := []string{"Tag1", "tag2", "bla"}
-	tags := tview.NewList()
-	for _, tag := range tagList {
-		tags.AddItem(tag, "", rune('-'), nil)
-	}
-	tags.AddItem("Quit", "press to exit", rune('q'), func() {
+	// add search bar
+	find := tview.NewForm()
+	find.AddInputField("Search", "", 80, nil, nil)
+	find.AddButton("Find", func() {
 		app.Stop()
 	})
-	tags.SetBorder(true).SetTitle("Tags")
+	find.AddButton("Quit", func() {
+		app.Stop()
+	})
+	find.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
 
 	// set main record list
 	main := tview.NewList()
 	for _, rec := range records {
-		main.AddItem(rec.Name, "", rune('-'), nil)
+		main.AddItem(rec.Name, rec.ID, rune('-'), nil)
 	}
 	main.AddItem("Quit", "Press to exit", 'q', func() {
 		app.Stop()
@@ -86,11 +86,11 @@ func gridView(app *tview.Application, records []VaultRecord) {
 	rec := records[0]
 	name, rurl, login, password, note := rec.Details()
 	form := tview.NewForm()
-	form.AddInputField("Name", name, 20, nil, nil)
-	form.AddInputField("Login", login, 20, nil, nil)
-	form.AddPasswordField("Password", password, 10, '*', nil)
+	form.AddInputField("Name", name, 100, nil, nil)
+	form.AddInputField("Login", login, 100, nil, nil)
+	form.AddPasswordField("Password", password, 100, '*', nil)
 	form.AddInputField("URL", rurl, 100, nil, nil)
-	form.AddInputField("Note", note, 20, nil, nil)
+	form.AddInputField("Note", note, 100, nil, nil)
 	form.AddButton("Save", func() {
 		vrec := saveForm(form)
 		log.Println("saved record", vrec)
@@ -103,14 +103,14 @@ func gridView(app *tview.Application, records []VaultRecord) {
 
 	// construct grid view
 	grid := tview.NewGrid()
-	grid.SetRows(1)
-	grid.SetColumns(10, 0, 50)
+	//     grid.SetRows(2)
+	//     grid.SetColumns(30, 70)
 	grid.SetBorders(false)
 
 	// Layout for screens wider than 100 cells.
-	grid.AddItem(tags, 1, 0, 1, 1, 0, 100, false)
-	grid.AddItem(main, 1, 1, 1, 1, 0, 100, true) // default focus, index 1
-	grid.AddItem(form, 1, 2, 1, 1, 0, 100, false)
+	grid.AddItem(find, 0, 0, 1, 2, 20, 100, false)
+	grid.AddItem(main, 1, 0, 3, 1, 0, 100, true) // default focus, index 1
+	grid.AddItem(form, 1, 1, 3, 1, 0, 100, false)
 
 	focusIndex := 1 // defaul focus index
 
@@ -137,7 +137,7 @@ func gridView(app *tview.Application, records []VaultRecord) {
 				app.SetFocus(form)
 				focusIndex = 2
 			} else if focusIndex == 2 {
-				app.SetFocus(tags)
+				app.SetFocus(find)
 				focusIndex = 0
 			}
 			return event
@@ -146,7 +146,7 @@ func gridView(app *tview.Application, records []VaultRecord) {
 				app.SetFocus(form)
 				focusIndex = 2
 			} else if focusIndex == 1 {
-				app.SetFocus(tags)
+				app.SetFocus(find)
 				focusIndex = 0
 			} else if focusIndex == 2 {
 				app.SetFocus(main)
