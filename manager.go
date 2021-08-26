@@ -100,7 +100,8 @@ func update(rec VaultRecord, records []VaultRecord, verbose int) []VaultRecord {
 
 // helper function to write vault record
 func write(vault, secret, cipher string, records []VaultRecord, verbose int) {
-	// TODO: make backup vault first
+	// make backup vault first
+	backup(vault)
 
 	file, err := os.Create(vault)
 	if err != nil {
