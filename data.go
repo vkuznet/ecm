@@ -19,12 +19,13 @@ type VaultItem struct {
 
 // ValutRecord represents full vault record
 type VaultRecord struct {
-	ID    string      // record ID
-	Name  string      // record Name
-	URL   string      // url value record represent
-	Tags  []string    // record tags
-	Items []VaultItem // list of record items
-	Note  string      // record note
+	ID               string      // record ID
+	Name             string      // record Name
+	URL              string      // url value record represent
+	Tags             []string    // record tags
+	Items            []VaultItem // list of record items
+	Note             string      // record note
+	ModificationTime time.Time   // record modification time
 }
 
 // String provides string representation of vault record
@@ -55,15 +56,15 @@ func (r *VaultRecord) Details() (string, string, string, string, string) {
 
 // Vault represent our vault
 type Vault struct {
-	Filename             string        // vault filename
-	Cipher               string        // vault cipher
-	Secret               string        // vault secret
-	Verbose              int           // verbose mode
-	Records              []VaultRecord // vault records
-	LastModificationTime time.Time     // vault last modification time
-	LastBackup           string        // vault last backup
-	Size                 int64         // vault size
-	Mode                 string        // vault mode
+	Filename         string        // vault filename
+	Cipher           string        // vault cipher
+	Secret           string        // vault secret
+	Verbose          int           // verbose mode
+	Records          []VaultRecord // vault records
+	ModificationTime time.Time     // vault last modification time
+	LastBackup       string        // vault last backup
+	Size             int64         // vault size
+	Mode             string        // vault mode
 }
 
 // Update vault records
@@ -73,8 +74,9 @@ func (v *Vault) Update(rec VaultRecord) {
 			if v.Verbose > 0 {
 				log.Printf("update record %+v", rec)
 			}
+			rec.ModificationTime = time.Now()
 			v.Records[i] = rec
-			v.LastModificationTime = time.Now()
+			v.ModificationTime = time.Now()
 		}
 	}
 }
@@ -98,7 +100,7 @@ func (v *Vault) Write() {
 		}
 
 		// encrypt our record
-		if v.Verbose > 0 {
+		if v.Verbose > 1 {
 			log.Printf("record '%s'\n", string(data))
 		}
 		edata := data
@@ -118,7 +120,7 @@ func (v *Vault) Write() {
 	finfo, err := os.Stat(v.Filename)
 	if err == nil {
 		v.Size = finfo.Size()
-		v.LastModificationTime = finfo.ModTime()
+		v.ModificationTime = finfo.ModTime()
 		v.Mode = finfo.Mode().String()
 	} else {
 		log.Printf("unable to get stat for %s, error", v.Filename, err)
@@ -144,7 +146,7 @@ func (v *Vault) Read() error {
 	finfo, err := os.Stat(v.Filename)
 	if err == nil {
 		v.Size = finfo.Size()
-		v.LastModificationTime = finfo.ModTime()
+		v.ModificationTime = finfo.ModTime()
 		v.Mode = finfo.Mode().String()
 	} else {
 		log.Printf("unable to get stat for %s, error", v.Filename, err)
@@ -165,7 +167,7 @@ func (v *Vault) Read() error {
 	for scanner.Scan() {
 		text := scanner.Text()
 		textData := []byte(text)
-		if v.Verbose > 0 {
+		if v.Verbose > 1 {
 			log.Printf("read record\n%v\n", textData)
 		}
 
@@ -225,6 +227,11 @@ func (v *Vault) Find(pat string) []VaultRecord {
 					log.Println("match record item namej")
 				}
 				out = append(out, rec)
+			} else if strings.ToLower(item.Name) == "login" && strings.Contains(item.Value, pat) {
+				if v.Verbose > 0 {
+					log.Println("match record login")
+				}
+				out = append(out, rec)
 			}
 		}
 	}
@@ -233,14 +240,13 @@ func (v *Vault) Find(pat string) []VaultRecord {
 
 // Info provides information about the vault
 func (v *Vault) Info() string {
-	tstamp := v.LastModificationTime.String()
+	tstamp := v.ModificationTime.String()
 	size := SizeFormat(v.Size)
 	mode := v.Mode
 	cipher := v.Cipher
 	nrec := len(v.Records)
 	info := fmt.Sprintf("vault %s\nLast modified: %s\nSize %s, mode %s\n %d records, encrypted with %s cipher", v.Filename, tstamp, size, mode, nrec, cipher)
 	if v.Verbose > 0 {
-		log.Printf("vault %+v", v)
 		log.Println(info)
 	}
 	return info
