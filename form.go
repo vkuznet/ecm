@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	tcell "github.com/gdamore/tcell/v2"
@@ -62,22 +63,16 @@ func saveForm(form *tview.Form) VaultRecord {
 }
 
 // helper function to list vault records
-func listForm(app *tview.Application, vault *Vault) {
-	list := tview.NewList()
-	for idx, rec := range vault.Records {
-		list.AddItem(rec.ID, rec.Name, rune(idx), nil)
+func listForm(list *tview.List, records []VaultRecord) *tview.List {
+	list.Clear()
+	for _, rec := range records {
+		list.AddItem(rec.Name, rec.ID, rune('-'), nil)
 	}
-	list.AddItem("Quit", "Press to exit", 'q', func() {
-		app.Stop()
-	})
-	if err := app.SetRoot(list, true).EnableMouse(true).Run(); err != nil {
-		panic(err)
-	}
+	return list
 }
 
 // helper function to present recordForm
-func recordForm(app *tview.Application, form *tview.Form, index int, vault *Vault) (*tview.Form, bool) {
-	updated := false
+func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info *tview.TextView, index int, vault *Vault) *tview.Form {
 	rec := vault.Records[index]
 	name, rurl, login, password, note := rec.Details()
 	form.Clear(true) // clear the form
@@ -99,60 +94,72 @@ func recordForm(app *tview.Application, form *tview.Form, index int, vault *Vaul
 		rec := VaultRecord{ID: uid, Name: name, Items: []VaultItem{recLogin, recPassword, recUrl}, Note: note}
 		vault.Update(rec)
 		vault.Write()
-		updated = true
+
+		// update our list and info
+		log.Println("form is updated")
+		// we should update our list view too
+		list.Clear()
+		for _, rec := range vault.Records {
+			list.AddItem(rec.Name, rec.ID, rune('-'), nil)
+		}
+		// update info bar
+		msg := fmt.Sprintf("Record %s is updated", uid)
+		info = info.SetText(msg + helpKeys())
 	})
-	form.SetBorder(true).SetTitle("Form").SetTitleAlign(tview.AlignLeft)
-	return form, updated
+	form.SetBorder(true).SetTitle("Records").SetTitleAlign(tview.AlignLeft)
+	return form
+}
+
+// helper finction to clear up and fill out find form
+func findForm(find *tview.Form, list *tview.List, info *tview.TextView, vault *Vault) *tview.Form {
+	find.Clear(true)
+	find.AddInputField("Search", "", 80, nil, nil)
+	find.AddButton("Find", func() {
+		pat := find.GetFormItemByLabel("Search").(*tview.InputField).GetText()
+		records := vault.Find(pat)
+		msg := fmt.Sprintf("found %d records", len(records))
+		if info != nil {
+			info = info.SetText(msg + helpKeys())
+		}
+		if list != nil {
+			list = listForm(list, records)
+		}
+	})
+	find.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
+	return find
 }
 
 // helper function to build our application grid view
 func gridView(app *tview.Application, vault *Vault) {
-	// add search bar
+	info := tview.NewTextView()
+	list := tview.NewList()
 	find := tview.NewForm()
-	find.AddInputField("Search", "", 80, nil, nil)
-	find.AddButton("Find", func() {
-		app.Stop()
-	})
-	find.AddButton("Quit", func() {
-		app.Stop()
-	})
-	find.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
+	form := tview.NewForm()
+
+	// add search bar
+	find = findForm(find, list, info, vault)
 
 	// set current record form view
-	form := tview.NewForm()
-	var updatedForm bool
-	form, updatedForm = recordForm(app, form, 0, vault)
+	form = recordForm(app, form, list, info, 0, vault)
+
+	// info bar
+	info.SetTextAlign(tview.AlignCenter).SetText(vault.Info())
+	info.SetBorder(true).SetTitle("Info").SetTitleAlign(tview.AlignLeft)
 
 	// set record list
-	list := tview.NewList()
 	for _, rec := range vault.Records {
 		list.AddItem(rec.Name, rec.ID, rune('-'), nil)
 	}
-	list.AddItem("Quit", "Press to exit", 'q', func() {
-		app.Stop()
-	})
 	list.SetBorder(true).SetTitle("Records")
 	list.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
 		if index < len(vault.Records) {
-			form, updatedForm = recordForm(app, form, index, vault)
-			if updatedForm {
-				// we should update our list view too
-				list.Clear()
-				for _, rec := range vault.Records {
-					list.AddItem(rec.Name, rec.ID, rune('-'), nil)
-				}
-			}
+			form = recordForm(app, form, list, info, index, vault)
 		}
 	})
-
-	// info bar
-	info := tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(vault.Info())
-	info.SetBorder(true).SetTitle("Info").SetTitleAlign(tview.AlignLeft)
 
 	// construct grid view
 	grid := tview.NewGrid()
 	grid.SetBorders(false)
-	//     grid.SetRows(4)
 
 	// Layout for screens wider than 100 cells.
 	grid.AddItem(find, 0, 0, 1, 2, 0, 0, false)
@@ -165,21 +172,13 @@ func gridView(app *tview.Application, vault *Vault) {
 	grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		key := event.Key()
 		switch key {
-		case tcell.KeyRune:
-			switch event.Rune() {
-			case 'S', 's':
-				app.SetFocus(find)
-				return event
-			case 'I', 'i':
-				app.SetFocus(info)
-				return event
-			case 'L', 'l':
-				app.SetFocus(list)
-				return event
-			case 'R', 'r':
-				app.SetFocus(form)
-				return event
-			}
+		case tcell.KeyCtrlR:
+			find = findForm(find, list, info, vault)
+			//             find.Clear(false)
+			list = listForm(list, vault.Records)
+			info.SetText(helpKeys())
+			app.SetFocus(list)
+			focusIndex = 1
 		case tcell.KeyCtrlN:
 			if focusIndex == 0 {
 				app.SetFocus(list)
@@ -204,21 +203,24 @@ func gridView(app *tview.Application, vault *Vault) {
 				focusIndex = 1
 			}
 			return event
+		case tcell.KeyCtrlE:
+			app.SetFocus(form)
+			focusIndex = 2
+			return event
+		case tcell.KeyCtrlL:
+			app.SetFocus(list)
+			focusIndex = 1
+			return event
+		case tcell.KeyCtrlF:
+			app.SetFocus(find)
+			focusIndex = 0
+			return event
 		case tcell.KeyHome:
 			app.SetFocus(list)
 			return event
-			//         case tcell.KeyLeft:
-			//             app.SetFocus(tags)
-			//             log.Println("left key")
-			//             return event
-			//         case tcell.KeyRight:
-			//             app.SetFocus(form)
-			//             log.Println("right key")
-			//             return event
 		}
 		return event
 	})
-	//     if err := tview.NewApplication().SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
 	if err := app.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
