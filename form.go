@@ -8,6 +8,21 @@ import (
 	"github.com/rivo/tview"
 )
 
+// helper function to make secret prompt
+func lockView(app *tview.Application, verbose int) string {
+	//     defer app.Stop()
+	form := tview.NewForm()
+	form.AddPasswordField("Password", "", 50, '*', nil)
+	if err := app.SetRoot(form, true).EnableMouse(true).Run(); err != nil {
+		panic(err)
+	}
+	password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
+	if verbose > 0 {
+		log.Printf("vault secret '%s'", password)
+	}
+	return password
+}
+
 // helper function to provide input form, returns vault record
 func inputForm(app *tview.Application) VaultRecord {
 	var vrec VaultRecord
@@ -47,9 +62,9 @@ func saveForm(form *tview.Form) VaultRecord {
 }
 
 // helper function to list vault records
-func listForm(app *tview.Application, records []VaultRecord) {
+func listForm(app *tview.Application, vault *Vault) {
 	list := tview.NewList()
-	for idx, rec := range records {
+	for idx, rec := range vault.Records {
 		list.AddItem(rec.ID, rec.Name, rune(idx), nil)
 	}
 	list.AddItem("Quit", "Press to exit", 'q', func() {
@@ -60,7 +75,36 @@ func listForm(app *tview.Application, records []VaultRecord) {
 	}
 }
 
-func gridView(app *tview.Application, records []VaultRecord) {
+// helper function to present recordForm
+func recordForm(app *tview.Application, form *tview.Form, index int, vault *Vault) *tview.Form {
+	rec := vault.Records[index]
+	name, rurl, login, password, note := rec.Details()
+	form.Clear(true) // clear the form
+	form.AddInputField("Name", name, 100, nil, nil)
+	form.AddInputField("Login", login, 100, nil, nil)
+	form.AddPasswordField("Password", password, 100, '*', nil)
+	form.AddInputField("URL", rurl, 100, nil, nil)
+	form.AddInputField("Note", note, 100, nil, nil)
+	form.AddButton("Save", func() {
+		uid := rec.ID
+		name := form.GetFormItemByLabel("Name").(*tview.InputField).GetText()
+		rurl := form.GetFormItemByLabel("URL").(*tview.InputField).GetText()
+		username := form.GetFormItemByLabel("Login").(*tview.InputField).GetText()
+		password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
+		note := form.GetFormItemByLabel("Note").(*tview.InputField).GetText()
+		recLogin := VaultItem{Name: "login", Value: username}
+		recPassword := VaultItem{Name: "password", Value: password}
+		recUrl := VaultItem{Name: "url", Value: rurl}
+		rec := VaultRecord{ID: uid, Name: name, Items: []VaultItem{recLogin, recPassword, recUrl}, Note: note}
+		vault.Update(rec)
+		vault.Write()
+	})
+	form.SetBorder(true).SetTitle("Form").SetTitleAlign(tview.AlignLeft)
+	return form
+}
+
+// helper function to build our application grid view
+func gridView(app *tview.Application, vault *Vault) {
 	// add search bar
 	find := tview.NewForm()
 	find.AddInputField("Search", "", 80, nil, nil)
@@ -72,39 +116,27 @@ func gridView(app *tview.Application, records []VaultRecord) {
 	})
 	find.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
 
+	// set current record form view
+	form := tview.NewForm()
+	form = recordForm(app, form, 0, vault)
+
 	// set main record list
 	main := tview.NewList()
-	for _, rec := range records {
+	for _, rec := range vault.Records {
 		main.AddItem(rec.Name, rec.ID, rune('-'), nil)
 	}
 	main.AddItem("Quit", "Press to exit", 'q', func() {
 		app.Stop()
 	})
 	main.SetBorder(true).SetTitle("Records")
-
-	// set current record form view
-	rec := records[0]
-	name, rurl, login, password, note := rec.Details()
-	form := tview.NewForm()
-	form.AddInputField("Name", name, 100, nil, nil)
-	form.AddInputField("Login", login, 100, nil, nil)
-	form.AddPasswordField("Password", password, 100, '*', nil)
-	form.AddInputField("URL", rurl, 100, nil, nil)
-	form.AddInputField("Note", note, 100, nil, nil)
-	form.AddButton("Save", func() {
-		vrec := saveForm(form)
-		log.Println("saved record", vrec)
-		// TODO: update our records
+	main.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
+		if index < len(vault.Records) {
+			form = recordForm(app, form, index, vault)
+		}
 	})
-	form.AddButton("Quit", func() {
-		app.Stop()
-	})
-	form.SetBorder(true).SetTitle("Form").SetTitleAlign(tview.AlignLeft)
 
 	// construct grid view
 	grid := tview.NewGrid()
-	//     grid.SetRows(2)
-	//     grid.SetColumns(30, 70)
 	grid.SetBorders(false)
 
 	// Layout for screens wider than 100 cells.

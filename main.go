@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"time"
 
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rivo/tview"
 )
 
@@ -22,8 +23,8 @@ func info() string {
 }
 
 func main() {
-	var vault string
-	flag.StringVar(&vault, "vault", "", "vault name")
+	var fname string
+	flag.StringVar(&fname, "vault", "", "vault file name")
 	var add bool
 	flag.BoolVar(&add, "add", false, "add new record")
 	var pat string
@@ -48,10 +49,21 @@ func main() {
 		log.SetFlags(log.LstdFlags)
 	}
 
+	// setup logger
+	logFile := "/tmp/pwm.log"
+	log.SetOutput(new(LogWriter))
+	if logFile != "" {
+		rl, err := rotatelogs.New(logFile + "-%Y%m%d")
+		if err == nil {
+			rotlogs := RotateLogWriter{RotateLogs: rl}
+			log.SetOutput(rotlogs)
+		}
+	}
+
 	// determine vault location and if it is not provided or does not exists
 	// creat $HOME/.pwm area and assign new vault file there
-	_, err := os.Stat(vault)
-	if vault == "" || os.IsNotExist(err) {
+	_, err := os.Stat(fname)
+	if fname == "" || os.IsNotExist(err) {
 		udir, err := os.UserHomeDir()
 		if err != nil {
 			log.Fatal(err)
@@ -64,7 +76,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		vault = fmt.Sprintf("%s/vault.aes", vdir)
+		fname = fmt.Sprintf("%s/vault.aes", vdir)
 	}
 
 	// get vault secret
@@ -72,12 +84,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//     salt2 := lockView(tview.NewApplication(), verbose)
+	//     if salt != salt2 {
+	//         log.Fatal("password does not match", salt, " --- vs --- ", salt2)
+	//     }
 
 	// get vault records
-	records, err := read(vault, salt, cipher, verbose)
+	records, err := read(fname, salt, cipher, verbose)
 	if err != nil {
 		log.Fatal("unable to read vault, error ", err)
 	}
+	// initialize our vault
+	vault := Vault{Filename: fname, Records: records, Cipher: cipher, Secret: salt, Verbose: verbose}
 
 	// perform vault operation
 	if add {
@@ -85,18 +103,13 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		newRecords := update(rec, records, verbose)
-		write(vault, salt, cipher, newRecords, verbose)
-		//         return
+		vault.Update(rec)
+		vault.Write()
 	}
 
-	records, err = read(vault, salt, cipher, verbose)
-	if err != nil {
-		log.Fatal("unable to read vault, error ", err)
-	}
 	app := tview.NewApplication()
 	//     listForm(app, records)
-	gridView(app, records)
+	gridView(app, &vault)
 
 	//     find(vault, salt, cipher, pat, verbose)
 }

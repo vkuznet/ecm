@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 )
 
@@ -46,4 +49,62 @@ func (r *VaultRecord) Details() (string, string, string, string, string) {
 		}
 	}
 	return name, rurl, login, password, note
+}
+
+// Vault represent our vault
+type Vault struct {
+	Filename string
+	Cipher   string
+	Secret   string
+	Verbose  int
+	Records  []VaultRecord
+}
+
+// Update vault records
+func (v *Vault) Update(rec VaultRecord) {
+	for i, r := range v.Records {
+		if r.ID == rec.ID {
+			if v.Verbose > 0 {
+				log.Printf("update record %+v", rec)
+			}
+			v.Records[i] = rec
+		}
+	}
+}
+
+// Write vault records
+func (v *Vault) Write() {
+	// make backup vault first
+	backup(v.Filename)
+
+	file, err := os.Create(v.Filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w := bufio.NewWriter(file)
+	for _, rec := range v.Records {
+		// marshall single record
+		data, err := json.Marshal(rec)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// encrypt our record
+		if v.Verbose > 0 {
+			log.Printf("record '%s'\n", string(data))
+		}
+		edata := data
+		if v.Cipher != "" {
+			edata, err = encrypt(data, v.Secret, v.Cipher)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		if v.Verbose > 1 {
+			log.Printf("write data record\n%v\nsecret '%v'", edata, v.Secret)
+		}
+		w.Write(edata)
+		w.Write([]byte("---\n"))
+		w.Flush()
+	}
 }

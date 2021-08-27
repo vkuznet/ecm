@@ -87,60 +87,6 @@ func inputOld(verbose int) (VaultRecord, error) {
 	return rec, nil
 }
 
-// update given records in our vault
-func update(rec VaultRecord, records []VaultRecord, verbose int) []VaultRecord {
-	// TODO: so far we add record to the list of records
-	// but I need to implement searhc for that record and if there is one
-	// we need to update it in place
-
-	// add record to the final list of records
-	records = append(records, rec)
-	return records
-}
-
-// helper function to write vault record
-func write(vault, secret, cipher string, records []VaultRecord, verbose int) {
-	// make backup vault first
-	backup(vault)
-
-	file, err := os.Create(vault)
-	if err != nil {
-		log.Fatal(err)
-	}
-	w := bufio.NewWriter(file)
-	for _, rec := range records {
-		// marshall single record
-		data, err := json.Marshal(rec)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// encrypt our record
-		if verbose > 0 {
-			log.Printf("record '%s' secret '%s'\n", string(data), secret)
-		}
-		edata := data
-		if cipher != "" {
-			edata, err = encrypt(data, secret, cipher)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-		if verbose > 1 {
-			log.Printf("write data record\n%v\nsecret %v", edata, secret)
-		}
-		w.Write(edata)
-		w.Write([]byte("---\n"))
-		w.Flush()
-	}
-
-	// write our records back to vault
-	//     err = ioutil.WriteFile(vault, records, 0777)
-	//     if err != nil {
-	//         log.Fatalf("Unable to write, file: %s, error: %v\n", vault, err)
-	//     }
-}
-
 // helper function to read vault and return list of records
 func read(vault, secret, cipher string, verbose int) ([]VaultRecord, error) {
 	var records []VaultRecord
@@ -164,12 +110,9 @@ func read(vault, secret, cipher string, verbose int) ([]VaultRecord, error) {
 	scanner.Split(pwmSplitFunc)
 	for scanner.Scan() {
 		text := scanner.Text()
-		//         if verbose > 0 {
-		//             log.Printf("read '%v'", text)
-		//         }
 		textData := []byte(text)
 		if verbose > 0 {
-			log.Printf("read record\n%v\nsecret %v", textData, secret)
+			log.Printf("read record\n%v\n", textData)
 		}
 
 		data := textData
