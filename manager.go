@@ -22,7 +22,7 @@ func secret(verbose int) (string, error) {
 	}
 	salt := strings.Replace(string(bytes), "\n", "", -1)
 	fmt.Println()
-	if verbose > 0 {
+	if verbose > 5 {
 		log.Printf("vault secret '%s'", salt)
 	}
 	return salt, nil
