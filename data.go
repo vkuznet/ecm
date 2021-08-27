@@ -236,7 +236,9 @@ func (v *Vault) Info() string {
 	tstamp := v.LastModificationTime.String()
 	size := SizeFormat(v.Size)
 	mode := v.Mode
-	info := fmt.Sprintf("vault %s\nLast modified: %s\nSize %s, mode %s", v.Filename, tstamp, size, mode)
+	cipher := v.Cipher
+	nrec := len(v.Records)
+	info := fmt.Sprintf("vault %s\nLast modified: %s\nSize %s, mode %s\n %d records, encrypted with %s cipher", v.Filename, tstamp, size, mode, nrec, cipher)
 	if v.Verbose > 0 {
 		log.Printf("vault %+v", v)
 		log.Println(info)
