@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -10,7 +8,6 @@ import (
 	"syscall"
 	"text/tabwriter"
 
-	"github.com/google/uuid"
 	"github.com/rivo/tview"
 	"golang.org/x/term"
 )
@@ -36,117 +33,6 @@ func input(verbose int) (VaultRecord, error) {
 	app := tview.NewApplication()
 	rec := inputForm(app)
 	return rec, nil
-}
-
-// helper function to get user input
-func inputOld(verbose int) (VaultRecord, error) {
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Print("\nEnter record name: ")
-	name, err := reader.ReadString('\n')
-	if err != nil {
-		return VaultRecord{}, err
-	}
-	name = strings.Replace(name, "\n", " ", -1)
-
-	fmt.Print("\nEnter Username: ")
-	username, err := reader.ReadString('\n')
-	if err != nil {
-		return VaultRecord{}, err
-	}
-	username = strings.Replace(username, "\n", "", -1)
-
-	fmt.Print("Enter Password: ")
-	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return VaultRecord{}, err
-	}
-	password := string(bytePassword)
-	password = strings.Replace(password, "\n", "", -1)
-
-	fmt.Print("\nEnter URL: ")
-	rurl, err := reader.ReadString('\n')
-	if err != nil {
-		return VaultRecord{}, err
-	}
-	rurl = strings.Replace(rurl, "\n", " ", -1)
-
-	fmt.Print("\nEnter note: ")
-	note, err := reader.ReadString('\n')
-	if err != nil {
-		return VaultRecord{}, err
-	}
-	note = strings.Replace(note, "\n", " ", -1)
-
-	// replace with input for data record
-	recLogin := VaultItem{Name: "login", Value: username}
-	recPassword := VaultItem{Name: "password", Value: password}
-	recUrl := VaultItem{Name: "url", Value: rurl}
-	uid := uuid.NewString()
-	rec := VaultRecord{ID: uid, Name: name, Items: []VaultItem{recLogin, recPassword, recUrl}, Note: note}
-	return rec, nil
-}
-
-// helper function to read vault and return list of records
-func read(vault, secret, cipher string, verbose int) ([]VaultRecord, error) {
-	var records []VaultRecord
-
-	// check first if file exsist
-	if _, err := os.Stat(vault); os.IsNotExist(err) {
-		return records, nil
-	}
-
-	// open file
-	file, err := os.Open(vault)
-	if err != nil {
-		log.Println("unable to open a vault", err)
-		return records, err
-	}
-	// remember to close the file at the end of the program
-	defer file.Close()
-
-	// read the file line by line using scanner
-	scanner := bufio.NewScanner(file)
-	scanner.Split(pwmSplitFunc)
-	for scanner.Scan() {
-		text := scanner.Text()
-		textData := []byte(text)
-		if verbose > 0 {
-			log.Printf("read record\n%v\n", textData)
-		}
-
-		data := textData
-		if cipher != "" {
-			data, err = decrypt(textData, secret, cipher)
-			if err != nil {
-				log.Printf("unable to decrypt data\n%v\nerror %v", textData, err)
-				return records, err
-			}
-		}
-
-		var rec VaultRecord
-		err = json.Unmarshal(data, &rec)
-		if err != nil {
-			log.Println("ERROR: unable to unmarshal the data", err)
-			return records, err
-		}
-		records = append(records, rec)
-	}
-	return records, nil
-}
-
-// helper function to find given pattern in vault records
-func find(vault, secret, cipher, pat string, verbose int) {
-	records, err := read(vault, secret, cipher, verbose)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, rec := range records {
-		if verbose > 0 {
-			fmt.Printf("json record %+v", rec)
-		}
-		printRecord(rec)
-	}
 }
 
 // helper function to print the record

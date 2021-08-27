@@ -76,7 +76,8 @@ func listForm(app *tview.Application, vault *Vault) {
 }
 
 // helper function to present recordForm
-func recordForm(app *tview.Application, form *tview.Form, index int, vault *Vault) *tview.Form {
+func recordForm(app *tview.Application, form *tview.Form, index int, vault *Vault) (*tview.Form, bool) {
+	updated := false
 	rec := vault.Records[index]
 	name, rurl, login, password, note := rec.Details()
 	form.Clear(true) // clear the form
@@ -98,9 +99,10 @@ func recordForm(app *tview.Application, form *tview.Form, index int, vault *Vaul
 		rec := VaultRecord{ID: uid, Name: name, Items: []VaultItem{recLogin, recPassword, recUrl}, Note: note}
 		vault.Update(rec)
 		vault.Write()
+		updated = true
 	})
 	form.SetBorder(true).SetTitle("Form").SetTitleAlign(tview.AlignLeft)
-	return form
+	return form, updated
 }
 
 // helper function to build our application grid view
@@ -118,52 +120,69 @@ func gridView(app *tview.Application, vault *Vault) {
 
 	// set current record form view
 	form := tview.NewForm()
-	form = recordForm(app, form, 0, vault)
+	var updatedForm bool
+	form, updatedForm = recordForm(app, form, 0, vault)
 
-	// set main record list
-	main := tview.NewList()
+	// set record list
+	list := tview.NewList()
 	for _, rec := range vault.Records {
-		main.AddItem(rec.Name, rec.ID, rune('-'), nil)
+		list.AddItem(rec.Name, rec.ID, rune('-'), nil)
 	}
-	main.AddItem("Quit", "Press to exit", 'q', func() {
+	list.AddItem("Quit", "Press to exit", 'q', func() {
 		app.Stop()
 	})
-	main.SetBorder(true).SetTitle("Records")
-	main.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
+	list.SetBorder(true).SetTitle("Records")
+	list.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
 		if index < len(vault.Records) {
-			form = recordForm(app, form, index, vault)
+			form, updatedForm = recordForm(app, form, index, vault)
+			if updatedForm {
+				// we should update our list view too
+				list.Clear()
+				for _, rec := range vault.Records {
+					list.AddItem(rec.Name, rec.ID, rune('-'), nil)
+				}
+			}
 		}
 	})
+
+	// info bar
+	info := tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(vault.Info())
+	info.SetBorder(true).SetTitle("Info").SetTitleAlign(tview.AlignLeft)
 
 	// construct grid view
 	grid := tview.NewGrid()
 	grid.SetBorders(false)
+	//     grid.SetRows(4)
 
 	// Layout for screens wider than 100 cells.
-	grid.AddItem(find, 0, 0, 1, 2, 20, 100, false)
-	grid.AddItem(main, 1, 0, 3, 1, 0, 100, true) // default focus, index 1
-	grid.AddItem(form, 1, 1, 3, 1, 0, 100, false)
+	grid.AddItem(find, 0, 0, 1, 2, 0, 0, false)
+	grid.AddItem(list, 1, 0, 2, 1, 0, 0, true) // default focus, index 1
+	grid.AddItem(form, 1, 1, 2, 1, 0, 0, false)
+	grid.AddItem(info, 3, 0, 1, 2, 0, 0, false)
 
 	focusIndex := 1 // defaul focus index
 
 	grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		key := event.Key()
 		switch key {
-		//         case tcell.KeyRune:
-		//             switch event.Rune() {
-		//             case 'T', 't':
-		//                 app.SetFocus(tags)
-		//                 return event
-		//             case 'F', 'f':
-		//                 app.SetFocus(form)
-		//                 return event
-		//             case 'M', 'm':
-		//                 app.SetFocus(main)
-		//                 return event
-		//             }
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'S', 's':
+				app.SetFocus(find)
+				return event
+			case 'I', 'i':
+				app.SetFocus(info)
+				return event
+			case 'L', 'l':
+				app.SetFocus(list)
+				return event
+			case 'R', 'r':
+				app.SetFocus(form)
+				return event
+			}
 		case tcell.KeyCtrlN:
 			if focusIndex == 0 {
-				app.SetFocus(main)
+				app.SetFocus(list)
 				focusIndex = 1
 			} else if focusIndex == 1 {
 				app.SetFocus(form)
@@ -181,12 +200,12 @@ func gridView(app *tview.Application, vault *Vault) {
 				app.SetFocus(find)
 				focusIndex = 0
 			} else if focusIndex == 2 {
-				app.SetFocus(main)
+				app.SetFocus(list)
 				focusIndex = 1
 			}
 			return event
 		case tcell.KeyHome:
-			app.SetFocus(main)
+			app.SetFocus(list)
 			return event
 			//         case tcell.KeyLeft:
 			//             app.SetFocus(tags)

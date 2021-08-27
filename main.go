@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -60,9 +61,16 @@ func main() {
 		}
 	}
 
+	// check if fname is relative and construct proper full path
+	abs, err := filepath.Abs(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fname = abs
+
 	// determine vault location and if it is not provided or does not exists
 	// creat $HOME/.pwm area and assign new vault file there
-	_, err := os.Stat(fname)
+	_, err = os.Stat(fname)
 	if fname == "" || os.IsNotExist(err) {
 		udir, err := os.UserHomeDir()
 		if err != nil {
@@ -89,13 +97,12 @@ func main() {
 	//         log.Fatal("password does not match", salt, " --- vs --- ", salt2)
 	//     }
 
-	// get vault records
-	records, err := read(fname, salt, cipher, verbose)
+	// initialize our vault
+	vault := Vault{Filename: fname, Cipher: cipher, Secret: salt, Verbose: verbose}
+	err = vault.Read()
 	if err != nil {
 		log.Fatal("unable to read vault, error ", err)
 	}
-	// initialize our vault
-	vault := Vault{Filename: fname, Records: records, Cipher: cipher, Secret: salt, Verbose: verbose}
 
 	// perform vault operation
 	if add {
