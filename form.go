@@ -104,7 +104,7 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 		}
 		// update info bar
 		msg := fmt.Sprintf("Record %s is updated", uid)
-		info = info.SetText(msg + helpKeys())
+		info = info.SetText(msg + helpKey())
 	})
 	form.SetBorder(true).SetTitle("Records").SetTitleAlign(tview.AlignLeft)
 	return form
@@ -119,7 +119,7 @@ func findForm(find *tview.Form, list *tview.List, info *tview.TextView, vault *V
 		records := vault.Find(pat)
 		msg := fmt.Sprintf("found %d records", len(records))
 		if info != nil {
-			info = info.SetText(msg + helpKeys())
+			info = info.SetText(msg + helpKey())
 		}
 		if list != nil {
 			list = listForm(list, records)
@@ -143,7 +143,7 @@ func gridView(app *tview.Application, vault *Vault) {
 	form = recordForm(app, form, list, info, 0, vault)
 
 	// info bar
-	info.SetTextAlign(tview.AlignCenter).SetText(vault.Info())
+	info.SetTextAlign(tview.AlignCenter).SetText(vault.Info() + helpKey())
 	info.SetBorder(true).SetTitle("Info").SetTitleAlign(tview.AlignLeft)
 
 	// set record list
@@ -174,9 +174,8 @@ func gridView(app *tview.Application, vault *Vault) {
 		switch key {
 		case tcell.KeyCtrlR:
 			find = findForm(find, list, info, vault)
-			//             find.Clear(false)
 			list = listForm(list, vault.Records)
-			info.SetText(helpKeys())
+			info.SetText(helpKey())
 			app.SetFocus(list)
 			focusIndex = 1
 		case tcell.KeyCtrlN:
@@ -214,6 +213,11 @@ func gridView(app *tview.Application, vault *Vault) {
 		case tcell.KeyCtrlF:
 			app.SetFocus(find)
 			focusIndex = 0
+			return event
+		case tcell.KeyCtrlH:
+			app.SetFocus(list)
+			focusIndex = 0
+			info.SetText(helpKeys())
 			return event
 		case tcell.KeyHome:
 			app.SetFocus(list)

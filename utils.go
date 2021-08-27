@@ -110,6 +110,11 @@ func SizeFormat(val interface{}) string {
 	return fmt.Sprintf("%v (%3.1f%s)", val, size, xlist[len(xlist)])
 }
 
+// helper function to make message about help key
+func helpKey() string {
+	return "\nfor help prese Ctrl-H"
+}
+
 // helper function to return common keys
 func helpKeys() string {
 	info := "\nCommon keys:"
