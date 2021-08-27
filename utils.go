@@ -109,3 +109,15 @@ func SizeFormat(val interface{}) string {
 	}
 	return fmt.Sprintf("%v (%3.1f%s)", val, size, xlist[len(xlist)])
 }
+
+// helper function to return common keys
+func helpKeys() string {
+	info := "\nCommon keys:"
+	info = fmt.Sprintf("%s\nCtrl-F switch to Search", info)
+	info = fmt.Sprintf("%s\nCtrl-L switch to Records", info)
+	info = fmt.Sprintf("%s\nCtrl-E switch to record edit mode", info)
+	info = fmt.Sprintf("%s\nCtrl-C quit the app", info)
+	info = fmt.Sprintf("%s\nCtrl-N next widget", info)
+	info = fmt.Sprintf("%s\nCtrl-P previous widget", info)
+	return info
+}
