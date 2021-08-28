@@ -30,8 +30,6 @@ func main() {
 	flag.BoolVar(&add, "add", false, "add new record")
 	var pat string
 	flag.StringVar(&pat, "find", "", "find record pattern")
-	var cipher string
-	flag.StringVar(&cipher, "cipher", "aes", "cipher algorithm AES, NaCI")
 	var version bool
 	flag.BoolVar(&version, "version", false, "Show version")
 	var verbose int
@@ -104,7 +102,7 @@ func main() {
 	//     }
 
 	// initialize our vault
-	vault := Vault{Filename: fname, Cipher: cipher, Secret: salt, Verbose: verbose}
+	vault := Vault{Filename: fname, Cipher: Config.Cipher, Secret: salt, Verbose: verbose}
 	err = vault.Read()
 	if err != nil {
 		log.Fatal("unable to read vault, error ", err)
