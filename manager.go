@@ -52,7 +52,7 @@ func printRecord(rec VaultRecord) {
 	fmt.Fprintf(w, "Records:\n")
 	for _, r := range rec.Items {
 		fmt.Fprintf(w, "%s\t\t%s\n", r.Name, r.Value)
-		fmt.Fprintf(w, "---\n")
+		fmt.Fprintf(w, separator)
 	}
 	fmt.Fprintf(w, "\n")
 }

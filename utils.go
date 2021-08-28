@@ -10,16 +10,19 @@ import (
 	"time"
 )
 
-// custom split function based on '---\n' delimiter
+const (
+	separator = `---\n` // used in pwm data format
+)
+
+// custom split function based on separator delimiter
 func pwmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
 
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil
 	}
 
-	if i := strings.Index(string(data), "---\n"); i >= 0 {
-		return i + len("---\n"), data[0:i], nil
-		//         return i + 1, data[0:i], nil
+	if i := strings.Index(string(data), separator); i >= 0 {
+		return i + len(separator), data[0:i], nil
 	}
 
 	if atEOF {

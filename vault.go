@@ -114,7 +114,7 @@ func (v *Vault) Write() {
 			log.Printf("write data record\n%v\nsecret '%v'", edata, v.Secret)
 		}
 		w.Write(edata)
-		w.Write([]byte("---\n"))
+		w.Write([]byte(separator))
 		w.Flush()
 	}
 	finfo, err := os.Stat(v.Filename)
