@@ -219,6 +219,16 @@ func gridView(app *tview.Application, vault *Vault) {
 			focusIndex = 0
 			info.SetText(helpKeys())
 			return event
+		case tcell.KeyCtrlG:
+			password := createPassword(24, true, true)
+			info.SetText(password)
+			return event
+		case tcell.KeyCtrlC:
+			copyPassword()
+			return event
+		case tcell.KeyCtrlQ:
+			app.Stop()
+			return event
 		case tcell.KeyHome:
 			app.SetFocus(list)
 			return event

@@ -43,6 +43,13 @@ func main() {
 
 	}
 
+	// parse input config
+	configFile := fmt.Sprintf("%s/config.json", pwmHome())
+	err := ParseConfig(configFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// log time, filename, and line number
 	if verbose > 0 {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -51,10 +58,9 @@ func main() {
 	}
 
 	// setup logger
-	logFile := "/tmp/pwm.log"
 	log.SetOutput(new(LogWriter))
-	if logFile != "" {
-		rl, err := rotatelogs.New(logFile + "-%Y%m%d")
+	if Config.LogFile != "" {
+		rl, err := rotatelogs.New(Config.LogFile + "-%Y%m%d")
 		if err == nil {
 			rotlogs := RotateLogWriter{RotateLogs: rl}
 			log.SetOutput(rotlogs)

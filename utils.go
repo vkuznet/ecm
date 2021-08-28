@@ -11,8 +11,22 @@ import (
 )
 
 const (
-	separator = `---\n` // used in pwm data format
+	separator = "---\n" // used in pwm data format
 )
+
+// helper function to determine home area for PWM
+func pwmHome() string {
+	var err error
+	hdir := os.Getenv("PWM_HOME")
+	if hdir == "" {
+		hdir, err = os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		hdir = fmt.Sprintf("%s/.pwm", hdir)
+	}
+	return hdir
+}
 
 // custom split function based on separator delimiter
 func pwmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -121,11 +135,13 @@ func helpKey() string {
 // helper function to return common keys
 func helpKeys() string {
 	info := "\nCommon keys:"
-	info = fmt.Sprintf("%s\nCtrl-F switch to Search", info)
-	info = fmt.Sprintf("%s\nCtrl-L switch to Records", info)
-	info = fmt.Sprintf("%s\nCtrl-E switch to record edit mode", info)
-	info = fmt.Sprintf("%s\nCtrl-C quit the app", info)
-	info = fmt.Sprintf("%s\nCtrl-N next widget", info)
-	info = fmt.Sprintf("%s\nCtrl-P previous widget", info)
+	info = fmt.Sprintf("%s, Ctrl-F switch to Search", info)
+	info = fmt.Sprintf("%s, Ctrl-L switch to Records", info)
+	info = fmt.Sprintf("%s, Ctrl-E switch to record edit mode", info)
+	info = fmt.Sprintf("%s, Ctrl-N next widget", info)
+	info = fmt.Sprintf("%s, Ctrl-P previous widget", info)
+	info = fmt.Sprintf("%s, Ctrl-G generate password", info)
+	info = fmt.Sprintf("%s, Ctrl-C copy password to clipboard", info)
+	info = fmt.Sprintf("%s, Ctrl-Q quit the app", info)
 	return info
 }
