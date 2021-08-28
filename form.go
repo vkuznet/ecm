@@ -73,8 +73,12 @@ func listForm(list *tview.List, records []VaultRecord) *tview.List {
 
 // helper function to present recordForm
 func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info *tview.TextView, index int, vault *Vault) *tview.Form {
-	rec := vault.Records[index]
-	name, rurl, login, password, note := rec.Details()
+	var name, rurl, login, password, note string
+	var rec VaultRecord
+	if len(vault.Records) > index {
+		rec = vault.Records[index]
+		name, rurl, login, password, note = rec.Details()
+	}
 	form.Clear(true) // clear the form
 	form.AddInputField("Name", name, 100, nil, nil)
 	form.AddInputField("Login", login, 100, nil, nil)
