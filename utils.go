@@ -129,19 +129,22 @@ func SizeFormat(val interface{}) string {
 
 // helper function to make message about help key
 func helpKey() string {
-	return "\nfor help prese Ctrl-H"
+	return "\n[green]for help prese [red]Ctrl-H[white]"
 }
 
 // helper function to return common keys
 func helpKeys() string {
-	info := "\nCommon keys:"
-	info = fmt.Sprintf("%s, Ctrl-F switch to Search", info)
-	info = fmt.Sprintf("%s, Ctrl-L switch to Records", info)
-	info = fmt.Sprintf("%s, Ctrl-E switch to record edit mode", info)
-	info = fmt.Sprintf("%s, Ctrl-N next widget", info)
-	info = fmt.Sprintf("%s, Ctrl-P previous widget", info)
-	info = fmt.Sprintf("%s, Ctrl-G generate password", info)
-	info = fmt.Sprintf("%s, Ctrl-C copy password to clipboard", info)
-	info = fmt.Sprintf("%s, Ctrl-Q quit the app", info)
+	info := "\nCommon keys:\n"
+	info = fmt.Sprintf("%s, [red]Ctrl-N[white] next widget", info)
+	info = fmt.Sprintf("%s, [red]Ctrl-P[white] previous widget", info)
+	info = fmt.Sprintf("%s\n", info)
+	info = fmt.Sprintf("%s, [red]Ctrl-F[white] switch to Search", info)
+	info = fmt.Sprintf("%s, [red]Ctrl-L[white] switch to Records", info)
+	info = fmt.Sprintf("%s, [red]Ctrl-E[white] record edit mode", info)
+	info = fmt.Sprintf("%s\n", info)
+	info = fmt.Sprintf("%s, [red]Ctrl-G[white] generate password", info)
+	info = fmt.Sprintf("%s, [red]Ctrl-C[white] copy password to clipboard", info)
+	info = fmt.Sprintf("%s\n", info)
+	info = fmt.Sprintf("%s, [red]Ctrl-Q[white] Exit", info)
 	return info
 }
