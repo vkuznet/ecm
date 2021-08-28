@@ -245,7 +245,7 @@ func (v *Vault) Info() string {
 	mode := v.Mode
 	cipher := v.Cipher
 	nrec := len(v.Records)
-	info := fmt.Sprintf("vault %s\nLast modified: %s\nSize %s, mode %s\n %d records, encrypted with %s cipher", v.Filename, tstamp, size, mode, nrec, cipher)
+	info := fmt.Sprintf("vault %s\nLast modified: %s\nSize %s, mode %s\n%d records, encrypted with %s cipher", v.Filename, tstamp, size, mode, nrec, cipher)
 	if v.Verbose > 0 {
 		log.Println(info)
 	}
