@@ -132,7 +132,11 @@ func (v *Vault) Read() error {
 
 	// check first if file exsist
 	if _, err := os.Stat(v.Filename); os.IsNotExist(err) {
-		log.Println("vault %s does not exists", v.Filename)
+		log.Printf("vault %s does not exists, will create one", v.Filename)
+		file, err := os.Create(v.Filename)
+		if err != nil {
+			log.Fatal(err)
+		}
 		return err
 	}
 
