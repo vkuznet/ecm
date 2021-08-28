@@ -144,7 +144,10 @@ func gridView(app *tview.Application, vault *Vault) {
 
 	// info bar
 	info.SetTextAlign(tview.AlignCenter).SetText(vault.Info() + helpKey())
-	info.SetBorder(true).SetTitle("Info").SetTitleAlign(tview.AlignLeft)
+	info.SetDynamicColors(true)
+	info.SetBorder(true).SetTitle("Info")
+	info.SetTextAlign(tview.AlignLeft)
+	info.SetTitleAlign(tview.AlignLeft)
 
 	// set record list
 	for _, rec := range vault.Records {
