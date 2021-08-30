@@ -13,8 +13,16 @@ import (
 )
 
 // helper function to read vault secret from stdin
+func secret_tview(verbose int) (string, error) {
+	app := tview.NewApplication()
+	salt, err := lockView(app, verbose)
+	app.Stop()
+	return salt, err
+}
+
+// helper function to read vault secret from stdin
 func secret(verbose int) (string, error) {
-	fmt.Print("Enter vault secret: ")
+	fmt.Print("\n\tEnter vault secret: ")
 	bytes, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		log.Println("unable to read stdin, error ", err)
@@ -45,14 +53,8 @@ func printRecord(rec VaultRecord) {
 
 	defer w.Flush()
 	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "Name\t%s\n", rec.Name)
-	fmt.Fprintf(w, "URL\t%s\n", rec.URL)
-	fmt.Fprintf(w, "Tags\t%s\n", strings.Join(rec.Tags, ","))
-	fmt.Fprintf(w, "Note\t%s\n", rec.Note)
-	fmt.Fprintf(w, "Records:\n")
-	for _, r := range rec.Items {
-		fmt.Fprintf(w, "%s\t\t%s\n", r.Name, r.Value)
-		fmt.Fprintf(w, separator)
+	for key, val := range rec.Map {
+		fmt.Fprintf(w, "%s\t%s\n", key, val)
 	}
 	fmt.Fprintf(w, "\n")
 }

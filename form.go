@@ -3,36 +3,34 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
+	"time"
 
 	tcell "github.com/gdamore/tcell/v2"
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
 	"github.com/rivo/tview"
 )
 
 // helper function to make secret prompt
-func lockView(app *tview.Application, verbose int) string {
-	//     defer app.Stop()
+func lockView(app *tview.Application, verbose int) (string, error) {
 	form := tview.NewForm()
 	form.AddPasswordField("Password", "", 50, '*', nil)
 	if err := app.SetRoot(form, true).EnableMouse(true).Run(); err != nil {
-		panic(err)
+		return "", err
 	}
 	password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
-	if verbose > 0 {
-		log.Printf("vault secret '%s'", password)
-	}
-	return password
+	return password, nil
 }
 
 // helper function to provide input form, returns vault record
 func inputForm(app *tview.Application) VaultRecord {
 	var vrec VaultRecord
 	form := tview.NewForm()
-	form.AddInputField("Name", "", 20, nil, nil)
-	form.AddInputField("Login", "", 20, nil, nil)
-	form.AddPasswordField("Password", "", 10, '*', nil)
+	form.AddInputField("Name", "", 100, nil, nil)
+	form.AddInputField("Login", "", 100, nil, nil)
+	form.AddPasswordField("Password", "", 100, '*', nil)
 	form.AddInputField("URL", "", 100, nil, nil)
-	form.AddInputField("Note", "", 20, nil, nil)
+	form.AddInputField("Note", "", 10, nil, nil)
 	form.AddButton("Save", func() {
 		vrec = saveForm(form)
 		app.Stop()
@@ -40,7 +38,7 @@ func inputForm(app *tview.Application) VaultRecord {
 	form.AddButton("Quit", func() {
 		app.Stop()
 	})
-	form.SetBorder(true).SetTitle("Form").SetTitleAlign(tview.AlignLeft)
+	form.SetBorder(true).SetTitle("Record Form").SetTitleAlign(tview.AlignCenter)
 	if err := app.SetRoot(form, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
@@ -49,16 +47,15 @@ func inputForm(app *tview.Application) VaultRecord {
 
 // helper function to save input form
 func saveForm(form *tview.Form) VaultRecord {
-	name := form.GetFormItemByLabel("Name").(*tview.InputField).GetText()
-	rurl := form.GetFormItemByLabel("URL").(*tview.InputField).GetText()
-	username := form.GetFormItemByLabel("Login").(*tview.InputField).GetText()
-	password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
-	note := form.GetFormItemByLabel("Note").(*tview.InputField).GetText()
-	recLogin := VaultItem{Name: "login", Value: username}
-	recPassword := VaultItem{Name: "password", Value: password}
-	recUrl := VaultItem{Name: "url", Value: rurl}
 	uid := uuid.NewString()
-	rec := VaultRecord{ID: uid, Name: name, Items: []VaultItem{recLogin, recPassword, recUrl}, Note: note}
+	rmap := make(Record)
+	for i := 0; i < form.GetFormItemCount(); i++ {
+		item := form.GetFormItem(i)
+		key := item.GetLabel()
+		val := form.GetFormItemByLabel(key).(*tview.InputField).GetText()
+		rmap[key] = val
+	}
+	rec := VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
 	return rec
 }
 
@@ -66,36 +63,41 @@ func saveForm(form *tview.Form) VaultRecord {
 func listForm(list *tview.List, records []VaultRecord) *tview.List {
 	list.Clear()
 	for _, rec := range records {
-		list.AddItem(rec.Name, rec.ID, rune('-'), nil)
+		name, _ := rec.Map["Name"]
+		list.AddItem(name, rec.ID, rune('-'), nil)
 	}
 	return list
 }
 
 // helper function to present recordForm
 func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info *tview.TextView, index int, vault *Vault) *tview.Form {
-	var name, rurl, login, password, note string
 	var rec VaultRecord
 	if len(vault.Records) > index {
 		rec = vault.Records[index]
-		name, rurl, login, password, note = rec.Details()
 	}
 	form.Clear(true) // clear the form
-	form.AddInputField("Name", name, 100, nil, nil)
-	form.AddInputField("Login", login, 100, nil, nil)
-	form.AddPasswordField("Password", password, 100, '*', nil)
-	form.AddInputField("URL", rurl, 100, nil, nil)
-	form.AddInputField("Note", note, 100, nil, nil)
+	for _, key := range rec.Keys() {
+		val, _ := rec.Map[key]
+		if strings.ToLower(key) == "password" {
+			form.AddPasswordField(key, val, 100, '*', nil)
+		} else {
+			form.AddInputField(key, val, 100, nil, nil)
+		}
+	}
+	form.SetBorder(true).SetTitle("Record form").SetTitleAlign(tview.AlignCenter)
+	if len(vault.Records) == 0 {
+		return form
+	}
 	form.AddButton("Save", func() {
 		uid := rec.ID
-		name := form.GetFormItemByLabel("Name").(*tview.InputField).GetText()
-		rurl := form.GetFormItemByLabel("URL").(*tview.InputField).GetText()
-		username := form.GetFormItemByLabel("Login").(*tview.InputField).GetText()
-		password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
-		note := form.GetFormItemByLabel("Note").(*tview.InputField).GetText()
-		recLogin := VaultItem{Name: "login", Value: username}
-		recPassword := VaultItem{Name: "password", Value: password}
-		recUrl := VaultItem{Name: "url", Value: rurl}
-		rec := VaultRecord{ID: uid, Name: name, Items: []VaultItem{recLogin, recPassword, recUrl}, Note: note}
+		rmap := make(Record)
+		for i := 0; i < form.GetFormItemCount(); i++ {
+			item := form.GetFormItem(i)
+			key := item.GetLabel()
+			val := form.GetFormItemByLabel(key).(*tview.InputField).GetText()
+			rmap[key] = val
+		}
+		rec := VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
 		vault.Update(rec)
 		vault.Write()
 
@@ -104,13 +106,13 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 		// we should update our list view too
 		list.Clear()
 		for _, rec := range vault.Records {
-			list.AddItem(rec.Name, rec.ID, rune('-'), nil)
+			name, _ := rec.Map["Name"]
+			list.AddItem(name, rec.ID, rune('-'), nil)
 		}
 		// update info bar
 		msg := fmt.Sprintf("Record %s is updated", uid)
 		info = info.SetText(msg + helpKey())
 	})
-	form.SetBorder(true).SetTitle("Records").SetTitleAlign(tview.AlignLeft)
 	return form
 }
 
@@ -130,6 +132,7 @@ func findForm(find *tview.Form, list *tview.List, info *tview.TextView, vault *V
 		}
 	})
 	find.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
+	find.SetButtonsAlign(tview.AlignCenter)
 	return find
 }
 
@@ -154,10 +157,8 @@ func gridView(app *tview.Application, vault *Vault) {
 	info.SetTitleAlign(tview.AlignLeft)
 
 	// set record list
-	for _, rec := range vault.Records {
-		list.AddItem(rec.Name, rec.ID, rune('-'), nil)
-	}
-	list.SetBorder(true).SetTitle("Records")
+	list = listForm(list, vault.Records)
+	list.SetBorder(true).SetTitle("Record list")
 	list.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
 		if index < len(vault.Records) {
 			form = recordForm(app, form, list, info, index, vault)
@@ -179,6 +180,14 @@ func gridView(app *tview.Application, vault *Vault) {
 	grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		key := event.Key()
 		switch key {
+		case tcell.KeyCtrlA:
+			idx := vault.AddRecord("login")
+			find = findForm(find, list, info, vault)
+			list = listForm(list, vault.Records)
+			list.SetCurrentItem(idx)
+			app.SetFocus(form)
+			focusIndex = 2
+			return event
 		case tcell.KeyCtrlR:
 			find = findForm(find, list, info, vault)
 			list = listForm(list, vault.Records)

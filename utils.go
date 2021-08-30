@@ -14,6 +14,18 @@ const (
 	separator = "---\n" // used in pwm data format
 )
 
+// StringList implement sort for []string type
+type StringList []string
+
+// Len provides length of the []int type
+func (s StringList) Len() int { return len(s) }
+
+// Swap implements swap function for []int type
+func (s StringList) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+
+// Less implements less function for []int type
+func (s StringList) Less(i, j int) bool { return s[i] < s[j] }
+
 // helper function to determine home area for PWM
 func pwmHome() string {
 	var err error

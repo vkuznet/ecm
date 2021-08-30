@@ -7,25 +7,22 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
+
+	uuid "github.com/google/uuid"
 )
 
-// VaultItem holds individual key-value pair for given item
-type VaultItem struct {
-	Name  string // name of the key (label)
-	Value string // value of the data
-}
+// Record represent map of key-valut pairs
+type Record map[string]string
 
 // ValutRecord represents full vault record
 type VaultRecord struct {
-	ID               string      // record ID
-	Name             string      // record Name
-	URL              string      // url value record represent
-	Tags             []string    // record tags
-	Items            []VaultItem // list of record items
-	Note             string      // record note
-	ModificationTime time.Time   // record modification time
+	ID               string    // record ID
+	Map              Record    // record map (key-valut pairs)
+	Attachments      []string  // record attachment files
+	ModificationTime time.Time // record modification time
 }
 
 // String provides string representation of vault record
@@ -38,20 +35,44 @@ func (r *VaultRecord) String() string {
 }
 
 // Details provides record details
-func (r *VaultRecord) Details() (string, string, string, string, string) {
-	name := r.Name
-	note := r.Note
-	rurl := r.URL
-	var login, password string
-	for _, item := range r.Items {
-		if strings.ToLower(item.Name) == "login" {
-			login = item.Value
-		}
-		if strings.ToLower(item.Name) == "password" {
-			password = item.Value
-		}
+func (r *VaultRecord) Keys() []string {
+	// predefined keys order
+	keys := []string{"Name", "Login", "Password"}
+	// output keys
+	var out []string
+	// map keys
+	var mapKeys []string
+	for k, _ := range r.Map {
+		mapKeys = append(mapKeys, k)
 	}
-	return name, rurl, login, password, note
+	sort.Sort(StringList(mapKeys))
+	for _, k := range mapKeys {
+		if k == "Name" || k == "Login" || k == "Password" {
+			continue
+		}
+		out = append(out, k)
+	}
+	keys = append(keys, out...)
+	return keys
+}
+
+// NewVaultRecord creates new VaultRecord
+func NewVaultRecord(kind string) *VaultRecord {
+	uid := uuid.NewString()
+	rmap := make(Record)
+	var attributes []string
+	switch kind {
+	case "note":
+		attributes = []string{"Name", "Tags", "Note"}
+	case "file":
+		attributes = []string{"Name", "File", "Tags", "Note"}
+	default: // default login record
+		attributes = []string{"Name", "Login", "Password", "URL", "Tags", "Note"}
+	}
+	for _, attr := range attributes {
+		rmap[attr] = ""
+	}
+	return &VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
 }
 
 // Vault represent our vault
@@ -67,8 +88,16 @@ type Vault struct {
 	Mode             string        // vault mode
 }
 
+// AddRecord vault record and return its index
+func (v *Vault) AddRecord(kind string) int {
+	rec := NewVaultRecord(kind)
+	v.Records = append(v.Records, *rec)
+	return len(v.Records) - 1
+}
+
 // Update vault records
 func (v *Vault) Update(rec VaultRecord) {
+	updated := false
 	for i, r := range v.Records {
 		if r.ID == rec.ID {
 			if v.Verbose > 0 {
@@ -77,15 +106,24 @@ func (v *Vault) Update(rec VaultRecord) {
 			rec.ModificationTime = time.Now()
 			v.Records[i] = rec
 			v.ModificationTime = time.Now()
+			updated = true
 		}
+	}
+	if !updated {
+		// insert new record
+		v.Records = append(v.Records, rec)
 	}
 }
 
 // Write provides write capability to vault records
 func (v *Vault) Write() {
 	var err error
+	// TODO: fix backup once we move to directory based vault
 	// make backup vault first
-	v.LastBackup, _, err = backup(v.Filename)
+	//     v.LastBackup, _, err = backup(v.Filename)
+	//     if err != nil {
+	//         log.Fatal(err)
+	//     }
 
 	file, err := os.Create(v.Filename)
 	if err != nil {
@@ -199,41 +237,15 @@ func (v *Vault) Read() error {
 func (v *Vault) Find(pat string) []VaultRecord {
 	var out []VaultRecord
 	for _, rec := range v.Records {
-		if matched, err := regexp.MatchString(pat, rec.Name); err == nil && matched {
-			if v.Verbose > 0 {
-				log.Println("matched record name")
-			}
-			out = append(out, rec)
-		} else if strings.Contains(rec.Name, pat) {
-			out = append(out, rec)
-			if v.Verbose > 0 {
-				log.Println("substring of record name")
-			}
-		} else if matched, err := regexp.MatchString(pat, rec.Note); err == nil && matched {
-			if v.Verbose > 0 {
-				log.Println("match record note")
-			}
-			out = append(out, rec)
-		} else if InList(pat, rec.Tags) {
-			if v.Verbose > 0 {
-				log.Println("found in record tags")
-			}
-			out = append(out, rec)
-		} else if strings.Contains(rec.URL, pat) {
-			out = append(out, rec)
-			if v.Verbose > 0 {
-				log.Println("substring of record URL")
-			}
-		}
-		for _, item := range rec.Items {
-			if matched, err := regexp.MatchString(pat, item.Name); err == nil && matched {
-				if v.Verbose > 0 {
-					log.Println("match record item namej")
-				}
+		for key, val := range rec.Map {
+			if strings.Contains(key, pat) {
 				out = append(out, rec)
-			} else if strings.ToLower(item.Name) == "login" && strings.Contains(item.Value, pat) {
 				if v.Verbose > 0 {
-					log.Println("match record login")
+					log.Println("match record key")
+				}
+			} else if matched, err := regexp.MatchString(pat, val); err == nil && matched {
+				if v.Verbose > 0 {
+					log.Println("matched record value")
 				}
 				out = append(out, rec)
 			}

@@ -66,11 +66,13 @@ func main() {
 	}
 
 	// check if fname is relative and construct proper full path
-	abs, err := filepath.Abs(fname)
-	if err != nil {
-		log.Fatal(err)
+	if fname != "" {
+		abs, err := filepath.Abs(fname)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fname = abs
 	}
-	fname = abs
 
 	// determine vault location and if it is not provided or does not exists
 	// creat $HOME/.pwm area and assign new vault file there
@@ -88,7 +90,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fname = fmt.Sprintf("%s/vault.aes", vdir)
+		fname = fmt.Sprintf("%s/vault.%s", vdir, Config.Cipher)
 	}
 
 	// get vault secret
@@ -96,13 +98,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//     salt2 := lockView(tview.NewApplication(), verbose)
-	//     if salt != salt2 {
-	//         log.Fatal("password does not match", salt, " --- vs --- ", salt2)
-	//     }
 
 	// initialize our vault
 	vault := Vault{Filename: fname, Cipher: Config.Cipher, Secret: salt, Verbose: verbose}
+	if verbose > 0 {
+		log.Println(vault.Info())
+	}
 	err = vault.Read()
 	if err != nil {
 		log.Fatal("unable to read vault, error ", err)
@@ -113,6 +114,9 @@ func main() {
 		rec, err := input(verbose)
 		if err != nil {
 			log.Fatal(err)
+		}
+		if verbose > 0 {
+			log.Println("get new input record", rec.String())
 		}
 		vault.Update(rec)
 		vault.Write()
