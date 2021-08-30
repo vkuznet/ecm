@@ -13,7 +13,7 @@ import (
 )
 
 // helper function to read vault secret from stdin
-func secret_tview(verbose int) (string, error) {
+func secret(verbose int) (string, error) {
 	app := tview.NewApplication()
 	salt, err := lockView(app, verbose)
 	app.Stop()
@@ -21,7 +21,7 @@ func secret_tview(verbose int) (string, error) {
 }
 
 // helper function to read vault secret from stdin
-func secret(verbose int) (string, error) {
+func secret_plain(verbose int) (string, error) {
 	fmt.Print("\n\tEnter vault secret: ")
 	bytes, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
