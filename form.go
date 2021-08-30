@@ -13,12 +13,23 @@ import (
 
 // helper function to make secret prompt
 func lockView(app *tview.Application, verbose int) (string, error) {
-	form := tview.NewForm()
-	form.AddPasswordField("Password", "", 50, '*', nil)
-	if err := app.SetRoot(form, true).EnableMouse(true).Run(); err != nil {
-		return "", err
+	var password string
+
+	input := tview.NewInputField().
+		SetFieldWidth(50).
+		SetMaskCharacter('*').
+		SetDoneFunc(func(key tcell.Key) {
+			app.Stop()
+		})
+	frame := tview.NewFrame(input)
+	frame.SetBorders(10, 1, 1, 1, 10, 1)
+	frame.AddText("Password Manager (PWM)", true, tview.AlignLeft, tcell.ColorWhite)
+
+	//     if err := app.SetRoot(input, true).EnableMouse(true).Run(); err != nil {
+	if err := app.SetRoot(frame, true).EnableMouse(true).Run(); err != nil {
+		panic(err)
 	}
-	password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
+	password = input.GetText()
 	return password, nil
 }
 
@@ -117,22 +128,23 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 }
 
 // helper finction to clear up and fill out find form
-func findForm(find *tview.Form, list *tview.List, info *tview.TextView, vault *Vault) *tview.Form {
-	find.Clear(true)
-	find.AddInputField("Search", "", 80, nil, nil)
-	find.AddButton("Find", func() {
-		pat := find.GetFormItemByLabel("Search").(*tview.InputField).GetText()
-		records := vault.Find(pat)
-		msg := fmt.Sprintf("found %d records", len(records))
-		if info != nil {
-			info = info.SetText(msg + helpKey())
-		}
-		if list != nil {
-			list = listForm(list, records)
-		}
-	})
-	find.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
-	find.SetButtonsAlign(tview.AlignCenter)
+// func findForm(find *tview.Form, list *tview.List, info *tview.TextView, vault *Vault) *tview.Form {
+func findForm(find *tview.InputField, list *tview.List, info *tview.TextView, vault *Vault) *tview.InputField {
+	find.SetText("")
+	find = tview.NewInputField().
+		SetLabel("Search: ").
+		SetFieldWidth(80).
+		SetDoneFunc(func(key tcell.Key) {
+			pat := find.GetText()
+			records := vault.Find(pat)
+			msg := fmt.Sprintf("found %d records", len(records))
+			if info != nil {
+				info = info.SetText(msg + helpKey())
+			}
+			if list != nil {
+				list = listForm(list, records)
+			}
+		})
 	return find
 }
 
@@ -140,7 +152,8 @@ func findForm(find *tview.Form, list *tview.List, info *tview.TextView, vault *V
 func gridView(app *tview.Application, vault *Vault) {
 	info := tview.NewTextView()
 	list := tview.NewList()
-	find := tview.NewForm()
+	//     find := tview.NewForm()
+	find := tview.NewInputField()
 	form := tview.NewForm()
 
 	// add search bar
