@@ -12,7 +12,6 @@ import (
 type Configuration struct {
 	MinPasswordLength int    `json:"min_password_length"` // min length of generated passwords
 	LogFile           string `json:"log_file"`            // full path to pwm log file
-	Cipher            string `json:"cipher"`              // cipher algoritm to use AES or NACI
 }
 
 // global variables
@@ -33,12 +32,13 @@ func ParseConfig(configFile string) error {
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		// make config dir
 		dir, _ := path.Split(configFile)
+		log.Println("make dir", dir)
 		err := os.MkdirAll(dir, 0755)
 		if err != nil {
 			log.Fatalf("unable to create PWM area %s for config file, error %v", dir, err)
 		}
 		lfile := fmt.Sprintf("%s/pwm.log", pwmHome())
-		config := Configuration{MinPasswordLength: 24, LogFile: lfile, Cipher: "aes"}
+		config := Configuration{MinPasswordLength: 24, LogFile: lfile}
 		data, err := json.Marshal(config)
 		if err != nil {
 			log.Fatal(err)
@@ -64,9 +64,6 @@ func ParseConfig(configFile string) error {
 	}
 	if Config.LogFile == "" {
 		Config.LogFile = fmt.Sprintf("%s/pwm.log", pwmHome())
-	}
-	if Config.Cipher == "" {
-		Config.Cipher = "aes"
 	}
 	return nil
 }
