@@ -127,37 +127,52 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 	return form
 }
 
-// helper finction to clear up and fill out find form
-// func findForm(find *tview.Form, list *tview.List, info *tview.TextView, vault *Vault) *tview.Form {
-func findForm(find *tview.InputField, list *tview.List, info *tview.TextView, vault *Vault) *tview.InputField {
-	find.SetText("")
-	find = tview.NewInputField().
-		SetLabel("Search: ").
-		SetFieldWidth(80).
-		SetDoneFunc(func(key tcell.Key) {
-			pat := find.GetText()
-			records := vault.Find(pat)
-			msg := fmt.Sprintf("found %d records", len(records))
-			if info != nil {
-				info = info.SetText(msg + helpKey())
-			}
-			if list != nil {
-				list = listForm(list, records)
-			}
-		})
-	return find
-}
-
 // helper function to build our application grid view
 func gridView(app *tview.Application, vault *Vault) {
 	info := tview.NewTextView()
 	list := tview.NewList()
-	//     find := tview.NewForm()
-	find := tview.NewInputField()
+	find := tview.NewFrame(tview.NewInputField())
 	form := tview.NewForm()
+	focusIndex := 1 // defaul focus index points to list view
+
+	// add new frame for search bar
+	input := tview.NewInputField()
+	input.SetFieldWidth(50)
+	input.SetDoneFunc(func(key tcell.Key) {
+		pat := input.GetText()
+		records := vault.Find(pat)
+		msg := fmt.Sprintf("found %d records", len(records))
+		if vault.Verbose > 0 {
+			log.Println(msg)
+		}
+		if info != nil {
+			info = info.SetText(msg + helpKey())
+		}
+		if list != nil {
+			list = listForm(list, records)
+		}
+		// find index of record to display
+		rec := records[0]
+		index := 0
+		for idx, r := range vault.Records {
+			if r.ID == rec.ID {
+				index = idx
+				break
+			}
+		}
+		// update form with proper record
+		if form != nil {
+			form = recordForm(app, form, list, info, index, vault)
+		}
+		app.SetFocus(list)
+		focusIndex = 1
+	})
+	frame := tview.NewFrame(input)
+	frame.SetBorders(2, 1, 1, 1, 10, 1)
+	frame.AddText("Search within the vault", true, tview.AlignLeft, tcell.ColorWhite)
+	find = frame
 
 	// add search bar
-	find = findForm(find, list, info, vault)
 
 	// set current record form view
 	form = recordForm(app, form, list, info, 0, vault)
@@ -175,6 +190,8 @@ func gridView(app *tview.Application, vault *Vault) {
 	list.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
 		if index < len(vault.Records) {
 			form = recordForm(app, form, list, info, index, vault)
+			app.SetFocus(list)
+			focusIndex = 1
 		}
 	})
 
@@ -188,21 +205,17 @@ func gridView(app *tview.Application, vault *Vault) {
 	grid.AddItem(form, 1, 1, 2, 1, 0, 0, false)
 	grid.AddItem(info, 3, 0, 1, 2, 0, 0, false)
 
-	focusIndex := 1 // defaul focus index
-
 	grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		key := event.Key()
 		switch key {
 		case tcell.KeyCtrlA:
 			idx := vault.AddRecord("login")
-			find = findForm(find, list, info, vault)
 			list = listForm(list, vault.Records)
 			list.SetCurrentItem(idx)
 			app.SetFocus(form)
 			focusIndex = 2
 			return event
 		case tcell.KeyCtrlR:
-			find = findForm(find, list, info, vault)
 			list = listForm(list, vault.Records)
 			info.SetText(helpKey())
 			app.SetFocus(list)
