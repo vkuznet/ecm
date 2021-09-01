@@ -24,7 +24,7 @@ func lockView(app *tview.Application, verbose int) (string, error) {
 		})
 	frame := tview.NewFrame(input)
 	frame.SetBorders(10, 1, 1, 1, 10, 1)
-	frame.AddText("Password Manager (PWM)", true, tview.AlignLeft, tcell.ColorWhite)
+	frame.AddText("\U0001F512 Password Manager (PWM)", true, tview.AlignLeft, tcell.ColorWhite)
 
 	//     if err := app.SetRoot(input, true).EnableMouse(true).Run(); err != nil {
 	if err := app.SetRoot(frame, true).EnableMouse(true).Run(); err != nil {
@@ -169,7 +169,7 @@ func gridView(app *tview.Application, vault *Vault) {
 	})
 	frame := tview.NewFrame(input)
 	frame.SetBorders(2, 1, 1, 1, 10, 1)
-	frame.AddText("Search within the vault", true, tview.AlignLeft, tcell.ColorWhite)
+	frame.AddText("\U0001F50D Search within the vault", true, tview.AlignLeft, tcell.ColorWhite)
 	find = frame
 
 	// add search bar
