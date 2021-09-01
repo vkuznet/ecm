@@ -7,7 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
+	"syscall"
+
+	"golang.org/x/term"
 )
 
 const (
@@ -60,27 +62,26 @@ func pwmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error
 
 // backup helper function to make a vault backup
 // based on https://github.com/mactsouk/opensource.com/blob/master/cp1.go
-func backup(src string) (string, int64, error) {
-	tstamp := time.Now().Format(time.RFC3339Nano)
-	dst := fmt.Sprintf("%s.backup-%s", src, tstamp)
+func backup(src, dst string) (int64, error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
-		return dst, 0, err
+		log.Println("file src does not exist, error ", err)
+		return 0, err
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
-		return dst, 0, fmt.Errorf("%s is not a regular file", src)
+		return 0, fmt.Errorf("%s is not a regular file", src)
 	}
 
 	source, err := os.Open(src)
 	if err != nil {
-		return dst, 0, err
+		return 0, err
 	}
 	defer source.Close()
 
 	destination, err := os.Create(dst)
 	if err != nil {
-		return dst, 0, err
+		return 0, err
 	}
 	defer destination.Close()
 
@@ -90,7 +91,7 @@ func backup(src string) (string, int64, error) {
 	}
 
 	nBytes, err := io.Copy(destination, source)
-	return dst, nBytes, err
+	return nBytes, err
 }
 
 // InList helper function to check item in a list
@@ -159,4 +160,16 @@ func helpKeys() string {
 	info = fmt.Sprintf("%s\n", info)
 	info = fmt.Sprintf("%s, [red]Ctrl-Q[white] Exit", info)
 	return info
+}
+
+// helper function to read input password
+func readPassword() (string, error) {
+	fmt.Print("Enter Password: ")
+	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return "", err
+	}
+	password := string(bytePassword)
+	password = strings.Replace(password, "\n", "", -1)
+	return password, nil
 }
