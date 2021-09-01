@@ -73,14 +73,12 @@ func GenerateKey(passphrase string) (*[KeySize]byte, error) {
 	key := new([KeySize]byte)
 	if passphrase != "" {
 		hash := []byte(createHash(passphrase))
-		log.Printf("new hash '%s' bytes='%v' has size %d", string(hash), hash, len(hash))
 		for i, v := range hash {
 			if i < KeySize {
 				key[i] = v
 			}
 		}
-		log.Printf("copied key bytes='%v'", key)
-		//         }
+		return key, nil
 	}
 	_, err := io.ReadFull(rand.Reader, key[:])
 	if err != nil {
@@ -129,6 +127,7 @@ func Encrypt(key *[KeySize]byte, message []byte) ([]byte, error) {
 // decrypt with NaCl's secretbox.
 func Decrypt(key *[KeySize]byte, message []byte) ([]byte, error) {
 	if len(message) < (NonceSize + secretbox.Overhead) {
+		log.Println("message length is less than nonce size+overhead")
 		return nil, ErrDecrypt
 	}
 
@@ -136,6 +135,7 @@ func Decrypt(key *[KeySize]byte, message []byte) ([]byte, error) {
 	copy(nonce[:], message[:NonceSize])
 	out, ok := secretbox.Open(nil, message[NonceSize:], &nonce, key)
 	if !ok {
+		log.Println("fail to open secret box")
 		return nil, ErrDecrypt
 	}
 
