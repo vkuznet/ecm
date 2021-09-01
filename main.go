@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"runtime"
 	"time"
 
@@ -24,12 +24,16 @@ func info() string {
 }
 
 func main() {
-	var fname string
-	flag.StringVar(&fname, "vault", "", "vault file name")
+	var vname string
+	flag.StringVar(&vname, "vault", "", "vault name")
 	var add bool
 	flag.BoolVar(&add, "add", false, "add new record")
 	var pat string
 	flag.StringVar(&pat, "find", "", "find record pattern")
+	var cipher string
+	flag.StringVar(&cipher, "cipher", "aes", "cipher to use to initialize the vault")
+	var decryptFile string
+	flag.StringVar(&decryptFile, "decrypt", "", "decrypt given file name")
 	var version bool
 	flag.BoolVar(&version, "version", false, "Show version")
 	var verbose int
@@ -39,6 +43,24 @@ func main() {
 		fmt.Println(info())
 		os.Exit(0)
 
+	}
+
+	// decrypt record
+	if decryptFile != "" {
+		password, err := readPassword()
+		if err != nil {
+			panic(err)
+		}
+		data, err := ioutil.ReadFile(decryptFile)
+		if err != nil {
+			panic(err)
+		}
+		data, err = decrypt(data, password, cipher)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(string(data))
+		os.Exit(0)
 	}
 
 	// parse input config
@@ -55,44 +77,6 @@ func main() {
 		log.SetFlags(log.LstdFlags)
 	}
 
-	// setup logger
-	log.SetOutput(new(LogWriter))
-	if Config.LogFile != "" {
-		rl, err := rotatelogs.New(Config.LogFile + "-%Y%m%d")
-		if err == nil {
-			rotlogs := RotateLogWriter{RotateLogs: rl}
-			log.SetOutput(rotlogs)
-		}
-	}
-
-	// check if fname is relative and construct proper full path
-	if fname != "" {
-		abs, err := filepath.Abs(fname)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fname = abs
-	}
-
-	// determine vault location and if it is not provided or does not exists
-	// creat $HOME/.pwm area and assign new vault file there
-	_, err = os.Stat(fname)
-	if fname == "" || os.IsNotExist(err) {
-		udir, err := os.UserHomeDir()
-		if err != nil {
-			log.Fatal(err)
-		}
-		vdir := fmt.Sprintf("%s/.pwm", udir)
-		if verbose > 0 {
-			log.Println("create vault dir", vdir)
-		}
-		err = os.MkdirAll(vdir, 0755)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fname = fmt.Sprintf("%s/vault.%s", vdir, Config.Cipher)
-	}
-
 	// get vault secret
 	salt, err := secret(verbose)
 	if err != nil {
@@ -100,10 +84,26 @@ func main() {
 	}
 
 	// initialize our vault
-	vault := Vault{Filename: fname, Cipher: Config.Cipher, Secret: salt, Verbose: verbose}
-	if verbose > 0 {
-		log.Println(vault.Info())
+	vault := Vault{Cipher: cipher, Secret: salt, Verbose: verbose}
+	// create our vault
+	err = vault.Create(vname)
+	if err != nil {
+		fmt.Printf("unable to create vault, error %v", err)
+		os.Exit(1)
 	}
+
+	// setup logger
+	log.SetOutput(new(LogWriter))
+	if Config.LogFile != "" {
+		logFile := Config.LogFile + "-%Y%m%d"
+		rl, err := rotatelogs.New(logFile)
+		if err == nil {
+			rotlogs := RotateLogWriter{RotateLogs: rl}
+			log.SetOutput(rotlogs)
+		}
+	}
+
+	// read from our vault
 	err = vault.Read()
 	if err != nil {
 		log.Fatal("unable to read vault, error ", err)
