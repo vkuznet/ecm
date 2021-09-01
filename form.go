@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/atotto/clipboard"
 	tcell "github.com/gdamore/tcell/v2"
 	uuid "github.com/google/uuid"
 	"github.com/rivo/tview"
@@ -265,8 +266,17 @@ func gridView(app *tview.Application, vault *Vault) {
 			password := createPassword(24, true, true)
 			info.SetText(password)
 			return event
-		case tcell.KeyCtrlC:
-			copyPassword()
+		case tcell.KeyCtrlP:
+			app.SetFocus(form)
+			copyToClipboard("Password", form, vault.Verbose)
+			// return to previous view
+			if focusIndex == 0 {
+				app.SetFocus(find)
+			} else if focusIndex == 1 {
+				app.SetFocus(list)
+			} else if focusIndex == 2 {
+				app.SetFocus(form)
+			}
 			return event
 		case tcell.KeyCtrlQ:
 			app.Stop()
@@ -280,4 +290,16 @@ func gridView(app *tview.Application, vault *Vault) {
 	if err := app.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
+}
+
+// helper function to copy key content from the form to clipboard
+func copyToClipboard(key string, form *tview.Form, verbose int) {
+	val := form.GetFormItemByLabel(key).(*tview.InputField).GetText()
+	if err := clipboard.WriteAll(val); err != nil {
+		log.Println("unable to copy to clipboard, error", err)
+	}
+	//     text, err := clipboard.ReadAll()
+	//     if err != nil {
+	//         log.Println("unable to read from clipboard", err)
+	//     }
 }
