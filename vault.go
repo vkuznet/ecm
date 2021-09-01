@@ -122,11 +122,11 @@ func NewVaultRecord(kind string) *VaultRecord {
 	var attributes []string
 	switch kind {
 	case "note":
-		attributes = []string{"Name", "Tags", "Note"}
+		attributes = []string{"Name", "Tags"}
 	case "file":
-		attributes = []string{"Name", "File", "Tags", "Note"}
+		attributes = []string{"Name", "File", "Tags"}
 	default: // default login record
-		attributes = []string{"Name", "Login", "Password", "URL", "Tags", "Note"}
+		attributes = []string{"Name", "Login", "Password", "URL", "Tags"}
 	}
 	for _, attr := range attributes {
 		rmap[attr] = ""

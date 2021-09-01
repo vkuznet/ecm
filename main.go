@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"time"
 
+	uuid "github.com/google/uuid"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rivo/tview"
 )
@@ -34,6 +35,8 @@ func main() {
 	flag.StringVar(&cipher, "cipher", "aes", "cipher to use to initialize the vault")
 	var decryptFile string
 	flag.StringVar(&decryptFile, "decrypt", "", "decrypt given file name")
+	var encryptFile string
+	flag.StringVar(&encryptFile, "encrypt", "", "encrypt given file and place it into vault")
 	var version bool
 	flag.BoolVar(&version, "version", false, "Show version")
 	var verbose int
@@ -70,6 +73,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// set Theme for our app
+	setTheme("grey")
+
 	// log time, filename, and line number
 	if verbose > 0 {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -103,6 +109,24 @@ func main() {
 		}
 	}
 
+	// encrypt given record
+	if encryptFile != "" {
+		data, err := ioutil.ReadFile(encryptFile)
+		if err != nil {
+			panic(err)
+		}
+		uid := uuid.NewString()
+		attachments := []string{encryptFile}
+		rmap := make(Record)
+		rec := VaultRecord{ID: uid, Map: rmap, Attachments: attachments}
+		data, err = encrypt(data, vault.Secret, vault.Cipher)
+		if err != nil {
+			panic(err)
+		}
+		rec.WriteRecord(vault.Directory, vault.Secret, vault.Cipher, vault.Verbose)
+		log.Println("Create new vault record %s", rec.ID)
+	}
+
 	// read from our vault
 	err = vault.Read()
 	if err != nil {
@@ -123,8 +147,5 @@ func main() {
 	}
 
 	app := tview.NewApplication()
-	//     listForm(app, records)
 	gridView(app, &vault)
-
-	//     find(vault, salt, cipher, pat, verbose)
 }

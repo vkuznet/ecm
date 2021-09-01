@@ -42,7 +42,6 @@ func inputForm(app *tview.Application) VaultRecord {
 	form.AddInputField("Login", "", 100, nil, nil)
 	form.AddPasswordField("Password", "", 100, '*', nil)
 	form.AddInputField("URL", "", 100, nil, nil)
-	form.AddInputField("Note", "", 10, nil, nil)
 	form.AddButton("Save", func() {
 		vrec = saveForm(form)
 		app.Stop()
