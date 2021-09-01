@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -56,6 +58,63 @@ func (r *VaultRecord) Keys() []string {
 	return keys
 }
 
+// WriteRecord writes single record to the vault area
+func (r *VaultRecord) WriteRecord(vdir, secret, cipher string, verbose int) error {
+	var err error
+	tstamp := time.Now().Format(time.RFC3339)
+	if r.ID == "" {
+		log.Fatalf("unable to write record without ID, record +v", r)
+	}
+	fname := fmt.Sprintf("%s.%s", filepath.Join(vdir, r.ID), cipher)
+	bdir := filepath.Join(vdir, "backups")
+	err = os.MkdirAll(bdir, 0755)
+	if err != nil {
+		log.Fatalf("unable to create %s, error %v", bdir, err)
+	}
+	bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", r.ID, cipher, tstamp))
+	// make backup of our record
+	_, err = backup(fname, bname)
+	if err != nil {
+		log.Println("unable to make backup for record", r.ID, " error ", err)
+		//         return err
+	}
+
+	file, err := os.Create(fname)
+	if err != nil {
+		log.Println("unable to create file name", fname, " error ", err)
+		return err
+	}
+	w := bufio.NewWriter(file)
+	// marshall single record
+	data, err := json.Marshal(r)
+	if err != nil {
+		log.Println("unable to Marshal record, error ", err)
+		return err
+	}
+
+	// encrypt our record
+	if verbose > 1 {
+		log.Printf("record '%s' using cipher %s\n", string(data), cipher)
+	} else if verbose > 0 {
+		log.Printf("record '%s' using cipher %s\n", r.ID, cipher)
+	}
+	edata := data
+	if cipher != "" {
+		edata, err = encrypt(data, secret, cipher)
+		if err != nil {
+			log.Println("unable to encrypt record, error ", err)
+			return err
+		}
+	}
+	if verbose > 1 {
+		log.Printf("write data record\n%v\nsecret '%v'", edata, secret)
+	}
+	w.Write(edata)
+	w.Flush()
+	return nil
+
+}
+
 // NewVaultRecord creates new VaultRecord
 func NewVaultRecord(kind string) *VaultRecord {
 	uid := uuid.NewString()
@@ -77,7 +136,7 @@ func NewVaultRecord(kind string) *VaultRecord {
 
 // Vault represent our vault
 type Vault struct {
-	Filename         string        // vault filename
+	Directory        string        // vault directory
 	Cipher           string        // vault cipher
 	Secret           string        // vault secret
 	Verbose          int           // verbose mode
@@ -96,7 +155,7 @@ func (v *Vault) AddRecord(kind string) int {
 }
 
 // Update vault records
-func (v *Vault) Update(rec VaultRecord) {
+func (v *Vault) Update(rec VaultRecord) error {
 	updated := false
 	for i, r := range v.Records {
 		if r.ID == rec.ID {
@@ -113,124 +172,154 @@ func (v *Vault) Update(rec VaultRecord) {
 		// insert new record
 		v.Records = append(v.Records, rec)
 	}
+	err := v.WriteRecord(rec)
+	return err
 }
 
-// Write provides write capability to vault records
-func (v *Vault) Write() {
-	var err error
-	// TODO: fix backup once we move to directory based vault
-	// make backup vault first
-	//     v.LastBackup, _, err = backup(v.Filename)
-	//     if err != nil {
-	//         log.Fatal(err)
-	//     }
-
-	file, err := os.Create(v.Filename)
-	if err != nil {
-		log.Fatal(err)
+// helper function to read vault and return list of records
+func (v *Vault) Create(vname string) error {
+	if vname == "" {
+		vname = "Primary"
 	}
-	w := bufio.NewWriter(file)
-	for _, rec := range v.Records {
-		// marshall single record
-		data, err := json.Marshal(rec)
+	var vault string
+	// construct proper full path
+	if v.Directory != "" {
+		abs, err := filepath.Abs(v.Directory)
 		if err != nil {
 			log.Fatal(err)
 		}
+		v.Directory = abs
+	}
 
-		// encrypt our record
-		if v.Verbose > 1 {
-			log.Printf("record '%s'\n", string(data))
+	// determine vault location and if it is not provided or does not exists
+	// creat $HOME/.pwm area and assign new vault area there
+	_, err := os.Stat(v.Directory)
+	if v.Directory == "" || os.IsNotExist(err) {
+		udir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
 		}
-		edata := data
-		if v.Cipher != "" {
-			edata, err = encrypt(data, v.Secret, v.Cipher)
-			if err != nil {
-				log.Fatal(err)
-			}
+		vdir := filepath.Join(udir, ".pwm")
+		v.Directory = vdir
+		err = os.MkdirAll(vdir, 0755)
+		if err != nil {
+			log.Fatal(err)
 		}
-		if v.Verbose > 1 {
-			log.Printf("write data record\n%v\nsecret '%v'", edata, v.Secret)
-		}
-		w.Write(edata)
-		w.Write([]byte(separator))
-		w.Flush()
 	}
-	finfo, err := os.Stat(v.Filename)
-	if err == nil {
-		v.Size = finfo.Size()
-		v.ModificationTime = finfo.ModTime()
-		v.Mode = finfo.Mode().String()
-	} else {
-		log.Printf("unable to get stat for %s, error", v.Filename, err)
+
+	// procceed with vault
+	vault = filepath.Join(v.Directory, vname)
+	v.Directory = vault
+	_, err = os.Stat(vault)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(vault, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+	return nil
 }
 
 // helper function to read vault and return list of records
 func (v *Vault) Read() error {
-
-	// check first if file exsist
-	if _, err := os.Stat(v.Filename); os.IsNotExist(err) {
-		log.Printf("vault %s does not exists, will create one", v.Filename)
-		_, err := os.Create(v.Filename)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return err
-	}
-
-	// alwasy keep file safe
-	err := os.Chmod(v.Filename, 0600)
+	files, err := ioutil.ReadDir(v.Directory)
 	if err != nil {
-		log.Println("unable to change file permission of", v.Filename)
+		log.Fatal(err)
+	}
+	// TODO: we can parallelize the read from vault area via goroutine pool
+	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), v.Cipher) {
+			continue
+		}
+		fname := filepath.Join(v.Directory, file.Name())
+		rec, err := v.ReadRecord(fname)
+		if err != nil {
+			log.Fatal("unable to read fault record", fname, " error ", err)
+		}
+		v.Records = append(v.Records, rec)
 	}
 
 	// get vault file info
-	finfo, err := os.Stat(v.Filename)
+	finfo, err := os.Stat(v.Directory)
 	if err == nil {
 		v.Size = finfo.Size()
 		v.ModificationTime = finfo.ModTime()
 		v.Mode = finfo.Mode().String()
 	} else {
-		log.Printf("unable to get stat for %s, error", v.Filename, err)
+		log.Printf("unable to get stat for %s, error", v.Directory, err)
+	}
+	return nil
+}
+
+// helper function to read vault and return list of records
+func (v *Vault) Write() error {
+	// TODO: we can parallelize the read from vault area via goroutine pool
+	for _, rec := range v.Records {
+		err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
+		if err != nil {
+			log.Fatalf("unable to write vault record %d, error % v", rec.ID, err)
+		}
+	}
+	return nil
+}
+
+// helper function to read vault and return list of records
+func (v *Vault) WriteRecord(rec VaultRecord) error {
+	err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
+	if err != nil {
+		log.Fatalf("unable to write vault record %d, error % v", rec.ID, err)
+		return err
+	}
+	return nil
+}
+
+// helper function to read vault and return list of records
+func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
+	var rec VaultRecord
+	// check first if file exsist
+	if _, err := os.Stat(fname); os.IsNotExist(err) {
+		log.Printf("vault record %s does not exists, will create one", fname)
+		_, err := os.Create(fname)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return rec, err
+	}
+
+	// alwasy keep file safe
+	err := os.Chmod(fname, 0600)
+	if err != nil {
+		log.Println("unable to change file permission of", fname)
 	}
 
 	// open file
-	file, err := os.Open(v.Filename)
+	file, err := os.Open(fname)
 	if err != nil {
 		log.Println("unable to open a vault", err)
-		return err
+		return rec, err
 	}
 	// remember to close the file at the end of the program
 	defer file.Close()
 
-	// read the file line by line using scanner
-	scanner := bufio.NewScanner(file)
-	scanner.Split(pwmSplitFunc)
-	for scanner.Scan() {
-		text := scanner.Text()
-		textData := []byte(text)
-		if v.Verbose > 1 {
-			log.Printf("read record\n%v\n", textData)
-		}
-
-		data := textData
-		if v.Cipher != "" {
-			data, err = decrypt(textData, v.Secret, v.Cipher)
-			if err != nil {
-				log.Printf("unable to decrypt data\n%v\nerror %v", textData, err)
-				return err
-			}
-		}
-
-		var rec VaultRecord
-		err = json.Unmarshal(data, &rec)
-		if err != nil {
-			log.Println("ERROR: unable to unmarshal the data", err)
-			return err
-		}
-		v.Records = append(v.Records, rec)
+	// read data from the record file
+	data, err := ioutil.ReadFile(fname)
+	if err != nil {
+		log.Fatal(err)
 	}
-	return nil
+	if v.Cipher != "" {
+		data, err = decrypt(data, v.Secret, v.Cipher)
+		if err != nil {
+			log.Printf("unable to decrypt data, error %v", err)
+			return rec, err
+		}
+	}
+
+	err = json.Unmarshal(data, &rec)
+	if err != nil {
+		log.Println("ERROR: unable to unmarshal the data", err)
+		return rec, err
+	}
+	return rec, nil
 }
 
 // Find method finds given pattern in our vault and return its index
@@ -261,7 +350,7 @@ func (v *Vault) Info() string {
 	mode := v.Mode
 	cipher := v.Cipher
 	nrec := len(v.Records)
-	info := fmt.Sprintf("vault %s\nLast modified: %s\nSize %s, mode %s\n%d records, encrypted with %s cipher", v.Filename, tstamp, size, mode, nrec, cipher)
+	info := fmt.Sprintf("vault %s\nLast modified: %s\nSize %s, mode %s\n%d records, encrypted with %s cipher", v.Directory, tstamp, size, mode, nrec, cipher)
 	if v.Verbose > 0 {
 		log.Println(info)
 	}
