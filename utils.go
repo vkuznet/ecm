@@ -130,7 +130,7 @@ func SizeFormat(val interface{}) string {
 		return fmt.Sprintf("%v", val)
 	}
 	base := 1000. // CMS convert is to use power of 10
-	xlist := []string{"", "KB", "MB", "GB", "TB", "PB"}
+	xlist := []string{"B", "KB", "MB", "GB", "TB", "PB"}
 	for _, vvv := range xlist {
 		if size < base {
 			return fmt.Sprintf("%v (%3.1f%s)", val, size, vvv)
@@ -156,7 +156,7 @@ func helpKeys() string {
 	info = fmt.Sprintf("%s, [red]Ctrl-E[white] record edit mode", info)
 	info = fmt.Sprintf("%s\n", info)
 	info = fmt.Sprintf("%s, [red]Ctrl-G[white] generate password", info)
-	info = fmt.Sprintf("%s, [red]Ctrl-C[white] copy password to clipboard", info)
+	info = fmt.Sprintf("%s, [red]Ctrl-P[white] copy password to clipboard", info)
 	info = fmt.Sprintf("%s\n", info)
 	info = fmt.Sprintf("%s, [red]Ctrl-Q[white] Exit", info)
 	return info
