@@ -6,22 +6,26 @@ import (
 )
 
 var GreyStyle = tview.Theme{
-	PrimitiveBackgroundColor:    tcell.ColorGrey,
+	PrimitiveBackgroundColor:    tcell.ColorLightGrey,
 	ContrastBackgroundColor:     tcell.ColorSilver,
 	MoreContrastBackgroundColor: tcell.ColorGreen,
-	BorderColor:                 tcell.ColorWhite,
-	TitleColor:                  tcell.ColorWhite,
-	GraphicsColor:               tcell.ColorWhite,
-	PrimaryTextColor:            tcell.ColorBlack,
-	SecondaryTextColor:          tcell.ColorYellow,
-	TertiaryTextColor:           tcell.ColorGreen,
-	InverseTextColor:            tcell.ColorBlue,
-	ContrastSecondaryTextColor:  tcell.ColorDarkCyan,
+	//     BorderColor:                 tcell.ColorMediumOrchid,
+	BorderColor:                tcell.ColorSnow,
+	TitleColor:                 tcell.ColorSteelBlue,
+	GraphicsColor:              tcell.ColorWhite,
+	PrimaryTextColor:           tcell.ColorBlack,
+	SecondaryTextColor:         tcell.ColorSteelBlue,
+	TertiaryTextColor:          tcell.ColorGreen,
+	InverseTextColor:           tcell.ColorBlue,
+	ContrastSecondaryTextColor: tcell.ColorDarkCyan,
 }
+
+var TitleColor = tcell.ColorWhite
 
 // helper function to setup the theme for our app
 func setTheme(theme string) {
 	if theme == "grey" {
 		tview.Styles = GreyStyle
+		TitleColor = GreyStyle.TitleColor
 	}
 }

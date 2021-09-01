@@ -142,7 +142,7 @@ func SizeFormat(val interface{}) string {
 
 // helper function to make message about help key
 func helpKey() string {
-	return "\n[green]for help prese [red]Ctrl-H[white]"
+	return "\n[green]for help press [red]Ctrl-H[white]"
 }
 
 // helper function to return common keys
