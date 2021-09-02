@@ -1,6 +1,9 @@
 package main
 
+// crypt module provides various ciphers used by pwm
+// for more information see
 // https://www.thepolyglotdeveloper.com/2018/02/encrypt-decrypt-data-golang-application-crypto-packages/
+// https://github.com/kisom/gocrypto
 
 import (
 	"crypto/aes"
@@ -16,13 +19,25 @@ import (
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
+// helper function to create a hash for given key
 func createHash(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func encryptAES(data []byte, passphrase string) ([]byte, error) {
+// Cipher defines cipher interface
+type Cipher interface {
+	Encript(data []byte, key string) ([]byte, error)
+	Decript(data []byte, key string) ([]byte, error)
+}
+
+// CipherAES represents AES Cipher
+type CipherAES struct {
+}
+
+// Encrypt implementation for AES cipher
+func (c *CipherAES) Encrypt(data []byte, passphrase string) ([]byte, error) {
 	block, _ := aes.NewCipher([]byte(createHash(passphrase)))
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
@@ -36,7 +51,8 @@ func encryptAES(data []byte, passphrase string) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func decryptAES(data []byte, passphrase string) ([]byte, error) {
+// Decrypt implementation for AES Cipher
+func (c *CipherAES) Decrypt(data []byte, passphrase string) ([]byte, error) {
 	key := []byte(createHash(passphrase))
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -55,16 +71,9 @@ func decryptAES(data []byte, passphrase string) ([]byte, error) {
 	return plaintext, nil
 }
 
-// the follow code is borrowed from gocrypt repo
-// https://github.com/kisom/gocrypto
-// see Chapter 3
-
 const (
-	// KeySize is the size of a NaCl secret key.
-	KeySize = 32
-
-	// NonceSize is the size of a NaCl nonce.
-	NonceSize = 24
+	KeySize   = 32 // KeySize is the size of a NaCl secret key
+	NonceSize = 24 // NonceSize is the size of a NaCl nonce
 )
 
 // GenerateKey creates a new secret key either randomly if input key is
@@ -107,11 +116,16 @@ var (
 	ErrDecrypt = errors.New("secret: decryption failed")
 )
 
-// Encrypt generates a random nonce and encrypts the input using
-// NaCl's secretbox package. The nonce is prepended to the ciphertext.
-// A sealed message will the same size as the original message plus
-// secretbox.Overhead bytes long.
-func Encrypt(key *[KeySize]byte, message []byte) ([]byte, error) {
+// CipherNaCl represents NaCl Cipher
+type CipherNaCl struct {
+}
+
+// Encrypt implementation of NaCl cipher
+func (c *CipherNaCl) Encrypt(data []byte, passphrase string) ([]byte, error) {
+	key, err := GenerateKey(passphrase)
+	if err != nil {
+		return []byte{}, err
+	}
 	nonce, err := GenerateNonce()
 	if err != nil {
 		return nil, ErrEncrypt
@@ -119,21 +133,24 @@ func Encrypt(key *[KeySize]byte, message []byte) ([]byte, error) {
 
 	out := make([]byte, len(nonce))
 	copy(out, nonce[:])
-	out = secretbox.Seal(out, message, nonce, key)
+	out = secretbox.Seal(out, data, nonce, key)
 	return out, nil
 }
 
-// Decrypt extracts the nonce from the ciphertext, and attempts to
-// decrypt with NaCl's secretbox.
-func Decrypt(key *[KeySize]byte, message []byte) ([]byte, error) {
-	if len(message) < (NonceSize + secretbox.Overhead) {
+// Decrypt implementation of NaCl cipher
+func (c *CipherNaCl) Decrypt(data []byte, passphrase string) ([]byte, error) {
+	key, err := GenerateKey(passphrase)
+	if err != nil {
+		return []byte{}, err
+	}
+	if len(data) < (NonceSize + secretbox.Overhead) {
 		log.Println("message length is less than nonce size+overhead")
 		return nil, ErrDecrypt
 	}
 
 	var nonce [NonceSize]byte
-	copy(nonce[:], message[:NonceSize])
-	out, ok := secretbox.Open(nil, message[NonceSize:], &nonce, key)
+	copy(nonce[:], data[:NonceSize])
+	out, ok := secretbox.Open(nil, data[NonceSize:], &nonce, key)
 	if !ok {
 		log.Println("fail to open secret box")
 		return nil, ErrDecrypt
@@ -142,26 +159,22 @@ func Decrypt(key *[KeySize]byte, message []byte) ([]byte, error) {
 	return out, nil
 }
 
-// our encrypt wrapper function
+// our encrypt wrapper function used internally
 func encrypt(data []byte, passphrase, cipher string) ([]byte, error) {
-	if strings.ToLower(cipher) == "naci" {
-		key, err := GenerateKey(passphrase)
-		if err != nil {
-			return []byte{}, err
-		}
-		return Encrypt(key, data)
+	if strings.ToLower(cipher) == "nacl" {
+		c := CipherNaCl{}
+		return c.Encrypt(data, passphrase)
 	}
-	return encryptAES(data, passphrase)
+	c := CipherAES{}
+	return c.Encrypt(data, passphrase)
 }
 
-// our decrypt wrapper function
+// our decrypt wrapper function used internally
 func decrypt(data []byte, passphrase, cipher string) ([]byte, error) {
-	if strings.ToLower(cipher) == "naci" {
-		key, err := GenerateKey(passphrase)
-		if err != nil {
-			return []byte{}, err
-		}
-		return Decrypt(key, data)
+	if strings.ToLower(cipher) == "nacl" {
+		c := CipherNaCl{}
+		return c.Decrypt(data, passphrase)
 	}
-	return decryptAES(data, passphrase)
+	c := CipherAES{}
+	return c.Decrypt(data, passphrase)
 }
