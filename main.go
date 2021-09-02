@@ -121,7 +121,7 @@ func main() {
 		rmap["Data"] = string(data)
 		rec := VaultRecord{ID: uid, Map: rmap, Attachments: attachments}
 		rec.WriteRecord(vault.Directory, vault.Secret, vault.Cipher, vault.Verbose)
-		log.Println("Create new vault record %s", rec.ID)
+		log.Printf("Create new vault record %s", rec.ID)
 	}
 
 	// read from our vault

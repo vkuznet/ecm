@@ -33,7 +33,7 @@ func (r *VaultRecord) String() string {
 	if err == nil {
 		return string(data)
 	}
-	return fmt.Sprintf("%+v", r)
+	return fmt.Sprintf("%v", r)
 }
 
 // Keys provides vault record keys
@@ -63,7 +63,7 @@ func (r *VaultRecord) WriteRecord(vdir, secret, cipher string, verbose int) erro
 	var err error
 	tstamp := time.Now().Format(time.RFC3339)
 	if r.ID == "" {
-		log.Fatalf("unable to write record without ID, record +v", r)
+		log.Fatalf("unable to write record without ID, record %v", r)
 	}
 	fname := fmt.Sprintf("%s.%s", filepath.Join(vdir, r.ID), cipher)
 	bdir := filepath.Join(vdir, "backups")
@@ -246,7 +246,7 @@ func (v *Vault) Read() error {
 		v.ModificationTime = finfo.ModTime()
 		v.Mode = finfo.Mode().String()
 	} else {
-		log.Printf("unable to get stat for %s, error", v.Directory, err)
+		log.Printf("unable to get stat for %s, error %v", v.Directory, err)
 	}
 	return nil
 }
@@ -257,7 +257,7 @@ func (v *Vault) Write() error {
 	for _, rec := range v.Records {
 		err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 		if err != nil {
-			log.Fatalf("unable to write vault record %d, error % v", rec.ID, err)
+			log.Fatalf("unable to write vault record %d, error %v", rec.ID, err)
 		}
 	}
 	return nil
@@ -267,7 +267,7 @@ func (v *Vault) Write() error {
 func (v *Vault) WriteRecord(rec VaultRecord) error {
 	err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 	if err != nil {
-		log.Fatalf("unable to write vault record %d, error % v", rec.ID, err)
+		log.Fatalf("unable to write vault record %d, error %v", rec.ID, err)
 		return err
 	}
 	return nil
