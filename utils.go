@@ -183,7 +183,8 @@ func decryptFile(fname, cipher string) {
 	}
 	if cipher == "" {
 		arr := strings.Split(fname, ".")
-		cipher = arr[1] // we take file name extension
+		// we take file name extension
+		cipher = strings.Split(arr[len(arr)-1], "-")[0]
 	}
 	if !InList(cipher, SupportedCiphers) {
 		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, SupportedCiphers)
