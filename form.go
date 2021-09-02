@@ -132,7 +132,8 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 func gridView(app *tview.Application, vault *Vault) {
 	info := tview.NewTextView()
 	list := tview.NewList()
-	find := tview.NewFrame(tview.NewInputField())
+	field := tview.NewInputField()
+	find := tview.NewFrame(field)
 	form := tview.NewForm()
 	focusIndex := 1 // defaul focus index points to list view
 

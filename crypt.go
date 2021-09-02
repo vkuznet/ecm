@@ -26,7 +26,7 @@ func createHash(key string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-// SupportedCiphers
+// SupportedCiphers provides list of supported ciphers
 var SupportedCiphers = []string{"aes", "nacl"}
 
 // getCipher returns either default or given cipher
