@@ -164,6 +164,8 @@ func (v *Vault) EncryptFile(efile string) {
 	attachments := []string{efile}
 	rmap := make(Record)
 	rmap["Data"] = string(data)
+	rmap["Name"] = filepath.Base(efile)
+	rmap["Tags"] = "file"
 	rec := VaultRecord{ID: uid, Map: rmap, Attachments: attachments}
 	rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 	log.Printf("created new vault record %s", rec.ID)
