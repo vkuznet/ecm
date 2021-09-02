@@ -1,6 +1,6 @@
-# VERSION=`git describe --tags`
+GITTAG=`git describe --tags`
 VERSION=`git rev-parse --short HEAD`
-flags=-ldflags="-s -w -X main.gitVersion=${VERSION} -extldflags -static"
+flags=-ldflags="-s -w -X main.gitVersion=${VERSION} -X main.gitTag=${GITTAG} -extldflags -static"
 
 all: build
 
