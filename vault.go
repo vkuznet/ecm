@@ -19,7 +19,7 @@ import (
 // Record represent map of key-valut pairs
 type Record map[string]string
 
-// ValutRecord represents full vault record
+// VaultRecord represents full vault record
 type VaultRecord struct {
 	ID               string    // record ID
 	Map              Record    // record map (key-valut pairs)
@@ -36,7 +36,7 @@ func (r *VaultRecord) String() string {
 	return fmt.Sprintf("%+v", r)
 }
 
-// Details provides record details
+// Keys provides vault record keys
 func (r *VaultRecord) Keys() []string {
 	// predefined keys order
 	keys := []string{"Name", "Login", "Password"}
@@ -176,7 +176,7 @@ func (v *Vault) Update(rec VaultRecord) error {
 	return err
 }
 
-// helper function to read vault and return list of records
+// Create provides vault creation functionality
 func (v *Vault) Create(vname string) error {
 	if vname == "" {
 		vname = "Primary"
@@ -263,7 +263,7 @@ func (v *Vault) Write() error {
 	return nil
 }
 
-// helper function to read vault and return list of records
+// WriteRecord provides write record functionality of vault
 func (v *Vault) WriteRecord(rec VaultRecord) error {
 	err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 	if err != nil {
@@ -273,7 +273,7 @@ func (v *Vault) WriteRecord(rec VaultRecord) error {
 	return nil
 }
 
-// helper function to read vault and return list of records
+// ReadRecord provides read record functionality of our vault
 func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 	var rec VaultRecord
 	// check first if file exsist

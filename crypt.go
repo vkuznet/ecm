@@ -72,8 +72,10 @@ func (c *CipherAES) Decrypt(data []byte, passphrase string) ([]byte, error) {
 }
 
 const (
-	KeySize   = 32 // KeySize is the size of a NaCl secret key
-	NonceSize = 24 // NonceSize is the size of a NaCl nonce
+	// KeySize is the size of a NaCl secret key
+	KeySize = 32
+	// NonceSize is the size of a NaCl nonce
+	NonceSize = 24
 )
 
 // GenerateKey creates a new secret key either randomly if input key is

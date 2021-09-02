@@ -5,6 +5,7 @@ import (
 	"github.com/rivo/tview"
 )
 
+// GreyStyle represents grey style theme
 var GreyStyle = tview.Theme{
 	PrimitiveBackgroundColor:    tcell.ColorLightGrey,
 	ContrastBackgroundColor:     tcell.ColorSilver,
@@ -20,6 +21,7 @@ var GreyStyle = tview.Theme{
 	ContrastSecondaryTextColor: tcell.ColorDarkCyan,
 }
 
+// TitleColor represents title color used in widgets
 var TitleColor = tcell.ColorWhite
 
 // helper function to setup the theme for our app

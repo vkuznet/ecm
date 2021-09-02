@@ -11,11 +11,12 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 )
 
-// custom rotate logger
+// RotateLogWriter represents rorate log writer
 type RotateLogWriter struct {
 	RotateLogs *rotatelogs.RotateLogs
 }
 
+// Write method of our rotate log writer
 func (w RotateLogWriter) Write(data []byte) (int, error) {
 	return w.RotateLogs.Write([]byte(data))
 }
@@ -24,6 +25,7 @@ func (w RotateLogWriter) Write(data []byte) (int, error) {
 type LogWriter struct {
 }
 
+// Write method of our log writer
 func (writer LogWriter) Write(data []byte) (int, error) {
 	return fmt.Print(data)
 }

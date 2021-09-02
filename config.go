@@ -9,12 +9,13 @@ import (
 	"path"
 )
 
+// Configuration represents vault configuration structure
 type Configuration struct {
 	MinPasswordLength int    `json:"min_password_length"` // min length of generated passwords
 	LogFile           string `json:"log_file"`            // full path to pwm log file
 }
 
-// global variables
+// Config represents our vault configruation object
 var Config Configuration
 
 // String returns string representation of dbs Config
@@ -27,6 +28,7 @@ func (c *Configuration) String() string {
 	return string(data)
 }
 
+// ParseConfig provides config parsing
 func ParseConfig(configFile string) error {
 	// if config file does not exists we'll create one
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {

@@ -111,18 +111,15 @@ func main() {
 
 	// encrypt given record
 	if encryptFile != "" {
-		edata, err := ioutil.ReadFile(encryptFile)
+		data, err := ioutil.ReadFile(encryptFile)
 		if err != nil {
 			panic(err)
 		}
 		uid := uuid.NewString()
 		attachments := []string{encryptFile}
 		rmap := make(Record)
+		rmap["Data"] = string(data)
 		rec := VaultRecord{ID: uid, Map: rmap, Attachments: attachments}
-		data, err = encrypt(edata, vault.Secret, vault.Cipher)
-		if err != nil {
-			panic(err)
-		}
 		rec.WriteRecord(vault.Directory, vault.Secret, vault.Cipher, vault.Verbose)
 		log.Println("Create new vault record %s", rec.ID)
 	}
