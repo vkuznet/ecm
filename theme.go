@@ -8,17 +8,16 @@ import (
 // GreyStyle represents grey style theme
 var GreyStyle = tview.Theme{
 	PrimitiveBackgroundColor:    tcell.ColorLightGrey,
-	ContrastBackgroundColor:     tcell.ColorSilver,
+	ContrastBackgroundColor:     tcell.ColorSnow,
 	MoreContrastBackgroundColor: tcell.ColorGreen,
-	//     BorderColor:                 tcell.ColorMediumOrchid,
-	BorderColor:                tcell.ColorSnow,
-	TitleColor:                 tcell.ColorSteelBlue,
-	GraphicsColor:              tcell.ColorWhite,
-	PrimaryTextColor:           tcell.ColorBlack,
-	SecondaryTextColor:         tcell.ColorSteelBlue,
-	TertiaryTextColor:          tcell.ColorGreen,
-	InverseTextColor:           tcell.ColorBlue,
-	ContrastSecondaryTextColor: tcell.ColorDarkCyan,
+	BorderColor:                 tcell.ColorSnow,
+	TitleColor:                  tcell.ColorSteelBlue,
+	GraphicsColor:               tcell.ColorWhite,
+	PrimaryTextColor:            tcell.ColorBlack,
+	SecondaryTextColor:          tcell.ColorSteelBlue,
+	TertiaryTextColor:           tcell.ColorGreen,
+	InverseTextColor:            tcell.ColorBlue,
+	ContrastSecondaryTextColor:  tcell.ColorDarkCyan,
 }
 
 // TitleColor represents title color used in widgets
