@@ -154,6 +154,21 @@ func (v *Vault) AddRecord(kind string) int {
 	return len(v.Records) - 1
 }
 
+// EncryptFile provides ability to encrypt given file name and place into the fault
+func (v *Vault) EncryptFile(efile string) {
+	data, err := ioutil.ReadFile(efile)
+	if err != nil {
+		log.Fatalf("unable to read file %s, error %v", efile, err)
+	}
+	uid := uuid.NewString()
+	attachments := []string{efile}
+	rmap := make(Record)
+	rmap["Data"] = string(data)
+	rec := VaultRecord{ID: uid, Map: rmap, Attachments: attachments}
+	rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
+	log.Printf("created new vault record %s", rec.ID)
+}
+
 // Update vault records
 func (v *Vault) Update(rec VaultRecord) error {
 	updated := false
@@ -178,10 +193,14 @@ func (v *Vault) Update(rec VaultRecord) error {
 
 // Create provides vault creation functionality
 func (v *Vault) Create(vname string) error {
+	// setup defaults
 	if vname == "" {
 		vname = "Primary"
 	}
-	var vault string
+	cipher := getCipher(v.Cipher)
+	v.Cipher = cipher
+
+	var vaultDir string
 	// construct proper full path
 	if v.Directory != "" {
 		abs, err := filepath.Abs(v.Directory)
@@ -208,11 +227,11 @@ func (v *Vault) Create(vname string) error {
 	}
 
 	// procceed with vault
-	vault = filepath.Join(v.Directory, vname)
-	v.Directory = vault
-	_, err = os.Stat(vault)
+	vaultDir = filepath.Join(v.Directory, vname)
+	v.Directory = vaultDir
+	_, err = os.Stat(vaultDir)
 	if os.IsNotExist(err) {
-		err = os.MkdirAll(vault, 0755)
+		err = os.MkdirAll(vaultDir, 0755)
 		if err != nil {
 			log.Fatal(err)
 		}

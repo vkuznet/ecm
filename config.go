@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"path"
+
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 )
 
 // Configuration represents vault configuration structure
@@ -29,7 +31,7 @@ func (c *Configuration) String() string {
 }
 
 // ParseConfig provides config parsing
-func ParseConfig(configFile string) error {
+func ParseConfig(configFile string, verbose int) error {
 	// if config file does not exists we'll create one
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		// make config dir
@@ -67,5 +69,24 @@ func ParseConfig(configFile string) error {
 	if Config.LogFile == "" {
 		Config.LogFile = fmt.Sprintf("%s/pwm.log", pwmHome())
 	}
+
+	// log time, filename, and line number
+	if verbose > 0 {
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
+	} else {
+		log.SetFlags(log.LstdFlags)
+	}
+
+	// setup logger
+	log.SetOutput(new(LogWriter))
+	if Config.LogFile != "" {
+		logFile := Config.LogFile + "-%Y%m%d"
+		rl, err := rotatelogs.New(logFile)
+		if err == nil {
+			rotlogs := RotateLogWriter{RotateLogs: rl}
+			log.SetOutput(rotlogs)
+		}
+	}
+
 	return nil
 }

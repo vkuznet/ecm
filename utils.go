@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -172,4 +173,28 @@ func readPassword() (string, error) {
 	password := string(bytePassword)
 	password = strings.Replace(password, "\n", "", -1)
 	return password, nil
+}
+
+// helper function to decrypt file
+func decryptFile(fname, cipher string) {
+	password, err := readPassword()
+	if err != nil {
+		panic(err)
+	}
+	if cipher == "" {
+		arr := strings.Split(fname, ".")
+		cipher = arr[1] // we take file name extension
+	}
+	if !InList(cipher, SupportedCiphers) {
+		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, SupportedCiphers)
+	}
+	data, err := ioutil.ReadFile(fname)
+	if err != nil {
+		panic(err)
+	}
+	data, err = decrypt(data, password, cipher)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
 }
