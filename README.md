@@ -20,3 +20,5 @@ Here is a list of requirements:
 - support multiple vaults
 - easy vault sync management, e.g. on local FS, on multiple cloud platforms
 
+Here is a preview of current functionality:
+![Preview](doc/images/gpm.gif)
