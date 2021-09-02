@@ -111,7 +111,7 @@ func main() {
 
 	// encrypt given record
 	if encryptFile != "" {
-		data, err := ioutil.ReadFile(encryptFile)
+		edata, err := ioutil.ReadFile(encryptFile)
 		if err != nil {
 			panic(err)
 		}
@@ -119,7 +119,7 @@ func main() {
 		attachments := []string{encryptFile}
 		rmap := make(Record)
 		rec := VaultRecord{ID: uid, Map: rmap, Attachments: attachments}
-		data, err = encrypt(data, vault.Secret, vault.Cipher)
+		data, err = encrypt(edata, vault.Secret, vault.Cipher)
 		if err != nil {
 			panic(err)
 		}

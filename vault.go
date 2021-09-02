@@ -44,7 +44,7 @@ func (r *VaultRecord) Keys() []string {
 	var out []string
 	// map keys
 	var mapKeys []string
-	for k, _ := range r.Map {
+	for k := range r.Map {
 		mapKeys = append(mapKeys, k)
 	}
 	sort.Sort(StringList(mapKeys))
@@ -286,7 +286,7 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 		return rec, err
 	}
 
-	// alwasy keep file safe
+	// always keep file safe
 	err := os.Chmod(fname, 0600)
 	if err != nil {
 		log.Println("unable to change file permission of", fname)
