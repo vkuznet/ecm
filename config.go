@@ -15,7 +15,7 @@ type Configuration struct {
 	LogFile           string `json:"log_file"`            // full path to pwm log file
 }
 
-// Config represents our vault configruation object
+// Config represents our vault configuration object
 var Config Configuration
 
 // String returns string representation of dbs Config

@@ -21,7 +21,7 @@ func (w RotateLogWriter) Write(data []byte) (int, error) {
 	return w.RotateLogs.Write([]byte(data))
 }
 
-// custom logger
+// LogWriter represents our logger
 type LogWriter struct {
 }
 
