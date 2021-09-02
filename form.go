@@ -25,7 +25,7 @@ func lockView(app *tview.Application, verbose int) (string, error) {
 	frame := tview.NewFrame(input)
 	frame.SetBorders(10, 1, 1, 1, 10, 1)
 	frame.AddText("\U0001F512 Password Manager (PWM)", true, tview.AlignLeft, TitleColor)
-	frame.AddText("\u00A9 2021 - github.com/vkuznet - \U0001F511", false, tview.AlignLeft, TitleColor)
+	frame.AddText("\u00A9 2021 - github.com/vkuznet - \U0001F510", false, tview.AlignLeft, TitleColor)
 
 	//     if err := app.SetRoot(input, true).EnableMouse(true).Run(); err != nil {
 	if err := app.SetRoot(frame, true).EnableMouse(true).Run(); err != nil {
