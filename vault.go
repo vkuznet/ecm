@@ -199,8 +199,6 @@ func (v *Vault) Create(vname string) error {
 	if vname == "" {
 		vname = "Primary"
 	}
-	cipher := getCipher(v.Cipher)
-	v.Cipher = cipher
 
 	var vaultDir string
 	// construct proper full path

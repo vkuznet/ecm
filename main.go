@@ -68,7 +68,7 @@ func main() {
 	}
 
 	// initialize our vault
-	vault := Vault{Cipher: cipher, Secret: salt, Verbose: verbose}
+	vault := Vault{Cipher: getCipher(cipher), Secret: salt, Verbose: verbose}
 
 	// create our vault
 	err = vault.Create(vname)
