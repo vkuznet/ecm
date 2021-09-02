@@ -33,7 +33,7 @@ func (r *VaultRecord) String() string {
 	if err == nil {
 		return string(data)
 	}
-	return fmt.Sprintf("%v", r)
+	return ""
 }
 
 // Keys provides vault record keys
@@ -257,7 +257,7 @@ func (v *Vault) Write() error {
 	for _, rec := range v.Records {
 		err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 		if err != nil {
-			log.Fatalf("unable to write vault record %d, error %v", rec.ID, err)
+			log.Fatalf("unable to write vault record %s, error %v", rec.ID, err)
 		}
 	}
 	return nil
@@ -267,7 +267,7 @@ func (v *Vault) Write() error {
 func (v *Vault) WriteRecord(rec VaultRecord) error {
 	err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 	if err != nil {
-		log.Fatalf("unable to write vault record %d, error %v", rec.ID, err)
+		log.Fatalf("unable to write vault record %s, error %v", rec.ID, err)
 		return err
 	}
 	return nil
