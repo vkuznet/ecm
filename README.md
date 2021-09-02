@@ -19,6 +19,9 @@ Here is a list of requirements:
   or notes, or entire files
 - support multiple vaults
 - easy vault sync management, e.g. on local FS, on multiple cloud platforms
+- easy customization (themes, record attributes, etc.)
+
+This work is in progress and can only be viewed as alpha release.
 
 Here is a preview of current functionality:
 ![Preview](doc/images/gpm.gif)
