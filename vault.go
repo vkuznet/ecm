@@ -239,7 +239,22 @@ func (v *Vault) Create(vname string) error {
 	return nil
 }
 
-// helper function to read vault and return list of records
+// Files returns list of vault files
+func (v *Vault) Files() ([]string, error) {
+	files, err := ioutil.ReadDir(v.Directory)
+	if err != nil {
+		return []string{}, err
+	}
+	var out []string
+	for _, f := range files {
+		if f.Name() != "backups" {
+			out = append(out, f.Name())
+		}
+	}
+	return out, nil
+}
+
+// Read reads vault records
 func (v *Vault) Read() error {
 	files, err := ioutil.ReadDir(v.Directory)
 	if err != nil {

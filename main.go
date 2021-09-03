@@ -34,11 +34,19 @@ func main() {
 	flag.BoolVar(&version, "version", false, "Show version")
 	var verbose int
 	flag.IntVar(&verbose, "verbose", 0, "verbose level")
+	var serverConfig string
+	flag.StringVar(&serverConfig, "serverConfig", "", "start HTTP server with provided configuration")
 	flag.Parse()
 	if version {
 		fmt.Println(info())
 		os.Exit(0)
 
+	}
+
+	// start HTTP server if it is required
+	if serverConfig != "" {
+		startServer(serverConfig)
+		os.Exit(0)
 	}
 
 	// decrypt record

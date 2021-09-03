@@ -18,3 +18,4 @@ gpm
 *.nacl.*
 *.aes*
 TODO*
+*config.json
