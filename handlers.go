@@ -46,6 +46,16 @@ func getVault(r *http.Request) (string, error) {
 	return vdir, nil
 }
 
+// helper function to get vault parameters from the HTTP request
+func getVaultRecord(r *http.Request) (string, error) {
+	vars := mux.Vars(r)
+	rid, ok := vars["rid"]
+	if !ok {
+		return "", errors.New("there is no rid parameter in HTTP request")
+	}
+	return rid, nil
+}
+
 // VaultHandler provides basic functionality of status response
 func VaultHandler(w http.ResponseWriter, r *http.Request) {
 	vdir, err := getVault(r)
@@ -75,7 +85,23 @@ func VaultRecordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("vault", vdir)
-	w.WriteHeader(http.StatusOK)
+	rid, err := getVaultRecord(r)
+	if err != nil {
+		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultRecordHandler", http.StatusBadRequest)
+		return
+	}
+	fname := filepath.Join(vdir, rid)
+	_, err = os.Stat(fname)
+	if err != nil {
+		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultRecordHandler", http.StatusBadRequest)
+		return
+	}
+	data, err := os.ReadFile(fname)
+	if err != nil {
+		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultRecordHandler", http.StatusBadRequest)
+		return
+	}
+	w.Write(data)
 }
 
 // VaultAddHandler provides basic functionality of status response
