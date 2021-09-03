@@ -65,7 +65,31 @@ ls ~/.gpm/Primary
 # decrypt given vault record
 ./gpm -decrypt ~/.gpm/Primary/2dface67-e5a8-44f7-ad58-adfa0f54b954.aes
 ```
-We assigned the following keys to manage the vault records:
+Here is a typical structure of `gpm` vault(s):
+```
+tree ~/.gpm
+/Users/vk/.gpm
+├── MyNacl
+│   ├── a589a35c-4d65-46e6-b18b-590a0623ded4.naci
+│   └── backups
+│       └── a589a35c-4d65-46e6-b18b-590a0623ded4.naci-2021-09-01T07:41:05-04:00
+├── Primary
+│   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes
+│   ├── 71488552-1023-4480-9aa4-a909b23726ee.aes
+│   ├── 9636520f-63ad-478c-92f7-3ed3b4eb579f.aes
+│   ├── acb8a9f7-6140-42d2-bb32-f730f7ab572f.aes
+│   ├── backups
+│   │   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes-2021-08-30T18:02:56-04:00
+│   │   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes-2021-08-30T18:03:10-04:00
+│   └── fb26fd73-ea17-49f5-b38b-cf17575f1264.aes
+├── config.json
+├── gpm.log-20210831
+....
+```
+It consists of two vaults (MyNacl) and (Primary) which holds different
+encrypted records and their possible backups, the config.json, the logs.
+
+So far the following keys are assigned to manage the vault records:
 - `Ctrl-N` next widget
 - `Ctrl-P` previous widget
 - `Ctrl-F` switch to Search/Find input
