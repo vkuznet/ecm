@@ -195,7 +195,7 @@ func decryptFile(fname, cipher string) {
 	}
 	data, err = decrypt(data, password, cipher)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	fmt.Println(string(data))
 }
