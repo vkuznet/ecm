@@ -80,7 +80,7 @@ func handlers() *mux.Router {
 	router := mux.NewRouter()
 	//     router.StrictSlash(true) // to allow /route and /route/ end-points
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}"), VaultHandler).Methods("GET")
-	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/{rid:[0-9a-zA-Z-]+}"), VaultRecordHandler).Methods("GET")
+	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/{rid:[0-9a-zA-Z-\\.]+}"), VaultRecordHandler).Methods("GET")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/{rid:[0-9a-zA-Z-]+}"), VaultDeleteHandler).Methods("DELETE")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}"), VaultAddHandler).Methods("POST")
 	router.HandleFunc(basePath("/token"), TokenHandler).Methods("GET")
