@@ -65,3 +65,12 @@ ls ~/.gpm/Primary
 # decrypt given vault record
 ./gpm -decrypt ~/.gpm/Primary/2dface67-e5a8-44f7-ad58-adfa0f54b954.aes
 ```
+We assigned the following keys to manage the vault records:
+- `Ctrl-N` next widget
+- `Ctrl-P` previous widget
+- `Ctrl-F` switch to Search/Find input
+- `Ctrl-L` switch to Records widget
+- `Ctrl-E` record edit mode widget
+- `Ctrl-G` generate password
+- `Ctrl-P` copy password to clipboard
+- `Ctrl-Q` Exit the app
