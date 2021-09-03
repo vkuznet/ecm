@@ -1,10 +1,10 @@
 ## (Generic|Global|GNU) Password Manager
 
-[![Build Status](https://github.com/vkuznet/pwm/actions/workflows/go.yml/badge.svg)](https://github.com/vkuznet/pwm/actions/workflows/go.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/vkuznet/pwm)](https://goreportcard.com/report/github.com/vkuznet/pwm)
-[![GoDoc](https://godoc.org/github.com/vkuznet/pwm?status.svg)](https://godoc.org/github.com/vkuznet/pwm)
+[![Build Status](https://github.com/vkuznet/gpm/actions/workflows/go.yml/badge.svg)](https://github.com/vkuznet/gpm/actions/workflows/go.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/vkuznet/gpm)](https://goreportcard.com/report/github.com/vkuznet/gpm)
+[![GoDoc](https://godoc.org/github.com/vkuznet/gpm?status.svg)](https://godoc.org/github.com/vkuznet/gpm)
 
-(Generic | Global | GNU) Password Manager (GPM) is a password manager similar
+(Generic | Global) Password Manager (GPM) is a password manager similar
 to 1Password, LastPass, ButterCup, and similar password management tools.
 Since majority of these tools are designed to work with your browsers we
 wanted to create a more flexible version of password manager tool which
@@ -25,3 +25,43 @@ This work is in progress and can only be viewed as alpha release.
 
 Here is a preview of current functionality:
 ![Preview](doc/images/gpm.gif)
+
+### Current functionality
+So far, the tool is capable of creation vaults with different ciphers (AES and
+NaCl are supported), the different records as well as entire files can be
+added to the vault. It provides search capabilities, record editing, etc.
+Since vault resides in specific directory and records resides in
+individual encrypted files, the sync procedure with any destination is very
+simple and can be organized via `rsync` tool.
+
+Here is few examples:
+```
+# get help
+./gpm -help
+Usage of ./gpm:
+  -cipher string
+    	cipher to use (aes, nacl)
+  -decrypt string
+    	decrypt given file name
+  -encrypt string
+    	encrypt given file and place it into vault
+  -vault string
+    	vault name
+  -verbose int
+    	verbose level
+  -version
+    	Show version
+
+# start vault, by default it will be created in $HOME/.gpm/Primary
+# you may define your own location via GPM_HOME
+./gpm
+
+# encrypt given file and store it into the vault
+./gpm -encrypt myfile.txt
+
+# vault records
+ls ~/.gpm/Primary
+
+# decrypt given vault record
+./gpm -decrypt ~/.gpm/Primary/2dface67-e5a8-44f7-ad58-adfa0f54b954.aes
+```

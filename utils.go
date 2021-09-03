@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	separator = "---\n" // used in pwm data format
+	separator = "---\n" // used in gpm data format
 )
 
 // StringList implement sort for []string type
@@ -29,22 +29,22 @@ func (s StringList) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 // Less implements less function for []int type
 func (s StringList) Less(i, j int) bool { return s[i] < s[j] }
 
-// helper function to determine home area for PWM
-func pwmHome() string {
+// helper function to determine home area for GPM
+func gpmHome() string {
 	var err error
-	hdir := os.Getenv("PWM_HOME")
+	hdir := os.Getenv("GPM_HOME")
 	if hdir == "" {
 		hdir, err = os.UserHomeDir()
 		if err != nil {
 			log.Fatal(err)
 		}
-		hdir = fmt.Sprintf("%s/.pwm", hdir)
+		hdir = fmt.Sprintf("%s/.gpm", hdir)
 	}
 	return hdir
 }
 
 // custom split function based on separator delimiter
-func pwmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
+func gpmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
 
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil

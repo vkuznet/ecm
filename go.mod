@@ -1,4 +1,4 @@
-module github.com/vkuznet/pwm
+module github.com/vkuznet/gpm
 
 go 1.17
 

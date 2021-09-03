@@ -14,7 +14,7 @@ import (
 // Configuration represents vault configuration structure
 type Configuration struct {
 	MinPasswordLength int    `json:"min_password_length"` // min length of generated passwords
-	LogFile           string `json:"log_file"`            // full path to pwm log file
+	LogFile           string `json:"log_file"`            // full path to gpm log file
 }
 
 // Config represents our vault configuration object
@@ -39,9 +39,9 @@ func ParseConfig(configFile string, verbose int) error {
 		log.Println("make dir", dir)
 		err := os.MkdirAll(dir, 0755)
 		if err != nil {
-			log.Fatalf("unable to create PWM area %s for config file, error %v", dir, err)
+			log.Fatalf("unable to create GPM area %s for config file, error %v", dir, err)
 		}
-		lfile := fmt.Sprintf("%s/pwm.log", pwmHome())
+		lfile := fmt.Sprintf("%s/gpm.log", gpmHome())
 		config := Configuration{MinPasswordLength: 24, LogFile: lfile}
 		data, err := json.Marshal(config)
 		if err != nil {
@@ -49,7 +49,7 @@ func ParseConfig(configFile string, verbose int) error {
 		}
 		err = os.WriteFile(configFile, data, 0755)
 		if err != nil {
-			log.Fatalf("unable to create PWM config file, error %v", err)
+			log.Fatalf("unable to create GPM config file, error %v", err)
 		}
 	}
 
@@ -67,7 +67,7 @@ func ParseConfig(configFile string, verbose int) error {
 		Config.MinPasswordLength = 24
 	}
 	if Config.LogFile == "" {
-		Config.LogFile = fmt.Sprintf("%s/pwm.log", pwmHome())
+		Config.LogFile = fmt.Sprintf("%s/gpm.log", gpmHome())
 	}
 
 	// log time, filename, and line number

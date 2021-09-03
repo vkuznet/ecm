@@ -18,16 +18,12 @@ var gitVersion, gitTag string
 func info() string {
 	goVersion := runtime.Version()
 	tstamp := time.Now().Format("2006-02-01")
-	return fmt.Sprintf("pwm git=%s tag=%s go=%s date=%s", gitVersion, gitTag, goVersion, tstamp)
+	return fmt.Sprintf("gpm git=%s tag=%s go=%s date=%s", gitVersion, gitTag, goVersion, tstamp)
 }
 
 func main() {
 	var vname string
 	flag.StringVar(&vname, "vault", "", "vault name")
-	var add bool
-	flag.BoolVar(&add, "add", false, "add new record")
-	var pat string
-	flag.StringVar(&pat, "find", "", "find record pattern")
 	var cipher string
 	flag.StringVar(&cipher, "cipher", "", "cipher to use (aes, nacl)")
 	var dfile string
@@ -52,7 +48,7 @@ func main() {
 	}
 
 	// parse input config
-	configFile := fmt.Sprintf("%s/config.json", pwmHome())
+	configFile := fmt.Sprintf("%s/config.json", gpmHome())
 	err := ParseConfig(configFile, verbose)
 	if err != nil {
 		log.Fatal(err)
