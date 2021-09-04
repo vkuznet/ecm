@@ -210,7 +210,7 @@ func decryptFile(fname, cipher, write, attr string) {
 		if ok {
 			attr = val
 		} else {
-			log.Fatal("unable to extract attribute %s from the record", attr)
+			log.Fatalf("unable to extract attribute %s from the record", attr)
 		}
 	}
 	if write == "stdout" {
