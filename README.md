@@ -1,4 +1,4 @@
-## (Generic|Global|GNU) Password Manager
+## (Generic | Global) Password Manager
 
 [![Build Status](https://github.com/vkuznet/gpm/actions/workflows/go.yml/badge.svg)](https://github.com/vkuznet/gpm/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vkuznet/gpm)](https://goreportcard.com/report/github.com/vkuznet/gpm)
@@ -98,3 +98,42 @@ So far the following keys are assigned to manage the vault records:
 - `Ctrl-G` generate password
 - `Ctrl-P` copy password to clipboard
 - `Ctrl-Q` Exit the app
+
+### GPM Server
+We add ability to start GPM server. It can be done as simple as following
+```
+
+# creeate server config file, e.g. server_config.json
+# adjust your vault area to where your actual vault is
+{
+    "port": 8888,
+    "vault_area": "/path/.gpm",
+    "verbose": 1
+}
+
+# start the server
+./gpm -server server_config.json
+```
+
+The GPM server support the following list of APIs
+- GET URL/Vault provides list of records
+- GET URL/Vault/recordID provides encrypted data record
+- DELETE URL/Vault/recordID delete data record
+- POST URL/Vault -d payload, upload record to the server
+- GET URL/Vault/token provides token to use in API requests
+
+For example,
+```
+# to get records from the vault named Primary
+curl http;//localhost:8888/vault/Primary
+
+# to get specific record content from vault Primary:
+curl http;//localhost:8888/vault/Primary/fb26fd73-ea17-49f5-b38b-cf17575f1264.aes
+
+# to post record to the vault Primary:
+curl -X POST -d@your_record.json http;//localhost:8888/vault/Primary
+
+# to delete record from the vault Primary
+curl -X DELETE http;//localhost:8888/vault/Primary/fb26fd73-ea17-49f5-b38b-cf17575f1264.aes 
+
+```
