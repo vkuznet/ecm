@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -10,6 +12,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/atotto/clipboard"
 	"golang.org/x/term"
 )
 
@@ -176,7 +179,7 @@ func readPassword() (string, error) {
 }
 
 // helper function to decrypt file
-func decryptFile(fname, cipher string) {
+func decryptFile(fname, cipher, write, attr string) {
 	password, err := readPassword()
 	if err != nil {
 		panic(err)
@@ -197,5 +200,39 @@ func decryptFile(fname, cipher string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(data))
+	if attr != "" {
+		var rec VaultRecord
+		err := json.Unmarshal(data, &rec)
+		if err != nil {
+			log.Fatal("unable to unarmashal vault record", err)
+		}
+		val, ok := rec.Map[attr]
+		if ok {
+			attr = val
+		} else {
+			log.Fatal("unable to extract attribute %s from the record", attr)
+		}
+	}
+	if write == "stdout" {
+		fmt.Println(string(data))
+	} else if write == "clipboard" {
+		if err := clipboard.WriteAll(string(data)); err != nil {
+			log.Fatal("unable to copy to clipboard, error", err)
+		}
+	} else {
+		// write to given file
+		file, err := os.Create(write)
+		defer file.Close()
+		if err != nil {
+			log.Fatal("unable to create file name", write, " error ", err)
+		}
+		w := bufio.NewWriter(file)
+		buf, err := json.Marshal(data)
+		if err != nil {
+			log.Fatal("unable to Marshal record, error ", err)
+		}
+
+		w.Write(buf)
+		w.Flush()
+	}
 }

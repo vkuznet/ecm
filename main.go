@@ -30,6 +30,10 @@ func main() {
 	flag.StringVar(&dfile, "decrypt", "", "decrypt given file name")
 	var efile string
 	flag.StringVar(&efile, "encrypt", "", "encrypt given file and place it into vault")
+	var attr string
+	flag.StringVar(&attr, "attr", "", "extract certain attribute from the record")
+	var write string
+	flag.StringVar(&write, "write", "stdout", "write record to (stdout|clipboard|<filename>)")
 	var version bool
 	flag.BoolVar(&version, "version", false, "Show version")
 	var verbose int
@@ -51,7 +55,7 @@ func main() {
 
 	// decrypt record
 	if dfile != "" {
-		decryptFile(dfile, cipher)
+		decryptFile(dfile, cipher, write, attr)
 		os.Exit(0)
 	}
 
