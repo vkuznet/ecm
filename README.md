@@ -4,33 +4,35 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/vkuznet/gpm)](https://goreportcard.com/report/github.com/vkuznet/gpm)
 [![GoDoc](https://godoc.org/github.com/vkuznet/gpm?status.svg)](https://godoc.org/github.com/vkuznet/gpm)
 
-(Generic | Global) Password Manager (GPM) is a password manager similar
-to 1Password, LastPass, ButterCup, and similar password management tools.
-Since majority of these tools are designed to work with your browsers we
-wanted to create a more flexible version of password manager tool which
-will be suitable in different environments, i.e. work in a terminal (CLI
-version), work as a HTTP service, etc.
+(Generic | Global) Password Manager (GPM) is a password manager similar to
+1Password, LastPass, ButterCup, and other password management tools.  Since
+majority of these tools are designed to work with your browsers and lack of CLI
+and web server support we decided to create a more flexible version of password
+manager tool which will be suitable in different environments, i.e. work in a
+terminal (CLI version), work as a HTTP service, support multiple architectures, etc.
 
-Here is a list of requirements:
+The current list of requirements is the following:
 - OS and architecture agnostic
-- work in different environment, as a CLI tool, as a service, etc.
+- support different environments, work as CLI tool, provide HTTP service, etc.
 - support multiple cipher's implementation (currently supports AES and NaCl)
 - support flexible data formats, e.g. pre-defined Login/Password records,
-  or notes, or entire files
+  or notes, or event entire files
 - support multiple vaults
-- easy vault sync management, e.g. on local FS, on multiple cloud platforms
-- easy customization (themes, record attributes, etc.)
+- support multiple storage systems, e.g. local FS, various cloud platforms,
+remote storage, storage on remote nodes, etc.
+- easy customization including themes, record attributes, etc.
 
-This work is in progress and can only be viewed as alpha release.
+This work is in progress and can only be viewed as pre-alpha release.
 
 Here is a preview of current functionality:
 ![Preview](doc/images/gpm.gif)
 
 ### Current functionality
-So far, the tool is capable of creation vaults with different ciphers (AES and
-NaCl are supported), the different records as well as entire files can be
-added to the vault. It provides search capabilities, record editing, etc.
-Since vault resides in specific directory and records resides in
+So far, the GPM tool works as a CLI and web service. It supports different ciphers (AES and
+NaCl are implemented). It allows to add login records, as well as user-based
+meta-data, it also allow to add any kind of file to the vault.
+It provides basic search capabilities based on regpex matching, record editing, etc.
+Since vault resides in specific directory, and records stored in
 individual encrypted files, the sync procedure with any destination is very
 simple and can be organized via `rsync` tool.
 
