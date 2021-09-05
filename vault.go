@@ -414,3 +414,18 @@ func (v *Vault) Info() string {
 	}
 	return info
 }
+
+// Export allows to export vault records to a given file
+func (v *Vault) Export(fname string) error {
+	file, err := os.Create(fname)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	data, err := json.Marshal(v.Records)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(fname, data, 0755)
+	return err
+}

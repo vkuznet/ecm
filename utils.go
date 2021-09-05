@@ -178,12 +178,9 @@ func readPassword() (string, error) {
 	return password, nil
 }
 
-// helper function to decrypt file
-func decryptFile(fname, cipher, write, attr string) {
-	password, err := readPassword()
-	if err != nil {
-		panic(err)
-	}
+// helper function to decrypt given input (file or stdin)
+func decryptInput(fname, password, cipher, write, attr string) {
+	var err error
 	if cipher == "" {
 		arr := strings.Split(fname, ".")
 		// we take file name extension
@@ -192,7 +189,15 @@ func decryptFile(fname, cipher, write, attr string) {
 	if !InList(cipher, SupportedCiphers) {
 		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, SupportedCiphers)
 	}
-	data, err := ioutil.ReadFile(fname)
+	var data []byte
+	if fname == "-" { // stdin
+		var input string
+		reader := bufio.NewReader(os.Stdin)
+		input, err = reader.ReadString('\n')
+		data = []byte(input)
+	} else {
+		data, err = ioutil.ReadFile(fname)
+	}
 	if err != nil {
 		panic(err)
 	}

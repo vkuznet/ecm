@@ -34,6 +34,8 @@ func main() {
 	flag.StringVar(&attr, "attr", "", "extract certain attribute from the record")
 	var write string
 	flag.StringVar(&write, "write", "stdout", "write record to (stdout|clipboard|<filename>)")
+	var export string
+	flag.StringVar(&export, "export", "", "export vault records to given file")
 	var version bool
 	flag.BoolVar(&version, "version", false, "Show version")
 	var verbose int
@@ -55,7 +57,11 @@ func main() {
 
 	// decrypt record
 	if dfile != "" {
-		decryptFile(dfile, cipher, write, attr)
+		password, err := readPassword()
+		if err != nil {
+			panic(err)
+		}
+		decryptInput(dfile, password, cipher, write, attr)
 		os.Exit(0)
 	}
 
@@ -93,6 +99,15 @@ func main() {
 	err = vault.Read()
 	if err != nil {
 		log.Fatal("unable to read vault, error ", err)
+	}
+
+	// export vault records
+	if export != "" {
+		err = vault.Export(export)
+		if err != nil {
+			log.Fatalf("unable to export vault records, error %v", err)
+		}
+		os.Exit(0)
 	}
 
 	// create vault app and run it
