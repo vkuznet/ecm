@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -152,6 +153,29 @@ func (v *Vault) AddRecord(kind string) int {
 	rec := NewVaultRecord(kind)
 	v.Records = append(v.Records, *rec)
 	return len(v.Records) - 1
+}
+
+// DeleteRecord vault record
+func (v *Vault) DeleteRecord(rid string) error {
+	idx := -1
+	for i, rec := range v.Records {
+		if rec.ID == rid {
+			idx = i
+		}
+	}
+	if idx > -1 {
+		remove(v.Records, idx)
+	} else {
+		msg := fmt.Sprintf("no record %s found in a vault", rid)
+		return errors.New(msg)
+	}
+	return nil
+}
+
+// helper function to remove specific entry in vault record list
+func remove(s []VaultRecord, i int) []VaultRecord {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
 }
 
 // EncryptFile provides ability to encrypt given file name and place into the fault
