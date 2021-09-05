@@ -122,7 +122,17 @@ func VaultDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultDeleteHandler", http.StatusBadRequest)
 		return
 	}
-	log.Println("vault", vdir)
+	rid, err := getVaultRecord(r)
+	if err != nil {
+		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultDeleteHandler", http.StatusBadRequest)
+		return
+	}
+	vault := Vault{Cipher: getCipher(""), Secret: "", Directory: vdir}
+	err = vault.DeleteRecord(rid)
+	if err != nil {
+		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultDeleteHandler", http.StatusBadRequest)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
