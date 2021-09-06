@@ -241,13 +241,23 @@ func decryptInput(fname, password, cipher, write, attr string) {
 	}
 }
 
+// TokenRecord represents token record
+type TokenRecord struct {
+	Token  string
+	Expire time.Time
+}
+
 // helper function to generate token
-func genToken() (string, error) {
-	passphrase := "some-secret"
-	cipher := "aes"
+func genToken(passphrase, cipher string) (string, error) {
 	tstamp := time.Now().Format(time.RFC3339Nano)
-	sdata := []byte(fmt.Sprintf("token-%s", tstamp))
-	data, err := encrypt(sdata, passphrase, cipher)
+	token := fmt.Sprintf("token-%s", tstamp)
+	expire := time.Now().Add(time.Duration(Config.TokenExpireInterval) * time.Second)
+	t := TokenRecord{Token: token, Expire: expire}
+	data, err := json.Marshal(t)
+	if err != nil {
+		return "", err
+	}
+	data, err = encrypt(data, passphrase, cipher)
 	hash := base64.StdEncoding.EncodeToString(data)
 	return hash, err
 }
@@ -264,7 +274,7 @@ func decodeToken(t string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var r string
-	err = json.Unmarshal(data, &r)
-	return r, err
+	var trec TokenRecord
+	err = json.Unmarshal(data, &trec)
+	return trec.Token, err
 }
