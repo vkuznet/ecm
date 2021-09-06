@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/atotto/clipboard"
 	"golang.org/x/term"
@@ -237,4 +239,32 @@ func decryptInput(fname, password, cipher, write, attr string) {
 			log.Fatal("unable to data to output file", err)
 		}
 	}
+}
+
+// helper function to generate token
+func genToken() (string, error) {
+	passphrase := "some-secret"
+	cipher := "aes"
+	tstamp := time.Now().Format(time.RFC3339Nano)
+	sdata := []byte(fmt.Sprintf("token-%s", tstamp))
+	data, err := encrypt(sdata, passphrase, cipher)
+	hash := base64.StdEncoding.EncodeToString(data)
+	return hash, err
+}
+
+// helper function to decode token
+func decodeToken(t string) (string, error) {
+	passphrase := "some-secret"
+	cipher := "aes"
+	data, err := base64.StdEncoding.DecodeString(t)
+	if err != nil {
+		return "", err
+	}
+	data, err = decrypt(data, passphrase, cipher)
+	if err != nil {
+		return "", err
+	}
+	var r string
+	err = json.Unmarshal(data, &r)
+	return r, err
 }

@@ -138,5 +138,10 @@ func VaultDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 // TokenHandler provides basic functionality of status response
 func TokenHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	token, err := genToken()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte(token))
 }
