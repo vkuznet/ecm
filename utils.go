@@ -220,9 +220,9 @@ func decryptInput(fname, password, cipher, write, attr string) {
 		}
 		val, ok := rec.Map[attr]
 		if ok {
-			attr = val
+			data = []byte(val)
 		} else {
-			log.Fatalf("unable to extract attribute %s from the record", attr)
+			log.Fatalf("unable to extract attribute '%s' from the record %+v", attr, rec)
 		}
 	}
 	if write == "stdout" {
