@@ -13,6 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Adds-On
+      run: |
+        sudo apt-get -y install xsel xclip wl-clipboard
+
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
