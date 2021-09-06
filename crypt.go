@@ -12,6 +12,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"strings"
@@ -180,9 +181,12 @@ func encrypt(data []byte, passphrase, cipher string) ([]byte, error) {
 	if strings.ToLower(cipher) == "nacl" {
 		c := CipherNaCl{}
 		return c.Encrypt(data, passphrase)
+	} else if strings.ToLower(cipher) == "aes" {
+		c := CipherAES{}
+		return c.Encrypt(data, passphrase)
 	}
-	c := CipherAES{}
-	return c.Encrypt(data, passphrase)
+	msg := fmt.Sprintf("unsupported cipher %s", cipher)
+	return []byte{}, errors.New(msg)
 }
 
 // our decrypt wrapper function used internally
@@ -190,7 +194,10 @@ func decrypt(data []byte, passphrase, cipher string) ([]byte, error) {
 	if strings.ToLower(cipher) == "nacl" {
 		c := CipherNaCl{}
 		return c.Decrypt(data, passphrase)
+	} else if strings.ToLower(cipher) == "aes" {
+		c := CipherAES{}
+		return c.Decrypt(data, passphrase)
 	}
-	c := CipherAES{}
-	return c.Decrypt(data, passphrase)
+	msg := fmt.Sprintf("unsupported cipher %s", cipher)
+	return []byte{}, errors.New(msg)
 }
