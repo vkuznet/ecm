@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -178,13 +177,21 @@ func readPassword() (string, error) {
 	return password, nil
 }
 
+// helper function to extract cipher name from file extension
+func fileCipher(fname string) string {
+	arr := strings.Split(fname, ".")
+	cipher := strings.Split(arr[len(arr)-1], "-")[0]
+	if !InList(cipher, SupportedCiphers) {
+		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, SupportedCiphers)
+	}
+	return cipher
+}
+
 // helper function to decrypt given input (file or stdin)
 func decryptInput(fname, password, cipher, write, attr string) {
 	var err error
 	if cipher == "" {
-		arr := strings.Split(fname, ".")
-		// we take file name extension
-		cipher = strings.Split(arr[len(arr)-1], "-")[0]
+		cipher = fileCipher(fname)
 	}
 	if !InList(cipher, SupportedCiphers) {
 		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, SupportedCiphers)
@@ -196,7 +203,7 @@ func decryptInput(fname, password, cipher, write, attr string) {
 		input, err = reader.ReadString('\n')
 		data = []byte(input)
 	} else {
-		data, err = ioutil.ReadFile(fname)
+		data, err = os.ReadFile(fname)
 	}
 	if err != nil {
 		panic(err)
@@ -225,19 +232,9 @@ func decryptInput(fname, password, cipher, write, attr string) {
 			log.Fatal("unable to copy to clipboard, error", err)
 		}
 	} else {
-		// write to given file
-		file, err := os.Create(write)
-		defer file.Close()
+		err := os.WriteFile(write, data, 0755)
 		if err != nil {
-			log.Fatal("unable to create file name", write, " error ", err)
+			log.Fatal("unable to data to output file", err)
 		}
-		w := bufio.NewWriter(file)
-		buf, err := json.Marshal(data)
-		if err != nil {
-			log.Fatal("unable to Marshal record, error ", err)
-		}
-
-		w.Write(buf)
-		w.Flush()
 	}
 }
