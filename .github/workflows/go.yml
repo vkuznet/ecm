@@ -25,5 +25,10 @@ jobs:
     - name: Build
       run: make
 
+    - name: set environment variables
+      uses: allenevans/set-env@v2.0.0
+      with:
+        SKIP_CLIPBOARD_TEST: '1'
+
     - name: Test
       run: make test

@@ -47,6 +47,10 @@ func TestDecryptInputToFile(t *testing.T) {
 
 // TestDecryptInputToClipboard function
 func TestDecryptInputToClipboard(t *testing.T) {
+	if os.Getenv("SKIP_CLIPBOARD_TEST") == "1" {
+		log.Println("skip clipboard test")
+		return
+	}
 	password := "test"
 	rec := make(Record)
 	rec["attr"] = "test"
@@ -74,7 +78,7 @@ func TestDecryptInputToClipboard(t *testing.T) {
 	decryptInput(tmpFile.Name(), password, cipher, "clipboard", "")
 	cdata, err := clipboard.ReadAll()
 	if err != nil {
-		log.Fatal("unable to copy to clipboard, error", err)
+		log.Fatal("unable to copy to clipboard, error ", err)
 	}
 	if string(cdata) != string(data) {
 		t.Errorf("wrong data written to clipboard, expect '%s' result '%s'", string(data), string(cdata))
@@ -84,7 +88,7 @@ func TestDecryptInputToClipboard(t *testing.T) {
 	decryptInput(tmpFile.Name(), password, cipher, "clipboard", "attr")
 	cdata, err = clipboard.ReadAll()
 	if err != nil {
-		log.Fatal("unable to copy to clipboard, error", err)
+		log.Fatal("unable to copy to clipboard, error ", err)
 	}
 	// clipboard should now only contain valut of {"attr":"test"} record
 	if string(cdata) != "test" {
