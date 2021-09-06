@@ -15,7 +15,7 @@ jobs:
 
     - name: Adds-On
       run: |
-        sudo apt-get -y install xsel xclip wl-clipboard
+        sudo apt-get -y install xsel
 
     - name: Set up Go
       uses: actions/setup-go@v2
@@ -24,8 +24,6 @@ jobs:
 
     - name: Build
       run: make
-#       run: go build -v ./...
 
     - name: Test
       run: make test
-#       run: go test -v ./...
