@@ -16,6 +16,7 @@ type Configuration struct {
 	MinPasswordLength   int    `json:"min_password_length"`   // min length of generated passwords
 	LogFile             string `json:"log_file"`              // full path to gpm log file
 	TokenExpireInterval int    `json:"token_expire_interval"` // token expire interval in seconds
+	TokenSecret         string `json:"token_secret"`          // token secret
 }
 
 // Config represents our vault configuration object
@@ -69,6 +70,10 @@ func ParseConfig(configFile string, verbose int) error {
 	}
 	if Config.TokenExpireInterval == 0 {
 		Config.TokenExpireInterval = 60
+	}
+	if Config.TokenSecret == "" {
+		chars := voc + numbers + symbols
+		Config.TokenSecret = generatePassword(24, chars)
 	}
 	if Config.LogFile == "" {
 		Config.LogFile = fmt.Sprintf("%s/gpm.log", gpmHome())

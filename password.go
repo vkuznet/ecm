@@ -15,10 +15,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// helper function to copy password to clipboard
-func copyPassword() {
-}
-
+// helper function to create password of certain length
 func createPassword(length int, hasNumbers bool, hasSymbols bool) string {
 	chars := voc
 	if hasNumbers {
@@ -30,6 +27,7 @@ func createPassword(length int, hasNumbers bool, hasSymbols bool) string {
 	return generatePassword(length, chars)
 }
 
+// helper function to generate password of certain length and chars
 func generatePassword(length int, chars string) string {
 	password := ""
 	for i := 0; i < length; i++ {

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -247,11 +248,13 @@ type TokenRecord struct {
 	Expire time.Time
 }
 
-// helper function to generate token
-func genToken(passphrase, cipher string) (string, error) {
-	tstamp := time.Now().Format(time.RFC3339Nano)
+// helper function to generate and encrypt token. It returns its md5 hash
+// and nil error, otherwise it returns empty hash and actual error
+func encryptToken(passphrase, cipher string) (string, error) {
+	now := time.Now()
+	tstamp := now.Format(time.RFC3339Nano)
 	token := fmt.Sprintf("token-%s", tstamp)
-	expire := time.Now().Add(time.Duration(Config.TokenExpireInterval) * time.Second)
+	expire := now.Add(time.Duration(Config.TokenExpireInterval) * time.Second)
 	t := TokenRecord{Token: token, Expire: expire}
 	data, err := json.Marshal(t)
 	if err != nil {
@@ -262,10 +265,10 @@ func genToken(passphrase, cipher string) (string, error) {
 	return hash, err
 }
 
-// helper function to decode token
-func decodeToken(t string) (string, error) {
-	passphrase := "some-secret"
-	cipher := "aes"
+// helper function to decrypt token and check its validity. If eveything is
+// fine with our token it returns its hash and nil error, otherwise empty
+// hash and actual error is returned
+func decryptToken(t, passphrase, cipher string) (string, error) {
 	data, err := base64.StdEncoding.DecodeString(t)
 	if err != nil {
 		return "", err
@@ -276,5 +279,19 @@ func decodeToken(t string) (string, error) {
 	}
 	var trec TokenRecord
 	err = json.Unmarshal(data, &trec)
-	return trec.Token, err
+	if err != nil {
+		return "", err
+	}
+	// decode our token
+	tstamp := strings.Replace(trec.Token, "token-", "", -1)
+	expire := trec.Expire
+	ts, err := time.Parse(time.RFC3339Nano, tstamp)
+	if err != nil {
+		return "", err
+	}
+	expTime := ts.Add(time.Duration(Config.TokenExpireInterval) * time.Second)
+	if expTime != expire {
+		return "", errors.New("wrong token expire timestamp")
+	}
+	return t, err
 }
