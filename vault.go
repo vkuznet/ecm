@@ -146,6 +146,7 @@ type Vault struct {
 	LastBackup       string        // vault last backup
 	Size             int64         // vault size
 	Mode             string        // vault mode
+	Start        time.Time     // vault expire
 }
 
 // AddRecord vault record and return its index
