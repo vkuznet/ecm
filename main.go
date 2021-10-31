@@ -7,8 +7,7 @@ import (
 	"os"
 	"runtime"
 	"time"
-
-	"github.com/rivo/tview"
+	//     "github.com/rivo/tview"
 )
 
 // version of the code
@@ -38,6 +37,8 @@ func main() {
 	flag.StringVar(&export, "export", "", "export vault records to given file")
 	var version bool
 	flag.BoolVar(&version, "version", false, "Show version")
+	var lockInterval int
+	flag.IntVar(&lockInterval, "lock", 60, "lock interval in seconds")
 	var verbose int
 	flag.IntVar(&verbose, "verbose", 0, "verbose level")
 	var serverConfig string
@@ -48,6 +49,9 @@ func main() {
 		os.Exit(0)
 
 	}
+
+	// use file name in a log
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// start HTTP server if it is required
 	if serverConfig != "" {
@@ -72,17 +76,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// set Theme for our app
-	setTheme("grey")
-
-	// get vault secret
-	salt, err := secret(verbose)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// initialize our vault
-	vault := Vault{Cipher: getCipher(cipher), Secret: salt, Verbose: verbose}
+	vault := Vault{Cipher: getCipher(cipher), Verbose: verbose, Start: time.Now()}
 
 	// create our vault
 	err = vault.Create(vname)
@@ -90,27 +85,50 @@ func main() {
 		log.Fatalf("unable to create vault, error %v", err)
 	}
 
-	// encrypt given record
-	if efile != "" {
-		vault.EncryptFile(efile)
-	}
-
-	// read from our vault
-	err = vault.Read()
-	if err != nil {
-		log.Fatal("unable to read vault, error ", err)
-	}
-
-	// export vault records
-	if export != "" {
-		err = vault.Export(export)
+	// we split either at CLI or UI mode
+	if efile != "" || export != "" {
+		// get vault secret
+		salt, err := secret(verbose)
 		if err != nil {
-			log.Fatalf("unable to export vault records, error %v", err)
+			log.Fatal(err)
 		}
-		os.Exit(0)
+		vault.Secret = salt
+
+		// encrypt given record
+		if efile != "" {
+			vault.EncryptFile(efile)
+		}
+
+		// read from our vault
+		err = vault.Read()
+		if err != nil {
+			log.Fatal("unable to read vault, error ", err)
+		}
+
+		// export vault records
+		if export != "" {
+			err = vault.Export(export)
+			if err != nil {
+				log.Fatalf("unable to export vault records, error %v", err)
+			}
+			os.Exit(0)
+		}
+
+	} else { // UI mode
+		// set Theme for our app
+		setTheme("grey")
+
+		// start the app
+		gpgApp(&vault, lockInterval)
 	}
 
-	// create vault app and run it
-	app := tview.NewApplication()
-	gridView(app, &vault)
+	/*
+
+		// create vault app and run it
+		app := tview.NewApplication()
+
+		// start grid view
+		gridView(app, &vault)
+	*/
+
 }

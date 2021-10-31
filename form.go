@@ -12,6 +12,77 @@ import (
 	"github.com/rivo/tview"
 )
 
+// initGrid controls when we read our grid view
+var initGrid bool
+
+// helper function to start our UI app
+func gpgApp(vault *Vault, interval int) {
+
+	// create vault app and run it
+	app := tview.NewApplication()
+
+	pages := tview.NewPages()
+	input, auth := authView(app, pages, vault, interval)
+	pages.AddPage("auth", auth, true, true)
+	go lockGPM(app, pages, input, vault, interval)
+
+	// Start the application.
+	if err := app.SetRoot(pages, true).EnableMouse(true).Run(); err != nil {
+		panic(err)
+	}
+}
+
+// helper function to lock gpm
+func lockGPM(app *tview.Application, pages *tview.Pages, input *tview.InputField, vault *Vault, interval int) {
+	for {
+		if time.Since(vault.Start).Seconds() > float64(interval) {
+			log.Println("time to lock the screen")
+			pages.HidePage("grid")
+			pages.ShowPage("auth")
+			pages.SwitchToPage("auth")
+			vault.Start = time.Now()
+			// TODO: I need to add action to prese the key in order for screen to lock
+			input.SetText("")
+			app.ForceDraw()
+		}
+		time.Sleep(1 * time.Second)
+	}
+}
+
+// helper function to make secret prompt
+func authView(app *tview.Application, pages *tview.Pages, vault *Vault, interval int) (*tview.InputField, *tview.Frame) {
+	input := tview.NewInputField()
+	input.SetFieldWidth(50).
+		SetMaskCharacter('*').
+		SetDoneFunc(func(key tcell.Key) {
+			secret := input.GetText()
+			if initGrid && secret != vault.Secret {
+				log.Println("wrong password")
+				return
+			}
+			if !initGrid {
+				vault.Secret = secret
+				err := vault.Read()
+				if err != nil {
+					log.Fatal("unable to read vault, error ", err)
+				}
+				log.Printf("read %d vault records", len(vault.Records))
+				grid := gridView(app, pages, vault)
+				pages.AddPage("grid", grid, true, true)
+				initGrid = true
+			}
+			log.Println("switch to grid view")
+			pages.HidePage("auth")
+			pages.ShowPage("grid")
+			pages.SwitchToPage("grid")
+		})
+	frame := tview.NewFrame(input)
+	frame.SetBorders(10, 1, 1, 1, 10, 1)
+	frame.AddText("\U0001F512 Generic Password Manager (GPM)", true, tview.AlignLeft, TitleColor)
+	frame.AddText("\u00A9 2021 - github.com/vkuznet - \U0001F510", false, tview.AlignLeft, TitleColor)
+	return input, frame
+}
+
 // helper function to make secret prompt
 func lockView(app *tview.Application, verbose int) (string, error) {
 	var password string
@@ -129,7 +200,7 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 }
 
 // helper function to build our application grid view
-func gridView(app *tview.Application, vault *Vault) {
+func gridView(app *tview.Application, pages *tview.Pages, vault *Vault) *tview.Grid {
 	info := tview.NewTextView()
 	list := tview.NewList()
 	field := tview.NewInputField()
@@ -288,9 +359,10 @@ func gridView(app *tview.Application, vault *Vault) {
 		}
 		return event
 	})
-	if err := app.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
-		panic(err)
-	}
+	//     if err := app.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
+	//         panic(err)
+	//     }
+	return grid
 }
 
 // helper function to copy key content from the form to clipboard
