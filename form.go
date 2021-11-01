@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -22,8 +23,8 @@ func gpgApp(vault *Vault, interval int) {
 	app := tview.NewApplication()
 
 	pages := tview.NewPages()
-	input, auth := authView(app, pages, vault, interval)
 	text := textView(app, pages, vault)
+	input, auth := authView(app, pages, text, vault, interval)
 	pages.AddPage("auth", auth, true, true)
 	pages.AddPage("text", text, true, false)
 	go lockGPM(app, pages, input, vault, interval)
@@ -52,7 +53,7 @@ func lockGPM(app *tview.Application, pages *tview.Pages, input *tview.InputField
 }
 
 // helper function to make secret prompt
-func authView(app *tview.Application, pages *tview.Pages, vault *Vault, interval int) (*tview.InputField, *tview.Frame) {
+func authView(app *tview.Application, pages *tview.Pages, textView *tview.TextView, vault *Vault, interval int) (*tview.InputField, *tview.Frame) {
 	input := tview.NewInputField()
 	input.SetFieldWidth(50).
 		SetMaskCharacter('*').
@@ -69,7 +70,7 @@ func authView(app *tview.Application, pages *tview.Pages, vault *Vault, interval
 					log.Fatal("unable to read vault, error ", err)
 				}
 				log.Printf("read %d vault records", len(vault.Records))
-				grid := gridView(app, pages, vault)
+				grid := gridView(app, pages, textView, vault)
 				pages.AddPage("grid", grid, true, true)
 				initGrid = true
 			}
@@ -203,13 +204,14 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 }
 
 // helper function to build our application grid view
-func gridView(app *tview.Application, pages *tview.Pages, vault *Vault) *tview.Grid {
+func gridView(app *tview.Application, pages *tview.Pages, textView *tview.TextView, vault *Vault) *tview.Grid {
 	info := tview.NewTextView()
 	list := tview.NewList()
 	field := tview.NewInputField()
 	find := tview.NewFrame(field)
 	form := tview.NewForm()
-	focusIndex := 1 // defaul focus index points to list view
+	focusIndex := 1  // defaul focus index points to list view
+	recordIndex := 0 // index of currently shown record
 
 	// add new frame for search bar
 	input := tview.NewInputField()
@@ -265,6 +267,7 @@ func gridView(app *tview.Application, pages *tview.Pages, vault *Vault) *tview.G
 	list.SetBorder(true).SetTitle("Record list")
 	list.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
 		if index < len(vault.Records) {
+			recordIndex = index
 			form = recordForm(app, form, list, info, index, vault)
 			app.SetFocus(list)
 			focusIndex = 1
@@ -358,6 +361,13 @@ func gridView(app *tview.Application, pages *tview.Pages, vault *Vault) *tview.G
 			pages.HidePage("grid")
 			pages.ShowPage("text")
 			pages.SwitchToPage("text")
+			rec := vault.Records[recordIndex]
+			textView.SetText("")
+			if data, err := json.MarshalIndent(rec, "", "  "); err == nil {
+				textView.SetText(string(data))
+			} else {
+				fmt.Fprint(textView, rec)
+			}
 			app.ForceDraw()
 		case tcell.KeyCtrlX:
 			pages.HidePage("grid")
@@ -395,8 +405,8 @@ func copyToClipboard(key string, form *tview.Form, verbose int) {
 // helper function to build our application grid view
 func textView(app *tview.Application, pages *tview.Pages, vault *Vault) *tview.TextView {
 	textView := tview.NewTextView().
-		SetTextColor(tcell.ColorYellow).
-		SetScrollable(false).
+		SetTextColor(tcell.ColorBlack).
+		SetScrollable(true).
 		SetDoneFunc(func(key tcell.Key) {
 			pages.HidePage("auth")
 			pages.HidePage("text")
