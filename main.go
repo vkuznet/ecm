@@ -113,22 +113,8 @@ func main() {
 			}
 			os.Exit(0)
 		}
-
 	} else { // UI mode
-		// set Theme for our app
 		setTheme("grey")
-
-		// start the app
 		gpgApp(&vault, lockInterval)
 	}
-
-	/*
-
-		// create vault app and run it
-		app := tview.NewApplication()
-
-		// start grid view
-		gridView(app, &vault)
-	*/
-
 }

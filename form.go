@@ -23,7 +23,9 @@ func gpgApp(vault *Vault, interval int) {
 
 	pages := tview.NewPages()
 	input, auth := authView(app, pages, vault, interval)
+	text := textView(app, pages, vault)
 	pages.AddPage("auth", auth, true, true)
+	pages.AddPage("text", text, true, false)
 	go lockGPM(app, pages, input, vault, interval)
 
 	// Start the application.
@@ -38,10 +40,10 @@ func lockGPM(app *tview.Application, pages *tview.Pages, input *tview.InputField
 		if time.Since(vault.Start).Seconds() > float64(interval) {
 			log.Println("time to lock the screen")
 			pages.HidePage("grid")
+			pages.HidePage("text")
 			pages.ShowPage("auth")
 			pages.SwitchToPage("auth")
 			vault.Start = time.Now()
-			// TODO: I need to add action to prese the key in order for screen to lock
 			input.SetText("")
 			app.ForceDraw()
 		}
@@ -73,6 +75,7 @@ func authView(app *tview.Application, pages *tview.Pages, vault *Vault, interval
 			}
 			log.Println("switch to grid view")
 			pages.HidePage("auth")
+			pages.HidePage("text")
 			pages.ShowPage("grid")
 			pages.SwitchToPage("grid")
 		})
@@ -350,6 +353,18 @@ func gridView(app *tview.Application, pages *tview.Pages, vault *Vault) *tview.G
 				app.SetFocus(form)
 			}
 			return event
+		case tcell.KeyCtrlT:
+			pages.HidePage("auth")
+			pages.HidePage("grid")
+			pages.ShowPage("text")
+			pages.SwitchToPage("text")
+			app.ForceDraw()
+		case tcell.KeyCtrlX:
+			pages.HidePage("grid")
+			pages.HidePage("text")
+			pages.ShowPage("auth")
+			pages.SwitchToPage("auth")
+			app.ForceDraw()
 		case tcell.KeyCtrlQ:
 			app.Stop()
 			return event
@@ -375,4 +390,24 @@ func copyToClipboard(key string, form *tview.Form, verbose int) {
 	//     if err != nil {
 	//         log.Println("unable to read from clipboard", err)
 	//     }
+}
+
+// helper function to build our application grid view
+func textView(app *tview.Application, pages *tview.Pages, vault *Vault) *tview.TextView {
+	textView := tview.NewTextView().
+		SetTextColor(tcell.ColorYellow).
+		SetScrollable(false).
+		SetDoneFunc(func(key tcell.Key) {
+			pages.HidePage("auth")
+			pages.HidePage("text")
+			pages.ShowPage("auth")
+			pages.SwitchToPage("grid")
+			app.ForceDraw()
+		})
+	textView.SetChangedFunc(func() {
+		if textView.HasFocus() {
+			app.Draw()
+		}
+	})
+	return textView
 }
