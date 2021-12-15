@@ -101,7 +101,7 @@ func (r *VaultRecord) WriteRecord(vdir, secret, cipher string, verbose int) erro
 	}
 	edata := data
 	if cipher != "" {
-		edata, err = encrypt(data, secret, cipher)
+		edata, err = Encrypt(data, secret, cipher)
 		if err != nil {
 			log.Println("unable to encrypt record, error ", err)
 			return err
@@ -146,7 +146,7 @@ type Vault struct {
 	LastBackup       string        // vault last backup
 	Size             int64         // vault size
 	Mode             string        // vault mode
-	Start        time.Time     // vault expire
+	Start            time.Time     // vault expire
 }
 
 // AddRecord vault record and return its index
@@ -366,7 +366,7 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 		log.Fatal(err)
 	}
 	if v.Cipher != "" {
-		data, err = decrypt(data, v.Secret, v.Cipher)
+		data, err = Decrypt(data, v.Secret, v.Cipher)
 		if err != nil {
 			log.Printf("unable to decrypt data, error %v", err)
 			return rec, err

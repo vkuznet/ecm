@@ -176,8 +176,8 @@ func (c *CipherNaCl) Decrypt(data []byte, passphrase string) ([]byte, error) {
 	return out, nil
 }
 
-// our encrypt wrapper function used internally
-func encrypt(data []byte, passphrase, cipher string) ([]byte, error) {
+// Encrypt wrapper function to encrypt given binary data blob using given passphrase and cipher
+func Encrypt(data []byte, passphrase, cipher string) ([]byte, error) {
 	if strings.ToLower(cipher) == "nacl" {
 		c := CipherNaCl{}
 		return c.Encrypt(data, passphrase)
@@ -189,8 +189,8 @@ func encrypt(data []byte, passphrase, cipher string) ([]byte, error) {
 	return []byte{}, errors.New(msg)
 }
 
-// our decrypt wrapper function used internally
-func decrypt(data []byte, passphrase, cipher string) ([]byte, error) {
+// Decrypt wrapper function to decrypt given binary data blob using given passphrase and cipher
+func Decrypt(data []byte, passphrase, cipher string) ([]byte, error) {
 	if strings.ToLower(cipher) == "nacl" {
 		c := CipherNaCl{}
 		return c.Decrypt(data, passphrase)

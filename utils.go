@@ -211,7 +211,7 @@ func decryptInput(fname, password, cipher, write, attr string) {
 	if err != nil {
 		panic(err)
 	}
-	data, err = decrypt(data, password, cipher)
+	data, err = Decrypt(data, password, cipher)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -260,7 +260,7 @@ func encryptToken(passphrase, cipher string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	data, err = encrypt(data, passphrase, cipher)
+	data, err = Encrypt(data, passphrase, cipher)
 	hash := base64.StdEncoding.EncodeToString(data)
 	return hash, err
 }
@@ -273,7 +273,7 @@ func decryptToken(t, passphrase, cipher string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	data, err = decrypt(data, passphrase, cipher)
+	data, err = Decrypt(data, passphrase, cipher)
 	if err != nil {
 		return "", err
 	}
