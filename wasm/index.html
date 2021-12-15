@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <script src="wasm_exec.js"></script>
+        <script>
+            const go = new Go();
+            WebAssembly.instantiateStreaming(fetch("decode.wasm"), go.importObject)
+                .then(result => {
+                go.run(result.instance);
+            });
+        </script>
+    </head>
+    <body style="text-align-last: center">
+        <div>
+            <textarea id="input" cols="40" rows="10">
+            </textarea>
+        </div>
+        <div>
+            <input type="submit"
+                   value="> Decode call <"
+                   onclick="decodeJs(input.value)"/>
+        </div>
+        <div>
+            <textarea id="output" cols="40" rows="10">
+            </textarea>
+        </div>
+    </body>
+    <script>
+        let decodeJs = function(input) {
+            // here we call gpmDecode function from decode.wasm which we define in Go
+            let result = gpmDecode(input);
+            if (result.error !== '') {
+                alert(result.error);
+            } else {
+                output.value = result.record;
+            }
+        }
+    </script>
+</html>

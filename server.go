@@ -76,7 +76,7 @@ func basePath(api string) string {
 	return api
 }
 
-func handlers() *mux.Router {
+func srvRouter() *mux.Router {
 	router := mux.NewRouter()
 	//     router.StrictSlash(true) // to allow /route and /route/ end-points
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}"), VaultHandler).Methods("GET")
@@ -92,12 +92,15 @@ func handlers() *mux.Router {
 	router.Use(validateMiddleware)
 	// use limiter middleware to slow down clients
 	router.Use(limitMiddleware)
+	// use cors middleware
+	router.Use(corsMiddleware)
 
 	return router
 }
 
 // http server implementation
 func server(serverCrt, serverKey string) {
+
 	// define server hand	// dynamic handlers
 	if ServerConfig.CSRFKey != "" {
 		CSRF := csrf.Protect(
@@ -113,9 +116,9 @@ func server(serverCrt, serverKey string) {
 			)),
 		)
 
-		http.Handle("/", CSRF(handlers()))
+		http.Handle("/", CSRF(srvRouter()))
 	} else {
-		http.Handle("/", handlers())
+		http.Handle("/", srvRouter())
 	}
 	// define our HTTP server
 	addr := fmt.Sprintf(":%d", ServerConfig.Port)
