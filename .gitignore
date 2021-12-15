@@ -19,3 +19,10 @@ gpm
 *.aes*
 TODO*
 *config.json
+
+# ignore wasm stuff
+wasm/decode.wasm
+wasm/server/decode.wasm
+wasm/server/index.html
+wasm/server/wasm_exec.js
+wasm/wasm_exec.js
