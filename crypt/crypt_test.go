@@ -2,8 +2,6 @@ package crypt
 
 import (
 	"testing"
-
-	"github.com/vkuznet/gpm/crypt"
 )
 
 // CryptEncodeDecode function
@@ -12,11 +10,11 @@ func CryptEncodeDecode(t *testing.T) {
 	data := []byte(salt)
 	ciphers := []string{"aes", "nacl"}
 	for _, c := range ciphers {
-		edata, err := crypt.Encrypt(data, salt, c)
+		edata, err := Encrypt(data, salt, c)
 		if err != nil {
 			t.Error(err.Error())
 		}
-		result, err := crypt.Decrypt(edata, salt, c)
+		result, err := Decrypt(edata, salt, c)
 		if string(edata) != string(result) {
 			t.Errorf("encrypt/decrypt failure with %s cipher", c)
 		}
@@ -24,7 +22,7 @@ func CryptEncodeDecode(t *testing.T) {
 			t.Error(err.Error())
 		}
 	}
-	_, err := crypt.Encrypt(data, salt, "lsdjflksdj")
+	_, err := Encrypt(data, salt, "lsdjflksdj")
 	if err == nil {
 		t.Error("failt to recognize unsupported cipher")
 	}
@@ -36,7 +34,7 @@ func BenchmarkEncryptAES(b *testing.B) {
 	data := []byte(salt)
 	cipher := "aes"
 	for n := 0; n < b.N; n++ {
-		_, err := crypt.Encrypt(data, salt, cipher)
+		_, err := Encrypt(data, salt, cipher)
 		if err != nil {
 			b.Error(err.Error())
 		}
@@ -49,7 +47,7 @@ func BenchmarkEncryptNaCl(b *testing.B) {
 	data := []byte(salt)
 	cipher := "nacl"
 	for n := 0; n < b.N; n++ {
-		_, err := crypt.Encrypt(data, salt, cipher)
+		_, err := Encrypt(data, salt, cipher)
 		if err != nil {
 			b.Error(err.Error())
 		}
@@ -61,12 +59,12 @@ func BenchmarkDecryptAES(b *testing.B) {
 	salt := "test"
 	data := []byte(salt)
 	cipher := "aes"
-	edata, err := crypt.Encrypt(data, salt, cipher)
+	edata, err := Encrypt(data, salt, cipher)
 	if err != nil {
 		b.Error(err.Error())
 	}
 	for n := 0; n < b.N; n++ {
-		res, err := crypt.Decrypt(edata, salt, cipher)
+		res, err := Decrypt(edata, salt, cipher)
 		if err != nil {
 			b.Error(err.Error())
 		}
@@ -81,12 +79,12 @@ func BenchmarkDecryptNaCl(b *testing.B) {
 	salt := "test"
 	data := []byte(salt)
 	cipher := "nacl"
-	edata, err := crypt.Encrypt(data, salt, cipher)
+	edata, err := Encrypt(data, salt, cipher)
 	if err != nil {
 		b.Error(err.Error())
 	}
 	for n := 0; n < b.N; n++ {
-		res, err := crypt.Decrypt(edata, salt, cipher)
+		res, err := Decrypt(edata, salt, cipher)
 		if err != nil {
 			b.Error(err.Error())
 		}
