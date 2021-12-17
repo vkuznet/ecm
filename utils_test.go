@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/atotto/clipboard"
+	"github.com/vkuznet/gpm/crypt"
 )
 
 // TestDecryptInputToFile function
@@ -16,7 +17,7 @@ func TestDecryptInputToFile(t *testing.T) {
 	data := []byte(`{"attr": "test"}`)
 	cipher := "aes"
 	attr := ""
-	edata, err := Encrypt(data, password, cipher)
+	edata, err := crypt.Encrypt(data, password, cipher)
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "input-")
 	if err != nil {
 		t.Error(err.Error())
@@ -60,7 +61,7 @@ func TestDecryptInputToClipboard(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	edata, err := Encrypt(data, password, cipher)
+	edata, err := crypt.Encrypt(data, password, cipher)
 	if err != nil {
 		t.Error(err.Error())
 	}
