@@ -44,17 +44,6 @@ func createHash(key string) string {
 // SupportedCiphers provides list of supported ciphers
 var SupportedCiphers = []string{"aes", "nacl"}
 
-// getCipher returns either default or given cipher
-func getCipher(cipher string) string {
-	if cipher == "" {
-		cipher = SupportedCiphers[0]
-	}
-	if !InList(cipher, SupportedCiphers) {
-		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, SupportedCiphers)
-	}
-	return strings.ToLower(cipher)
-}
-
 // Cipher defines cipher interface
 type Cipher interface {
 	Encript(data []byte, key string) ([]byte, error)
