@@ -15,6 +15,7 @@ import (
 	"time"
 
 	uuid "github.com/google/uuid"
+	"github.com/vkuznet/gpm/crypt"
 )
 
 // Record represent map of key-valut pairs
@@ -23,7 +24,7 @@ type Record map[string]string
 // VaultRecord represents full vault record
 type VaultRecord struct {
 	ID               string    // record ID
-	Map              Record    // record map (key-valut pairs)
+	Map              Record    // record map (key-vault pairs)
 	Attachments      []string  // record attachment files
 	ModificationTime time.Time // record modification time
 }
@@ -101,7 +102,7 @@ func (r *VaultRecord) WriteRecord(vdir, secret, cipher string, verbose int) erro
 	}
 	edata := data
 	if cipher != "" {
-		edata, err = Encrypt(data, secret, cipher)
+		edata, err = crypt.Encrypt(data, secret, cipher)
 		if err != nil {
 			log.Println("unable to encrypt record, error ", err)
 			return err
@@ -366,7 +367,7 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 		log.Fatal(err)
 	}
 	if v.Cipher != "" {
-		data, err = Decrypt(data, v.Secret, v.Cipher)
+		data, err = crypt.Decrypt(data, v.Secret, v.Cipher)
 		if err != nil {
 			log.Printf("unable to decrypt data, error %v", err)
 			return rec, err

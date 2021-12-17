@@ -12,7 +12,7 @@ require (
 	github.com/rivo/tview v0.0.0-20211109175620-badfa0f0b301
 	github.com/ulule/limiter/v3 v3.9.0
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
-	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
+	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 )
 
@@ -25,6 +25,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rs/cors v1.8.0 // indirect
+	github.com/vkuznet/gpm/crypt v0.0.0-20211215181347-bc108126f760 // indirect
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
