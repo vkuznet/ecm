@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
+	"github.com/vkuznet/gpm/crypt"
 	"golang.org/x/term"
 )
 
@@ -172,6 +173,7 @@ func helpKeys() string {
 func readPassword() (string, error) {
 	fmt.Print("Enter Password: ")
 	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
+	fmt.Println("")
 	if err != nil {
 		return "", err
 	}
@@ -184,8 +186,8 @@ func readPassword() (string, error) {
 func fileCipher(fname string) string {
 	arr := strings.Split(fname, ".")
 	cipher := strings.Split(arr[len(arr)-1], "-")[0]
-	if !InList(cipher, SupportedCiphers) {
-		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, SupportedCiphers)
+	if !InList(cipher, crypt.SupportedCiphers) {
+		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, crypt.SupportedCiphers)
 	}
 	return cipher
 }
@@ -196,8 +198,8 @@ func decryptInput(fname, password, cipher, write, attr string) {
 	if cipher == "" {
 		cipher = fileCipher(fname)
 	}
-	if !InList(cipher, SupportedCiphers) {
-		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, SupportedCiphers)
+	if !InList(cipher, crypt.SupportedCiphers) {
+		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, crypt.SupportedCiphers)
 	}
 	var data []byte
 	if fname == "-" { // stdin
@@ -211,7 +213,7 @@ func decryptInput(fname, password, cipher, write, attr string) {
 	if err != nil {
 		panic(err)
 	}
-	data, err = Decrypt(data, password, cipher)
+	data, err = crypt.Decrypt(data, password, cipher)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -260,7 +262,7 @@ func encryptToken(passphrase, cipher string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	data, err = Encrypt(data, passphrase, cipher)
+	data, err = crypt.Encrypt(data, passphrase, cipher)
 	hash := base64.StdEncoding.EncodeToString(data)
 	return hash, err
 }
@@ -273,7 +275,7 @@ func decryptToken(t, passphrase, cipher string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	data, err = Decrypt(data, passphrase, cipher)
+	data, err = crypt.Decrypt(data, passphrase, cipher)
 	if err != nil {
 		return "", err
 	}
@@ -294,4 +296,15 @@ func decryptToken(t, passphrase, cipher string) (string, error) {
 		return "", errors.New("wrong token expire timestamp")
 	}
 	return t, err
+}
+
+// getCipher returns either default or given cipher
+func getCipher(cipher string) string {
+	if cipher == "" {
+		cipher = crypt.SupportedCiphers[0]
+	}
+	if !InList(cipher, crypt.SupportedCiphers) {
+		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, crypt.SupportedCiphers)
+	}
+	return strings.ToLower(cipher)
 }
