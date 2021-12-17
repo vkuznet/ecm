@@ -16,22 +16,40 @@
         </div>
         <div>
             <input type="submit"
-                   value="> Decode call <"
-                   onclick="decodeJs(input.value)"/>
+                   value="> decode Encode <"
+                   onclick="asyncDecode(input.value)"/>
         </div>
         <div>
             <textarea id="output" cols="40" rows="10">
             </textarea>
         </div>
+        <div>
+            <input type="submit"
+                   value="> show all records <"
+                   onclick="asyncRecords()"/>
+        </div>
     </body>
     <script>
-        let decodeJs = function(input) {
-            // here we call gpmDecode function from decode.wasm which we define in Go
-            let result = gpmDecode(input);
-            if (result.error !== '') {
-                alert(result.error);
-            } else {
-                output.value = result.record;
+        async function asyncDecode(input) {
+            try {
+                var password = prompt("Enter the password")
+                const response = await decode(input, password);
+                const data = await response.json();
+                // console.log(data);
+                output.value = "login: " + data.Map.Login + "password:" + data.Map.Password;
+            } catch (err) {
+                console.error('Caught exception', err)
+            }
+        }
+        async function asyncRecords() {
+            try {
+                var password = prompt("Enter the password")
+                const response = await records(password);
+                const data = await response.json();
+                // console.log(data);
+                output.value = JSON.stringify(data)
+            } catch (err) {
+                console.error('Caught exception', err)
             }
         }
     </script>

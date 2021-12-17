@@ -20,3 +20,7 @@ go run server.go
 
 The idea is borrowed from:
 [Go in the browser using WebAssembly](https://dev.bitolog.com/go-in-the-browser-using-webassembly/)
+and
+[Go WebAssembly Wiki](https://zchee.github.io/golang-wiki/WebAssembly/)
+and
+[Go WebAssembly handling HTTP requests](https://withblue.ink/2020/10/03/go-webassembly-http-requests-and-promises.html)
