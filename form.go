@@ -193,7 +193,7 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 		// we should update our list view too
 		list.Clear()
 		for _, rec := range vault.Records {
-			name, _ := rec.Map["Name"]
+			name := rec.Map["Name"]
 			list.AddItem(name, rec.ID, rune('-'), nil)
 		}
 		// update info bar
