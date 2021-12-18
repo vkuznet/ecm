@@ -1,5 +1,6 @@
 <html>
     <head>
+        <link rel="stylesheet" type="text/css" href="main.css"/>
         <script src="wasm_exec.js"></script>
         <script>
             const go = new Go();
@@ -28,6 +29,9 @@
                    value="> show all records <"
                    onclick="asyncRecords()"/>
         </div>
+        <div>
+            <div id="records"></div>
+        </div>
     </body>
     <script>
         async function asyncDecode(input) {
@@ -46,6 +50,17 @@
                 var password = prompt("Enter the password")
                 const response = await records(password);
                 const data = await response.json();
+                var ul = document.createElement('ul');
+                ul.setAttribute('class','records');
+                document.getElementById('records').appendChild(ul);
+                for (let key in data) {
+                    let rec = data[key];
+                    var li = document.createElement('li');
+                    li.setAttribute('class','item');
+                    ul.appendChild(li);
+                    li.innerHTML=li.innerHTML + rec.Login + '<br/>' + rec.URL;
+                    //console.log(rec.Login);
+                }
                 // console.log(data);
                 output.value = JSON.stringify(data)
             } catch (err) {

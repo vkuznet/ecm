@@ -21,6 +21,16 @@ type VaultRecord struct {
 	Map Record // record map (key-vault pairs)
 }
 
+// LoginRecord represent login credentials
+type LoginRecord struct {
+	Login    string
+	Password string
+	Name     string
+	Note     string
+	Tags     string
+	URL      string
+}
+
 // helper function to get cipher name from given file
 func getCipher(fname string) string {
 	cipher := "aes"
@@ -160,7 +170,7 @@ func RecordsHandler(url, passphrase string, args []js.Value) {
 	}
 	// TODO: we need to get from client cipher name of the vault
 	cipher := "aes"
-	rmap := make(map[string]VaultRecord)
+	rmap := make(map[string]LoginRecord)
 	for _, rec := range records {
 		data, err := crypt.Decrypt(rec, passphrase, cipher)
 		if err != nil {
@@ -170,7 +180,14 @@ func RecordsHandler(url, passphrase string, args []js.Value) {
 		}
 		var vrec VaultRecord
 		err = json.Unmarshal(data, &vrec)
-		rmap[vrec.ID] = vrec
+		rmap[vrec.ID] = LoginRecord{
+			Login:    vrec.Map["Login"],
+			Password: vrec.Map["Password"],
+			Note:     vrec.Map["Note"],
+			Name:     vrec.Map["Name"],
+			Tags:     vrec.Map["Tags"],
+			URL:      vrec.Map["URL"],
+		}
 	}
 	rdata, err := json.Marshal(rmap)
 	if err != nil {
