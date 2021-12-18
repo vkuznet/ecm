@@ -79,11 +79,14 @@ func basePath(api string) string {
 func srvRouter() *mux.Router {
 	router := mux.NewRouter()
 	//     router.StrictSlash(true) // to allow /route and /route/ end-points
+	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/auth"), VaultAuthHandler).Methods("POST")
+	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/records"), VaultRecordsHandler).Methods("GET")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}"), VaultHandler).Methods("GET")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/{rid:[0-9a-zA-Z-\\.]+}"), VaultRecordHandler).Methods("GET")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/{rid:[0-9a-zA-Z-]+}"), VaultDeleteHandler).Methods("DELETE")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}"), VaultAddHandler).Methods("POST")
 	router.HandleFunc(basePath("/token"), TokenHandler).Methods("GET")
+	router.HandleFunc(basePath("/favicon.ico"), FaviconHandler)
 	// for all requests
 	router.Use(logging.LoggingMiddleware)
 	// for all requests perform first auth/authz action

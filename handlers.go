@@ -77,6 +77,61 @@ func VaultHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+// fill them out at VaultAuthHandler
+type AuthRecord struct {
+	Cipher string
+	Secret string
+}
+
+var auth AuthRecord
+
+// VaultAuthHandler provides authentication with our vault
+func VaultAuthHandler(w http.ResponseWriter, r *http.Request) {
+	// it should be POST request which will ready vault credentials
+	if r.Method == "POST" {
+		defer r.Body.Close()
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&auth)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
+}
+
+// VaultRecordsHandler provides basic functionality of status response
+func VaultRecordsHandler(w http.ResponseWriter, r *http.Request) {
+	vdir, err := getVault(r)
+	if err != nil {
+		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultHandler", http.StatusBadRequest)
+		return
+	}
+	vault := Vault{Directory: vdir}
+	files, err := vault.Files()
+	if err != nil {
+		responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
+		return
+	}
+	var records [][]byte
+	for _, name := range files {
+		fname := fmt.Sprintf("%s/%s", vdir, name)
+		data, err := os.ReadFile(fname)
+		if err != nil {
+			responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
+			return
+		}
+		records = append(records, data)
+	}
+	data, err := json.Marshal(records)
+	if err != nil {
+		responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
+}
+
 // VaultRecordHandler provides basic functionality of status response
 func VaultRecordHandler(w http.ResponseWriter, r *http.Request) {
 	vdir, err := getVault(r)
@@ -146,4 +201,10 @@ func TokenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte(token))
+}
+
+// FaviconHandler provides favicon icon file
+func FaviconHandler(w http.ResponseWriter, r *http.Request) {
+	//     http.ServeFile(w, r, "relative/path/to/favicon.ico")
+	w.WriteHeader(http.StatusOK)
 }
