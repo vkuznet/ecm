@@ -46,7 +46,8 @@ func main() {
 func recordsWrapper() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		passphrase := args[0].String()
-		url := "http://127.0.0.1:8888/vault/Primary"
+		// TODO: we need to construct URL somehow and choose vault
+		url := "http://127.0.0.1:8888/vault/Primary/records"
 
 		// Create and return the Promise object
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
@@ -71,6 +72,7 @@ func decodeWrapper() js.Func {
 		// TODO: replace how we'll accept cipher, fname, passphrase
 		fname := strings.Trim(input, " ")
 		cipher := getCipher(fname)
+		// TODO: we need to construct URL somehow
 		url := fmt.Sprintf("http://127.0.0.1:8888/vault/Primary/%s", fname)
 
 		// Create and return the Promise object
@@ -82,6 +84,14 @@ func decodeWrapper() js.Func {
 		promiseConstructor := js.Global().Get("Promise")
 		return promiseConstructor.New(handler)
 	})
+}
+
+// ErrorHandler handles JS errors
+func ErrorHandler(reject js.Value, err error) {
+	// Handle errors here too
+	errorConstructor := js.Global().Get("Error")
+	errorObject := errorConstructor.New(err.Error())
+	reject.Invoke(errorObject)
 }
 
 // RequestHandler handles asynchronously HTTP requests
@@ -122,14 +132,6 @@ func RequestHandler(url, passphrase, cipher string, args []js.Value) {
 	resolve.Invoke(response)
 }
 
-// ErrorHandler handles JS errors
-func ErrorHandler(reject js.Value, err error) {
-	// Handle errors here too
-	errorConstructor := js.Global().Get("Error")
-	errorObject := errorConstructor.New(err.Error())
-	reject.Invoke(errorObject)
-}
-
 // RecordsHandler handles asynchronously HTTP requests
 func RecordsHandler(url, passphrase string, args []js.Value) {
 	resolve := args[0]
@@ -150,27 +152,25 @@ func RecordsHandler(url, passphrase string, args []js.Value) {
 		return
 	}
 	// records represent list of file names
-	var records []string
+	var records [][]byte
 	err = json.Unmarshal(data, &records)
 	if err != nil {
 		ErrorHandler(reject, err)
 		return
 	}
-	log.Println("records", records)
+	// TODO: we need to get from client cipher name of the vault
+	cipher := "aes"
 	rmap := make(map[string]VaultRecord)
-	for _, fname := range records {
-		cipher := getCipher(fname)
-		log.Println("cipher", fname, cipher)
-		//         data, err := crypt.Decrypt(data, passphrase, cipher)
-		//         if err != nil {
-		//             ErrorHandler(reject, err)
-		//             return
-		//         }
-		//         var rec VaultRecord
-		//         err = json.Unmarshal(data, &rec)
-		//         rmap[rec.ID] = rec
-		fake := VaultRecord{ID: fname}
-		rmap[fname] = fake
+	for _, rec := range records {
+		data, err := crypt.Decrypt(rec, passphrase, cipher)
+		if err != nil {
+			log.Println("fail to decrypt record, error", err)
+			ErrorHandler(reject, err)
+			return
+		}
+		var vrec VaultRecord
+		err = json.Unmarshal(data, &vrec)
+		rmap[vrec.ID] = vrec
 	}
 	rdata, err := json.Marshal(rmap)
 	if err != nil {
