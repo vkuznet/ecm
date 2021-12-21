@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "gpm extension",
+  "version": "0.1",
+  "permissions": [
+        "http://127.0.0.1:8888/*"
+  ],
+  "browser_action": {
+    "default_icon": "images/icon.png",
+    "default_popup": "html/index.html",
+    "default_title": "gpm canvas"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}

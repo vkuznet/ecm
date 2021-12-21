@@ -1,0 +1,39 @@
+body {
+    margin:0;
+    margin-left:20px;
+    margin-right:20px;
+    width: 400px;
+    height: 400px;
+    padding:0;
+    color:#000;
+    background:#fff;
+    font-size: 14px;
+    font:13px/1.231 arial,helvetica,sans-serif;
+}
+ul.records {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  padding: 5px 10px;
+  background-color: #EEEEEE;
+  border: 1px solid #DDDDDD;
+}
+.link {
+    background-color:#1c87c9;
+    cursor: pointer;
+    width: 5%;
+}
+.hide {
+    display: none;
+}
+.show {
+    display: block;
+/*    margin-top:6px;*/
+/*    border-top-width:1px;*/
+}
