@@ -37,3 +37,31 @@ li {
 /*    margin-top:6px;*/
 /*    border-top-width:1px;*/
 }
+input {
+	border: 1px solid #ccc;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	-moz-box-shadow: 2px 2px 3px #666;
+	-webkit-box-shadow: 2px 2px 3px #666;
+	box-shadow: 2px 2px 3px #666;
+	font-size: 12px;
+	padding: 4px 7px;
+	outline: 0;
+	-webkit-appearance: none;
+}
+input:focus {
+	border-color: #339933;
+}
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #C0C0C0;
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #C0C0C0;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #C0C0C0;
+}
