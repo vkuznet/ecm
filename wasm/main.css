@@ -10,6 +10,10 @@ body {
     font-size: 14px;
     font:13px/1.231 arial,helvetica,sans-serif;
 }
+.gpm {
+/*    margin: 10px 1px;*/
+    margin: 10px auto;
+}
 ul.records {
   list-style-type: none;
   margin: 0;
@@ -42,11 +46,8 @@ input {
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
-	-moz-box-shadow: 2px 2px 3px #666;
-	-webkit-box-shadow: 2px 2px 3px #666;
-	box-shadow: 2px 2px 3px #666;
 	font-size: 12px;
-	padding: 4px 7px;
+	padding: 7px;
 	outline: 0;
 	-webkit-appearance: none;
 }
@@ -64,4 +65,29 @@ input:focus {
 
 ::-ms-input-placeholder { /* Microsoft Edge */
   color: #C0C0C0;
+}
+.button {
+  border: none;
+  padding: 7px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+.button-radius {border-radius: 12px;}
+.button-lock {
+	-moz-box-shadow: 2px 2px 3px #666;
+	-webkit-box-shadow: 2px 2px 3px #666;
+	box-shadow: 2px 2px 3px #666;
+    border-radius: 12px;
+    background-color: #F8D3E0;
+}
+.button-unlock {
+	-moz-box-shadow: 2px 2px 3px #666;
+	-webkit-box-shadow: 2px 2px 3px #666;
+	box-shadow: 2px 2px 3px #666;
+    border-radius: 12px;
+    background-color: #ADBCD9;
 }

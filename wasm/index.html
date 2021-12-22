@@ -11,10 +11,10 @@
         </script>
     </head>
     <body>
-        <div id="gpm-password">
+        <div id="gpm-password" class="gpm">
             GPM: <input type="password" id="password" placeholder="password" onchange="asyncRecords()">
-            <button type="button" onclick="asyncRecords()">Unlock</button>
-            <button type="button" onclick="Lock()">Lock</button>
+            <button type="button" class="button button-unlock" onclick="asyncRecords()">Unlock</button>
+            <button type="button" class="button button-lock" onclick="Lock()">Lock</button>
         </div>
         <div id="records"></div>
     </body>
