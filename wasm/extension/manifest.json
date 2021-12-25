@@ -10,5 +10,12 @@
     "default_popup": "html/index.html",
     "default_title": "gpm canvas"
   },
+  "permissions": [
+        "tabs",
+        "notifications",
+        "file://*",
+        "http://*/",
+        "https://*/"
+  ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }

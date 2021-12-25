@@ -77,6 +77,13 @@ input:focus {
   cursor: pointer;
 }
 .button-radius {border-radius: 12px;}
+.button-fill {
+	-moz-box-shadow: 2px 2px 3px #666;
+	-webkit-box-shadow: 2px 2px 3px #666;
+	box-shadow: 2px 2px 3px #666;
+    border-radius: 12px;
+    background-color: #F8D3E0;
+}
 .button-lock {
 	-moz-box-shadow: 2px 2px 3px #666;
 	-webkit-box-shadow: 2px 2px 3px #666;
