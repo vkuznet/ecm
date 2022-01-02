@@ -9,4 +9,4 @@ js:
 	cp -f ${GRT}/misc/wasm/wasm_exec.js .
 
 build:
-	GOOS=js GOARCH=wasm go build -o decode.wasm main.go
+	GOOS=js GOARCH=wasm go build -o gpm.wasm main.go

@@ -8,7 +8,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"strings"
 	"syscall/js"
 
 	"github.com/vkuznet/gpm/crypt"
@@ -33,22 +32,11 @@ type LoginRecord struct {
 	URL      string
 }
 
-// helper function to get cipher name from given file
-func getCipher(fname string) string {
-	cipher := "aes"
-	arr := strings.Split(fname, ".")
-	if len(arr) > 1 {
-		cipher = arr[1]
-	}
-	return cipher
-}
-
 // main function sets JS "gpmDecode" function to call "decodeWrapper" Go counterpart
 func main() {
 	// log time, filename, and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	// define out decode JS function to be bound to decoreWrapper Go counterpart
-	js.Global().Set("decode", decodeWrapper())
 	js.Global().Set("records", recordsWrapper())
 	<-make(chan bool)
 }
@@ -57,39 +45,17 @@ func main() {
 // it recordss given input obtained from JS upstream code
 func recordsWrapper() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		passphrase := args[0].String()
-		// TODO: we need to construct URL somehow and choose vault
-		url := "http://127.0.0.1:8888/vault/Primary/records"
+		server := args[0].String()
+		vault := args[1].String()
+		cipher := args[2].String()
+		password := args[3].String()
+		// construct URL, e.g.
+		// http://127.0.0.1:8888/vault/Primary/records
+		url := fmt.Sprintf("%s/vault/%s/records", server, vault)
 
 		// Create and return the Promise object
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			go RecordsHandler(url, passphrase, args)
-			return nil
-		})
-		// define where we should put our data
-		promiseConstructor := js.Global().Get("Promise")
-		return promiseConstructor.New(handler)
-	})
-}
-
-// decodeWraper function performs business logic, i.e.
-// it decodes given input obtained from JS upstream code
-func decodeWrapper() js.Func {
-	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		// here input should be vault file name, e.g.
-		// "acb8a9f7-6140-42d2-bb32-f730f7ab572f.aes"
-		input := args[0].String()
-		passphrase := args[1].String()
-
-		// TODO: replace how we'll accept cipher, fname, passphrase
-		fname := strings.Trim(input, " ")
-		cipher := getCipher(fname)
-		// TODO: we need to construct URL somehow
-		url := fmt.Sprintf("http://127.0.0.1:8888/vault/Primary/%s", fname)
-
-		// Create and return the Promise object
-		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			go RequestHandler(url, passphrase, cipher, args)
+			go RecordsHandler(url, cipher, password, args)
 			return nil
 		})
 		// define where we should put our data
@@ -145,7 +111,7 @@ func RequestHandler(url, passphrase, cipher string, args []js.Value) {
 }
 
 // RecordsHandler handles asynchronously HTTP requests
-func RecordsHandler(url, passphrase string, args []js.Value) {
+func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 	resolve := args[0]
 	reject := args[1]
 
@@ -170,8 +136,6 @@ func RecordsHandler(url, passphrase string, args []js.Value) {
 		ErrorHandler(reject, err)
 		return
 	}
-	// TODO: we need to get from client cipher name of the vault
-	cipher := "aes"
 	rmap := make(map[string]LoginRecord)
 	for _, rec := range records {
 		data, err := crypt.Decrypt(rec, passphrase, cipher)

@@ -16,17 +16,38 @@
         <div id="search" class="hide">
             <div class="grid-container">
                 <div class="grid-item">
-                    <img src="images/list.png" alt="Menu" />
+                    <img id="menu" src="images/list.png" alt="menu" style="cursor: pointer;" />
                 </div>
                 <div class="grid-item">
                     <input type="text" id="search" class="search" placeholder="search">
                 </div>
                 <div class="grid-item">
-                    <img id="lock" src="images/lock.png" alt="Menu" />
+                    <img id="lock" src="images/lock.png" alt="lock" style="cursor: pointer;" />
                 </div>
             </div>
         </div>
-        <div id="records" class="hide"></div>
+        <div id="config" class="hide">
+            <div class="config">
+                <span class="config-item">Server</span>
+                <input type="text" id="server" value="http://localhost:8888">
+            </div>
+            <div class="config">
+                <span class="config-item">Vault</span>
+                <input type="text" id="vault" value="Primary">
+            </div>
+            <div class="config">
+                <span class="config-item">Cipher</span>
+                <input type="text" id="cipher" value="aes">
+            </div>
+            <div class="config button-right">
+                <button id="exit" class="label exit" type="button">Exit</button>
+            </div>
+        </div>
+        <div id="records" class="show">
+            <div class="intro">
+                &#169; Generic Password Manager (GPM), version 0.1
+            </div>
+        </div>
         <script src="js/allow.js"></script>
     </body>
 </html>

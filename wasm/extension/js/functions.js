@@ -4,6 +4,8 @@ function Lock() {
     rec.innerHTML = "";
     var search = document.getElementById("search");
     search.setAttribute('class', 'hide');
+    var config = document.getElementById("config");
+    config.setAttribute('class', 'hide');
     var gpm = document.getElementById("gpm");
     gpm.setAttribute('class', 'show');
 }
@@ -12,17 +14,34 @@ function Unlock() {
     gpm.setAttribute('class', 'hide');
     var search = document.getElementById("search");
     search.setAttribute('class', 'show');
+    var config = document.getElementById("config");
+    config.setAttribute('class', 'hide');
     var rec = document.getElementById("records");
     rec.setAttribute('class', 'show');
 }
+function Config() {
+    var gpm = document.getElementById("gpm");
+    gpm.setAttribute('class', 'hide');
+    var search = document.getElementById("search");
+    search.setAttribute('class', 'show');
+    var config = document.getElementById("config");
+    config.setAttribute('class', 'show');
+    var rec = document.getElementById("records");
+    rec.setAttribute('class', 'hide');
+}
 
+
+// fetch our records from remote server
 async function asyncRecords() {
     Unlock();
+    var server = document.getElementById("server").value;
+    var vault = document.getElementById("vault").value;
+    var cipher = document.getElementById("cipher").value;
     try {
         var x = document.getElementById("password");
         var password = x.value;
         x.value = "";
-        const response = await records(password);
+        const response = await records(server, vault, cipher, password);
         const data = await response.json();
         // add records list
         var ul = document.createElement('ul');
@@ -164,6 +183,7 @@ function inputType(key, inputs) {
 // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRequest
 // https://developer.chrome.com/docs/extensions/reference/webRequest/
 // https://spin.atomicobject.com/2017/08/18/chrome-extension-form-data/
+/*
 chrome.webRequest.onBeforeRequest.addListener(
   function(details) {
     if(details.method == "POST") {
@@ -177,11 +197,6 @@ chrome.webRequest.onBeforeRequest.addListener(
         Object.keys(formData).forEach(key => {
           formData[key].forEach(value => {
 			console.log(key, value, inputType(key, inputs));
-			/*
-            if(value.includes("foo")) {
-              cancel = true;
-            }
-            */
           });
         });
       }
@@ -190,3 +205,4 @@ chrome.webRequest.onBeforeRequest.addListener(
   {urls: ["<all_urls>"]},
   ["requestBody"]
 );
+*/
