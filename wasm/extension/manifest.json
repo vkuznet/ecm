@@ -7,15 +7,17 @@
   ],
   "browser_action": {
     "default_icon": "images/icon.png",
-    "default_popup": "html/index.html",
+    "default_popup": "index.html",
     "default_title": "gpm canvas"
   },
   "permissions": [
-        "tabs",
-        "notifications",
-        "file://*",
-        "http://*/",
-        "https://*/"
+    "tabs",
+    "notifications",
+    "webRequest",
+    "<all_urls>",
+    "file://*",
+    "http://*/",
+    "https://*/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }

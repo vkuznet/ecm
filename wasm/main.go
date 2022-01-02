@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"strings"
 	"syscall/js"
@@ -206,4 +208,38 @@ func RecordsHandler(url, passphrase string, args []js.Value) {
 
 	// Resolve the Promise
 	resolve.Invoke(response)
+}
+
+// return MAC address of network interface
+// to convert to string use
+// fmt.Sprintf("%16.16X", macAddress())
+// https://gist.github.com/tsilvers/085c5f39430ced605d970094edf167ba
+func macAddress() uint64 {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return uint64(0)
+	}
+
+	for _, i := range interfaces {
+		if i.Flags&net.FlagUp != 0 && bytes.Compare(i.HardwareAddr, nil) != 0 {
+
+			// Skip locally administered addresses
+			if i.HardwareAddr[0]&2 == 2 {
+				continue
+			}
+
+			var mac uint64
+			for j, b := range i.HardwareAddr {
+				if j >= 8 {
+					break
+				}
+				mac <<= 8
+				mac += uint64(b)
+			}
+
+			return mac
+		}
+	}
+
+	return uint64(0)
 }
