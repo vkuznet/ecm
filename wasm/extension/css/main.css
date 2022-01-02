@@ -6,7 +6,9 @@ body {
     height: 400px;
     padding:0;
     color:#000;
-    background:#fff;
+/*    background:#fff;*/
+    background:#EBEBEB;
+    opacity: 0.5;
     font-family: 'Trebuchet MS', sans-serif;
 }
 .gpm {
@@ -165,8 +167,17 @@ input:focus {
     border: 1px solid transparent;
     border-radius: 0;
 }
+.label.is-bold {
+    font-weight: bolder;
+}
+.label.autofill {
+    background-color: rgba(21,141,247,.07);;
+    color: #151af7;
+    cursor: pointer;
+}
 .label.is-focus {
-    background-color: transparent;
+/*    background-color: transparent;*/
+    background-color: rgba(21,141,247,.07);;
     color: #158df7;
     cursor: pointer;
 }
@@ -174,6 +185,10 @@ input:focus {
     background-color: transparent;
     color: #ff6951;
     cursor: pointer;
+}
+.label.is-success {
+    background-color: rgba(32,188,113,.07);
+    color: #20bc71;
 }
 .button-right {
   text-align: right;

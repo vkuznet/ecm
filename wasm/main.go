@@ -24,6 +24,7 @@ type VaultRecord struct {
 
 // LoginRecord represent login credentials
 type LoginRecord struct {
+	ID       string
 	Login    string
 	Password string
 	Name     string

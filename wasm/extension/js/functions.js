@@ -84,14 +84,17 @@ async function asyncRecords() {
             ul.appendChild(li);
             var name = document.createElement('div');
             name.innerHTML = 'Name: ' + rec.Name;
-            var tags = document.createElement('div');
-            tags.innerHTML = 'Tags: ' + rec.Tags;
+            //var tags = document.createElement('div');
+            //tags.innerHTML = 'Tags: ' + rec.Tags;
             var login = document.createElement('div');
             login.innerHTML = 'Login: ' + rec.Login;
             var pass = document.createElement('div');
-            var length = rec.Password.length;
-            var hide = '*'.repeat(length);
-            pass.innerHTML = 'Password: ' + hide;
+            var pid = 'pid-'+key;
+            pass.setAttribute('id', pid);
+            pass.setAttribute('class', 'hide');
+            //var length = rec.Password.length;
+            //var hide = '*'.repeat(length);
+            //pass.innerHTML = 'Password: ' + hide;
 
             // add buttons
             var buttons = document.createElement('div');
@@ -99,18 +102,22 @@ async function asyncRecords() {
 
             // add show button
             var button = document.createElement('button');
+            var bid = 'bid-'+key;
             button.type = "button";
-            button.setAttribute('id', 'autofill');
-            button.setAttribute('class', 'label success');
-            button.innerHTML = "Show";
-            button.addEventListener('click', showRecord, false);
+            button.setAttribute('id', bid);
+            button.setAttribute('class', 'label');
+            button.innerHTML = "Show password";
+            button.addEventListener('click', showPassword, false);
+            button.ButtonID = bid;
+            button.PassID=pid;
+            button.Password=rec.Password;
             buttons.appendChild(button);
 
             // add autofill button
             var button = document.createElement('button');
             button.type = "button";
-            button.setAttribute('id', 'autofill');
-            button.setAttribute('class', 'label status');
+            button.setAttribute('id', 'autofill-'+key);
+            button.setAttribute('class', 'label autofill is-bold');
             button.innerHTML = "Autofill";
             button.addEventListener('click', fillFormInTab, false);
             button.Login=rec.Login;
@@ -124,7 +131,7 @@ async function asyncRecords() {
             li.append(site);
             li.append(login);
             li.append(pass);
-            li.append(tags);
+            //li.append(tags);
             li.append(buttons);
         }
         // allow autofill button to execute click function
@@ -161,7 +168,22 @@ function fillForm() {
         }
     }
 }
-function showRecord(evt) {
+// helper function to show password of the record
+function showPassword(evt) {
+    var bid = evt.currentTarget.ButtonID;
+    var pid = evt.currentTarget.PassID;
+    var password = evt.currentTarget.Password;
+    var doc = document.getElementById(pid);
+    var button = document.getElementById(bid);
+    if(button.innerHTML == "Show password") {
+        doc.setAttribute('class', 'show-inline');
+        doc.innerHTML = "Password: " + password;
+        button.innerHTML = "Hide password";
+    } else {
+        doc.setAttribute('class', 'show-inline');
+        doc.innerHTML = "";
+        button.innerHTML = "Show password";
+    }
 }
 
 // for information how to pass argument values see
