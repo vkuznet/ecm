@@ -2,45 +2,75 @@ function Lock() {
     var rec = document.getElementById('records');
     rec.setAttribute('class', 'hide');
     rec.innerHTML = "";
-    var search = document.getElementById("search");
-    search.setAttribute('class', 'hide');
     var config = document.getElementById("config");
     config.setAttribute('class', 'hide');
-    var gpm = document.getElementById("gpm");
-    gpm.setAttribute('class', 'show');
+
+    var password = document.getElementById("password");
+    password.setAttribute('class', 'show-inline');
+    var search = document.getElementById("search");
+    search.setAttribute('class', 'hide');
+    var lock = document.getElementById("lock");
+    lock.setAttribute('class', 'is-warning hide');
+    var unlock = document.getElementById("unlock");
+    unlock.setAttribute('class', 'is-focus show');
 }
 function Unlock() {
-    var gpm = document.getElementById("gpm");
-    gpm.setAttribute('class', 'hide');
-    var search = document.getElementById("search");
-    search.setAttribute('class', 'show');
     var config = document.getElementById("config");
     config.setAttribute('class', 'hide');
     var rec = document.getElementById("records");
     rec.setAttribute('class', 'show');
+
+    var password = document.getElementById("password");
+    password.setAttribute('class', 'hide');
+    var search = document.getElementById("search");
+    search.setAttribute('class', 'show-inline');
+    var lock = document.getElementById("lock");
+    lock.setAttribute('class', 'is-warning show');
+    var unlock = document.getElementById("unlock");
+    unlock.setAttribute('class', 'is-focus hide');
 }
 function Config() {
-    var gpm = document.getElementById("gpm");
-    gpm.setAttribute('class', 'hide');
-    var search = document.getElementById("search");
-    search.setAttribute('class', 'show');
     var config = document.getElementById("config");
     config.setAttribute('class', 'show');
     var rec = document.getElementById("records");
     rec.setAttribute('class', 'hide');
 }
-
+function Exit() {
+    var config = document.getElementById("config");
+    config.setAttribute('class', 'hide');
+    var rec = document.getElementById("records");
+    rec.setAttribute('class', 'show');
+}
+// helper function to invoke asyncRecords on key enter in password field
+function clickPress(event) {
+    console.log('click press', event.keyCode);
+    if (event.keyCode == 13) {
+        asyncRecords();
+    }
+}
 
 // fetch our records from remote server
 async function asyncRecords() {
+    // clean-up previously shown content
+    var rec = document.getElementById('records');
+    rec.innerHTML = "";
+    // unlock records part
     Unlock();
+    // obtain server creds
     var server = document.getElementById("server").value;
     var vault = document.getElementById("vault").value;
     var cipher = document.getElementById("cipher").value;
+    var x = document.getElementById("password");
+    var password = x.value;
+    x.value = "";
+    if(password=="") {
+        var doc = document.getElementById('records');
+        doc.setAttribute('class', 'alert is-error');
+        doc.innerHTML = 'Invalid GPM password';
+        document.getElementById('records').appendChild(doc);
+        return
+    }
     try {
-        var x = document.getElementById("password");
-        var password = x.value;
-        x.value = "";
         const response = await records(server, vault, cipher, password);
         const data = await response.json();
         // add records list

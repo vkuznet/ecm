@@ -7,22 +7,18 @@
         <script src="js/functions.js"></script>
     </head>
     <body>
-        <div id="gpm" class="gpm">
-            <label>GPM</label>
-            <input type="password" id="password" class="password" placeholder="password">
-            <button id="unlock" class="button button-unlock" type="button">Unlock</button>
-<!--            <button id="lock" class="button button-lock" type="button">Lock</button>-->
-        </div>
-        <div id="search" class="hide">
+        <div class="gpm">
             <div class="grid-container">
                 <div class="grid-item">
                     <img id="menu" src="images/list.png" alt="menu" style="cursor: pointer;" />
                 </div>
                 <div class="grid-item">
-                    <input type="text" id="search" class="search" placeholder="search">
+                    <input type="password" id="password" class="password" placeholder="password">
+                    <input type="text" id="search" class="search hide" placeholder="search">
                 </div>
                 <div class="grid-item">
-                    <img id="lock" src="images/lock.png" alt="lock" style="cursor: pointer;" />
+                    <img id="unlock" src="images/key-up.png" alt="unlock" class="is-focus" />
+                    <img id="lock" src="images/lock.png" alt="lock" class="is-warning hide" />
                 </div>
             </div>
         </div>
@@ -40,12 +36,19 @@
                 <input type="text" id="cipher" value="aes">
             </div>
             <div class="config button-right">
-                <button id="exit" class="label exit" type="button">Exit</button>
+                <button id="exit" class="label is-tertiary is-warning exit" type="button">Exit</button>
             </div>
         </div>
         <div id="records" class="show">
             <div class="intro">
-                &#169; Generic Password Manager (GPM), version 0.1
+                <div>
+                    &#169; Generic Password Manager (GPM)
+                </div>
+                <div class="">
+                    <a href="" class="label is-tertiary is-focus">WebSite</a>
+                    <a href="" class="label is-tertiary is-focus">Support</a>
+                    <a href="" class="label is-tertiary is-focus">Documentation</a>
+                </div>
             </div>
         </div>
         <script src="js/allow.js"></script>
