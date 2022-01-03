@@ -12,10 +12,10 @@ async function asyncRecords() {
     var password = x.value;
     x.value = "";
     if(password=="") {
+        Lock();
         var doc = document.getElementById('records');
         doc.setAttribute('class', 'alert is-error');
         doc.innerHTML = 'Invalid GPM password';
-        document.getElementById('records').appendChild(doc);
         return
     }
     try {
