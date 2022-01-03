@@ -57,6 +57,7 @@ func (mgr *RecordsManager) update(url, cipher, password string) error {
 	return nil
 }
 
+// helper function to get GPM records from given URL
 func getRecords(url, cipher, password string) (RecordMap, error) {
 	rmap := make(RecordMap)
 
