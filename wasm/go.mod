@@ -25,4 +25,5 @@ require (
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	honnef.co/go/js/dom/v2 v2.0.0-20210725211120-f030747120f2 // indirect
 )

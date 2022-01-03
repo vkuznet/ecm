@@ -1,16 +1,15 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 	"syscall/js"
 
 	"github.com/vkuznet/gpm/crypt"
+	//dom "honnef.co/go/js/dom/v2"
 )
 
 // Record represent map of key-valut pairs
@@ -38,6 +37,9 @@ func main() {
 	// log time, filename, and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	// define out decode JS function to be bound to decoreWrapper Go counterpart
+	//js.Global().Set("Lock", lockWrapper())
+	js.Global().Set("getLogin", loginWrapper())
+	js.Global().Set("getPassword", passwordWrapper())
 	js.Global().Set("records", recordsWrapper())
 	<-make(chan bool)
 }
@@ -73,48 +75,39 @@ func ErrorHandler(reject js.Value, err error) {
 	reject.Invoke(errorObject)
 }
 
-// RequestHandler handles asynchronously HTTP requests
-func RequestHandler(url, passphrase, cipher string, args []js.Value) {
-	resolve := args[0]
-	reject := args[1]
+// global recordsMap which holds all vault records
+var recordsMap map[string]LoginRecord
 
-	// Make the HTTP request
-	res, err := http.DefaultClient.Get(url)
-	if err != nil {
-		ErrorHandler(reject, err)
-		return
-	}
-	defer res.Body.Close()
+// wrapper function to return password for given record id
+func passwordWrapper() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		rid := args[0].String()
+		if lrec, ok := recordsMap[rid]; ok {
+			return lrec.Password
+		}
+		return ""
+	})
+}
 
-	// Read the response body
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		ErrorHandler(reject, err)
-		return
-	}
-	rdata, err := crypt.Decrypt(data, passphrase, cipher)
-	if err != nil {
-		ErrorHandler(reject, err)
-		return
-	}
-
-	// "data" is a byte slice, so we need to convert it to a JS Uint8Array object
-	arrayConstructor := js.Global().Get("Uint8Array")
-	dataJS := arrayConstructor.New(len(rdata))
-	js.CopyBytesToJS(dataJS, rdata)
-
-	// Create a Response object and pass the data
-	responseConstructor := js.Global().Get("Response")
-	response := responseConstructor.New(dataJS)
-
-	// Resolve the Promise
-	resolve.Invoke(response)
+// wrapper function to return password for given record id
+func loginWrapper() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		rid := args[0].String()
+		if lrec, ok := recordsMap[rid]; ok {
+			return lrec.Login
+		}
+		return ""
+	})
 }
 
 // RecordsHandler handles asynchronously HTTP requests
 func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 	resolve := args[0]
 	reject := args[1]
+
+	if recordsMap == nil {
+		recordsMap = make(map[string]LoginRecord)
+	}
 
 	// Make the HTTP request
 	res, err := http.DefaultClient.Get(url)
@@ -137,7 +130,6 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 		ErrorHandler(reject, err)
 		return
 	}
-	rmap := make(map[string]LoginRecord)
 	for _, rec := range records {
 		data, err := crypt.Decrypt(rec, passphrase, cipher)
 		if err != nil {
@@ -147,7 +139,8 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 		}
 		var vrec VaultRecord
 		err = json.Unmarshal(data, &vrec)
-		rmap[vrec.ID] = LoginRecord{
+		lrec := LoginRecord{
+			ID:       vrec.ID,
 			Login:    vrec.Map["Login"],
 			Password: vrec.Map["Password"],
 			Note:     vrec.Map["Note"],
@@ -155,17 +148,92 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 			Tags:     vrec.Map["Tags"],
 			URL:      vrec.Map["URL"],
 		}
+		recordsMap[vrec.ID] = lrec
 	}
-	rdata, err := json.Marshal(rmap)
+
+	var rids []string
+	document := js.Global().Get("document")
+	rec := document.Call("getElementById", "records")
+	rec.Set("innerHTML", "")
+	ul := document.Call("createElement", "ul")
+	ul.Call("setAttribute", "class", "records")
+	rec.Call("appendChild", ul)
+	for key, lrec := range recordsMap {
+		name := lrec.Name
+		login := lrec.Login
+		password := lrec.Password
+		rurl := lrec.URL
+		rids = append(rids, key)
+
+		// construct frontend UI
+		li := document.Call("createElement", "li")
+		li.Call("setAttribute", "class", "item")
+		ul.Call("appendChild", li)
+		nameDiv := document.Call("createElement", "div")
+		nameDiv.Set("innerHTML", "Name: "+name)
+		loginDiv := document.Call("createElement", "div")
+		loginDiv.Set("innerHTML", "Login: "+login)
+		passDiv := document.Call("createElement", "div")
+		pid := "pid-" + key
+		passDiv.Set("id", pid)
+		passDiv.Call("setAttribute", "class", "hide")
+
+		// add buttons
+		buttons := document.Call("createElement", "div")
+		buttons.Call("setAttribute", "class", "button-right")
+
+		// add show button
+		button := document.Call("createElement", "button")
+		bid := "bid-" + key
+		button.Set("id", bid)
+		button.Call("setAttribute", "class", "label")
+		button.Set("innerHTML", "Show password")
+		var callback js.Func
+		callback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			doc := document.Call("getElementById", pid)
+			button := document.Call("getElementById", bid)
+			if button.Get("innerHTML").String() == "Show password" {
+				doc.Call("setAttribute", "class", "show-inline")
+				doc.Set("innerHTML", "Password: "+password)
+				button.Set("innerHTML", "Hide password")
+			} else {
+				doc.Call("setAttribute", "class", "show-inline")
+				doc.Set("innerHTML", "")
+				button.Set("innerHTML", "Show password")
+			}
+			return nil
+		})
+		button.Call("addEventListener", "click", callback)
+		buttons.Call("appendChild", button)
+
+		// add autofill button
+		button = document.Call("createElement", "button")
+		aid := "autofill-" + key
+		button.Set("id", aid)
+		button.Call("setAttribute", "class", "label autofill is-bold")
+		button.Set("innerHTML", "Autofill")
+		button.Set("RecordID", key)
+		buttons.Call("appendChild", button)
+
+		siteDiv := document.Call("createElement", "div")
+		siteDiv.Set("innerHTML", "URL: "+rurl)
+
+		li.Call("append", nameDiv)
+		li.Call("append", siteDiv)
+		li.Call("append", loginDiv)
+		li.Call("append", passDiv)
+		li.Call("append", buttons)
+	}
+
+	adata, err := json.Marshal(rids)
 	if err != nil {
 		ErrorHandler(reject, err)
 		return
 	}
-
 	// "data" is a byte slice, so we need to convert it to a JS Uint8Array object
 	arrayConstructor := js.Global().Get("Uint8Array")
-	dataJS := arrayConstructor.New(len(rdata))
-	js.CopyBytesToJS(dataJS, rdata)
+	dataJS := arrayConstructor.New(len(adata))
+	js.CopyBytesToJS(dataJS, adata)
 
 	// Create a Response object and pass the data
 	responseConstructor := js.Global().Get("Response")
@@ -173,38 +241,68 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 
 	// Resolve the Promise
 	resolve.Invoke(response)
+
+	/*
+		// "data" is a byte slice, so we need to convert it to a JS Uint8Array object
+		arrayConstructor := js.Global().Get("Uint8Array")
+		dataJS := arrayConstructor.New(len(rdata))
+		js.CopyBytesToJS(dataJS, rdata)
+
+		// Create a Response object and pass the data
+		responseConstructor := js.Global().Get("Response")
+		response := responseConstructor.New(dataJS)
+
+		// Resolve the Promise
+		resolve.Invoke(response)
+	*/
 }
 
-// return MAC address of network interface
-// to convert to string use
-// fmt.Sprintf("%16.16X", macAddress())
-// https://gist.github.com/tsilvers/085c5f39430ced605d970094edf167ba
-func macAddress() uint64 {
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		return uint64(0)
-	}
+/*
+func lockWrapper() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		document := js.Global().Get("document")
+		rec := document.Call("getElementById", "records")
+		rec.Set("class", "hide")
+		rec.Set("innerHTML", "")
+		config := document.Call("getElementById", "config")
+		config.Set("class", "hide")
 
-	for _, i := range interfaces {
-		if i.Flags&net.FlagUp != 0 && bytes.Compare(i.HardwareAddr, nil) != 0 {
-
-			// Skip locally administered addresses
-			if i.HardwareAddr[0]&2 == 2 {
-				continue
-			}
-
-			var mac uint64
-			for j, b := range i.HardwareAddr {
-				if j >= 8 {
-					break
-				}
-				mac <<= 8
-				mac += uint64(b)
-			}
-
-			return mac
-		}
-	}
-
-	return uint64(0)
+		password := document.Call("getElementById", "password")
+		password.Set("class", "show-inline")
+		search := document.Call("getElementById", "search")
+		search.Set("class", "hide")
+		lock := document.Call("getElementById", "lock")
+		lock.Set("class", "is-warning hide")
+		unlock := document.Call("getElementById", "unlock")
+		unlock.Set("class", "is-focus show")
+		return nil
+	})
 }
+func Unlock() {
+    var config = document.getElementById("config")
+    config.setAttribute("class", "hide")
+    var rec = document.getElementById("records")
+    rec.setAttribute("class", "show")
+
+    var password = document.getElementById("password")
+    password.setAttribute("class", "hide")
+    var search = document.getElementById("search")
+    search.setAttribute("class", "show-inline")
+    var lock = document.getElementById("lock")
+    lock.setAttribute("class", "is-warning show")
+    var unlock = document.getElementById("unlock")
+    unlock.setAttribute("class", "is-focus hide")
+}
+func Config() {
+    var config = document.getElementById("config")
+    config.setAttribute("class", "show")
+    var rec = document.getElementById("records")
+    rec.setAttribute("class", "hide")
+}
+func Exit() {
+    var config = document.getElementById("config")
+    config.setAttribute("class", "hide")
+    var rec = document.getElementById("records")
+    rec.setAttribute("class", "show")
+}
+*/
