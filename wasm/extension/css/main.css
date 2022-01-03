@@ -32,6 +32,9 @@ li {
   padding: 5px 10px;
   border-bottom: 1px solid #DDDDDD;
 }
+.is-pointer {
+    cursor: pointer;
+}
 .link {
     background-color:#1c87c9;
     cursor: pointer;

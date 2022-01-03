@@ -10,9 +10,9 @@ function Lock() {
     var search = document.getElementById("search");
     search.setAttribute('class', 'hide');
     var lock = document.getElementById("lock");
-    lock.setAttribute('class', 'is-warning hide');
+    lock.setAttribute('class', 'is-pointer is-warning hide');
     var unlock = document.getElementById("unlock");
-    unlock.setAttribute('class', 'is-focus show');
+    unlock.setAttribute('class', 'is-pointer is-focus show');
 }
 function Unlock() {
     var config = document.getElementById("config");
@@ -25,9 +25,9 @@ function Unlock() {
     var search = document.getElementById("search");
     search.setAttribute('class', 'show-inline');
     var lock = document.getElementById("lock");
-    lock.setAttribute('class', 'is-warning show');
+    lock.setAttribute('class', 'is-pointer is-warning show');
     var unlock = document.getElementById("unlock");
-    unlock.setAttribute('class', 'is-focus hide');
+    unlock.setAttribute('class', 'is-pointer is-focus hide');
 }
 function Config() {
     var config = document.getElementById("config");
