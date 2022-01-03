@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"syscall/js"
+	"time"
 
 	"github.com/vkuznet/gpm/crypt"
 	//dom "honnef.co/go/js/dom/v2"
@@ -32,10 +33,78 @@ type LoginRecord struct {
 	URL      string
 }
 
+// RecordMap type defines our GPM record map
+type RecordMap map[string]LoginRecord
+
+// RecordsManager holds GPM records
+type RecordsManager struct {
+	Map           RecordMap
+	RenewInterval int64
+	Expire        int64
+}
+
+// global records manager which holds all vault records
+var recordsManager *RecordsManager
+
+// helper function to get GPM records
+func (mgr *RecordsManager) update(url, cipher, password string) error {
+	if recordsManager.Map == nil || recordsManager.Expire < time.Now().Unix() {
+		rmap, err := getRecords(url, cipher, password)
+		mgr.Map = rmap
+		mgr.Expire = time.Now().Unix() + mgr.RenewInterval
+		return err
+	}
+	return nil
+}
+
+func getRecords(url, cipher, password string) (RecordMap, error) {
+	rmap := make(RecordMap)
+
+	// Make the HTTP request
+	res, err := http.DefaultClient.Get(url)
+	if err != nil {
+		return rmap, err
+	}
+	defer res.Body.Close()
+
+	// Read the response body
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return rmap, err
+	}
+	// records represent list of file names
+	var records [][]byte
+	err = json.Unmarshal(data, &records)
+	if err != nil {
+		return rmap, err
+	}
+	for _, rec := range records {
+		data, err := crypt.Decrypt(rec, password, cipher)
+		if err != nil {
+			return rmap, err
+		}
+		var vrec VaultRecord
+		err = json.Unmarshal(data, &vrec)
+		lrec := LoginRecord{
+			ID:       vrec.ID,
+			Login:    vrec.Map["Login"],
+			Password: vrec.Map["Password"],
+			Note:     vrec.Map["Note"],
+			Name:     vrec.Map["Name"],
+			Tags:     vrec.Map["Tags"],
+			URL:      vrec.Map["URL"],
+		}
+		rmap[vrec.ID] = lrec
+	}
+	return rmap, nil
+}
+
 // main function sets JS "gpmDecode" function to call "decodeWrapper" Go counterpart
 func main() {
 	// log time, filename, and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	// initialize records manager with renew interval of 60 seconds
+	recordsManager = &RecordsManager{RenewInterval: 60}
 	// define out decode JS function to be bound to decoreWrapper Go counterpart
 	//js.Global().Set("Lock", lockWrapper())
 	js.Global().Set("getLogin", loginWrapper())
@@ -75,14 +144,11 @@ func ErrorHandler(reject js.Value, err error) {
 	reject.Invoke(errorObject)
 }
 
-// global recordsMap which holds all vault records
-var recordsMap map[string]LoginRecord
-
 // wrapper function to return password for given record id
 func passwordWrapper() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		rid := args[0].String()
-		if lrec, ok := recordsMap[rid]; ok {
+		if lrec, ok := recordsManager.Map[rid]; ok {
 			return lrec.Password
 		}
 		return ""
@@ -93,7 +159,7 @@ func passwordWrapper() js.Func {
 func loginWrapper() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		rid := args[0].String()
-		if lrec, ok := recordsMap[rid]; ok {
+		if lrec, ok := recordsManager.Map[rid]; ok {
 			return lrec.Login
 		}
 		return ""
@@ -105,50 +171,10 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 	resolve := args[0]
 	reject := args[1]
 
-	if recordsMap == nil {
-		recordsMap = make(map[string]LoginRecord)
-	}
-
-	// Make the HTTP request
-	res, err := http.DefaultClient.Get(url)
+	err := recordsManager.update(url, cipher, passphrase)
 	if err != nil {
 		ErrorHandler(reject, err)
 		return
-	}
-	defer res.Body.Close()
-
-	// Read the response body
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		ErrorHandler(reject, err)
-		return
-	}
-	// records represent list of file names
-	var records [][]byte
-	err = json.Unmarshal(data, &records)
-	if err != nil {
-		ErrorHandler(reject, err)
-		return
-	}
-	for _, rec := range records {
-		data, err := crypt.Decrypt(rec, passphrase, cipher)
-		if err != nil {
-			log.Println("fail to decrypt record, error", err)
-			ErrorHandler(reject, err)
-			return
-		}
-		var vrec VaultRecord
-		err = json.Unmarshal(data, &vrec)
-		lrec := LoginRecord{
-			ID:       vrec.ID,
-			Login:    vrec.Map["Login"],
-			Password: vrec.Map["Password"],
-			Note:     vrec.Map["Note"],
-			Name:     vrec.Map["Name"],
-			Tags:     vrec.Map["Tags"],
-			URL:      vrec.Map["URL"],
-		}
-		recordsMap[vrec.ID] = lrec
 	}
 
 	var rids []string
@@ -158,7 +184,7 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 	ul := document.Call("createElement", "ul")
 	ul.Call("setAttribute", "class", "records")
 	docRecords.Call("appendChild", ul)
-	for key, lrec := range recordsMap {
+	for key, lrec := range recordsManager.Map {
 		name := lrec.Name
 		login := lrec.Login
 		password := lrec.Password
@@ -241,68 +267,4 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 
 	// Resolve the Promise
 	resolve.Invoke(response)
-
-	/*
-		// "data" is a byte slice, so we need to convert it to a JS Uint8Array object
-		arrayConstructor := js.Global().Get("Uint8Array")
-		dataJS := arrayConstructor.New(len(rdata))
-		js.CopyBytesToJS(dataJS, rdata)
-
-		// Create a Response object and pass the data
-		responseConstructor := js.Global().Get("Response")
-		response := responseConstructor.New(dataJS)
-
-		// Resolve the Promise
-		resolve.Invoke(response)
-	*/
 }
-
-/*
-func lockWrapper() js.Func {
-	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		document := js.Global().Get("document")
-		rec := document.Call("getElementById", "records")
-		rec.Set("class", "hide")
-		rec.Set("innerHTML", "")
-		config := document.Call("getElementById", "config")
-		config.Set("class", "hide")
-
-		password := document.Call("getElementById", "password")
-		password.Set("class", "show-inline")
-		search := document.Call("getElementById", "search")
-		search.Set("class", "hide")
-		lock := document.Call("getElementById", "lock")
-		lock.Set("class", "is-warning hide")
-		unlock := document.Call("getElementById", "unlock")
-		unlock.Set("class", "is-focus show")
-		return nil
-	})
-}
-func Unlock() {
-    var config = document.getElementById("config")
-    config.setAttribute("class", "hide")
-    var rec = document.getElementById("records")
-    rec.setAttribute("class", "show")
-
-    var password = document.getElementById("password")
-    password.setAttribute("class", "hide")
-    var search = document.getElementById("search")
-    search.setAttribute("class", "show-inline")
-    var lock = document.getElementById("lock")
-    lock.setAttribute("class", "is-warning show")
-    var unlock = document.getElementById("unlock")
-    unlock.setAttribute("class", "is-focus hide")
-}
-func Config() {
-    var config = document.getElementById("config")
-    config.setAttribute("class", "show")
-    var rec = document.getElementById("records")
-    rec.setAttribute("class", "hide")
-}
-func Exit() {
-    var config = document.getElementById("config")
-    config.setAttribute("class", "hide")
-    var rec = document.getElementById("records")
-    rec.setAttribute("class", "show")
-}
-*/
