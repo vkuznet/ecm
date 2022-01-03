@@ -153,11 +153,11 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 
 	var rids []string
 	document := js.Global().Get("document")
-	rec := document.Call("getElementById", "records")
-	rec.Set("innerHTML", "")
+	docRecords := document.Call("getElementById", "records")
+	docRecords.Set("innerHTML", "")
 	ul := document.Call("createElement", "ul")
 	ul.Call("setAttribute", "class", "records")
-	rec.Call("appendChild", ul)
+	docRecords.Call("appendChild", ul)
 	for key, lrec := range recordsMap {
 		name := lrec.Name
 		login := lrec.Login
