@@ -13,7 +13,7 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-gpm
+ecm
 *.vault*
 *.nacl.*
 *.aes*
@@ -21,8 +21,8 @@ TODO*
 *config.json
 
 # ignore wasm stuff
-wasm/decode.wasm
-wasm/server/decode.wasm
+wasm/*.wasm
+wasm/server/*.wasm
 wasm/server/index.html
 wasm/server/wasm_exec.js
 wasm/wasm_exec.js
