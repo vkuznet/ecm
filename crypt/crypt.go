@@ -1,6 +1,6 @@
 package crypt
 
-// crypt module provides various ciphers used by ecm
+// crypt module provides various ciphers
 // for more information see
 // https://www.thepolyglotdeveloper.com/2018/02/encrypt-decrypt-data-golang-application-crypto-packages/
 // https://github.com/kisom/gocrypto
