@@ -14,7 +14,7 @@ import (
 // Configuration represents vault configuration structure
 type Configuration struct {
 	MinPasswordLength   int    `json:"min_password_length"`   // min length of generated passwords
-	LogFile             string `json:"log_file"`              // full path to gpm log file
+	LogFile             string `json:"log_file"`              // full path to ecm log file
 	TokenExpireInterval int    `json:"token_expire_interval"` // token expire interval in seconds
 	TokenSecret         string `json:"token_secret"`          // token secret
 }
@@ -41,9 +41,9 @@ func ParseConfig(configFile string, verbose int) error {
 		log.Println("make dir", dir)
 		err := os.MkdirAll(dir, 0755)
 		if err != nil {
-			log.Fatalf("unable to create GPM area %s for config file, error %v", dir, err)
+			log.Fatalf("unable to create ECM area %s for config file, error %v", dir, err)
 		}
-		lfile := fmt.Sprintf("%s/gpm.log", gpmHome())
+		lfile := fmt.Sprintf("%s/ecm.log", ecmHome())
 		config := Configuration{MinPasswordLength: 24, LogFile: lfile}
 		data, err := json.Marshal(config)
 		if err != nil {
@@ -51,7 +51,7 @@ func ParseConfig(configFile string, verbose int) error {
 		}
 		err = os.WriteFile(configFile, data, 0755)
 		if err != nil {
-			log.Fatalf("unable to create GPM config file, error %v", err)
+			log.Fatalf("unable to create ECM config file, error %v", err)
 		}
 	}
 
@@ -76,7 +76,7 @@ func ParseConfig(configFile string, verbose int) error {
 		Config.TokenSecret = generatePassword(24, chars)
 	}
 	if Config.LogFile == "" {
-		Config.LogFile = fmt.Sprintf("%s/gpm.log", gpmHome())
+		Config.LogFile = fmt.Sprintf("%s/ecm.log", ecmHome())
 	}
 
 	// log time, filename, and line number

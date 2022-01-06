@@ -1,15 +1,19 @@
-## (Generic | Global) Password Manager
+## Encrypted Content Manager
 
-[![Build Status](https://github.com/vkuznet/gpm/actions/workflows/go.yml/badge.svg)](https://github.com/vkuznet/gpm/actions/workflows/go.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/vkuznet/gpm)](https://goreportcard.com/report/github.com/vkuznet/gpm)
-[![GoDoc](https://godoc.org/github.com/vkuznet/gpm?status.svg)](https://godoc.org/github.com/vkuznet/gpm)
+[![Build Status](https://github.com/vkuznet/ecm/actions/workflows/go.yml/badge.svg)](https://github.com/vkuznet/ecm/actions/workflows/go.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/vkuznet/ecm)](https://goreportcard.com/report/github.com/vkuznet/ecm)
+[![GoDoc](https://godoc.org/github.com/vkuznet/ecm?status.svg)](https://godoc.org/github.com/vkuznet/ecm)
 
-(Generic | Global) Password Manager (GPM) is a password manager similar to
-1Password, LastPass, ButterCup, and other password management tools.  Since
-majority of these tools are designed to work with your browsers and lack of CLI
-and web server support we decided to create a more flexible version of password
-manager tool which will be suitable in different environments, i.e. work in a
-terminal (CLI version), work as a HTTP service, support multiple architectures, etc.
+Encrypted Content Manager (ECM) is a generic tool for encrypting any kind of
+digital content (files). It can be viewed as alternative to password managers similar to
+1Password, LastPass, ButterCup, etc. but it is not restricted to secure
+meta-data. Any content can be encrypted with ECM.
+
+Since majority of password management tools are designed to work with your
+browsers and lack of CLI and web server support we decided to create a more
+flexible version of password manager tool which will be suitable in different
+environments, i.e. work in a terminal (CLI version), work as a HTTP service,
+support multiple architectures, etc.
 
 The current list of requirements is the following:
 - OS and architecture agnostic
@@ -28,7 +32,7 @@ Here is a preview of current functionality:
 ![Preview](doc/images/gpm.gif)
 
 ### Current functionality
-So far, the GPM tool works as a CLI and web service. It supports different ciphers (AES and
+So far, the ECM tool works as a CLI and web service. It supports different ciphers (AES and
 NaCl are implemented). It allows to add login records, as well as user-based
 meta-data, it also allow to add any kind of file to the vault.
 It provides basic search capabilities based on regpex matching, record editing, etc.
@@ -39,8 +43,8 @@ simple and can be organized via `rsync` tool.
 Here is few examples:
 ```
 # get help
-./gpm -help
-Usage of ./gpm:
+./ecm -help
+Usage of ./ecm:
   -cipher string
     	cipher to use (aes, nacl)
   -decrypt string
@@ -54,23 +58,23 @@ Usage of ./gpm:
   -version
     	Show version
 
-# start vault, by default it will be created in $HOME/.gpm/Primary
-# you may define your own location via GPM_HOME
-./gpm
+# start vault, by default it will be created in $HOME/.ecm/Primary
+# you may define your own location via ECM_HOME
+./ecm
 
 # encrypt given file and store it into the vault
-./gpm -encrypt myfile.txt
+./ecm -encrypt myfile.txt
 
 # vault records
-ls ~/.gpm/Primary
+ls ~/.ecm/Primary
 
 # decrypt given vault record
-./gpm -decrypt ~/.gpm/Primary/2dface67-e5a8-44f7-ad58-adfa0f54b954.aes
+./ecm -decrypt ~/.ecm/Primary/2dface67-e5a8-44f7-ad58-adfa0f54b954.aes
 ```
-Here is a typical structure of `gpm` vault(s):
+Here is a typical structure of `ecm` vault(s):
 ```
-tree ~/.gpm
-/Users/vk/.gpm
+tree ~/.ecm
+/Users/users/.ecm
 ├── MyNacl
 │   ├── a589a35c-4d65-46e6-b18b-590a0623ded4.naci
 │   └── backups
@@ -85,7 +89,7 @@ tree ~/.gpm
 │   │   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes-2021-08-30T18:03:10-04:00
 │   └── fb26fd73-ea17-49f5-b38b-cf17575f1264.aes
 ├── config.json
-├── gpm.log-20210831
+├── ecm.log-20210831
 ....
 ```
 It consists of two vaults (MyNacl) and (Primary) which holds different
@@ -101,23 +105,23 @@ So far the following keys are assigned to manage the vault records:
 - `Ctrl-P` copy password to clipboard
 - `Ctrl-Q` Exit the app
 
-### GPM Server
-We add ability to start GPM server. It can be done as simple as following
+### ECM Server
+We add ability to start ECM server. It can be done as simple as following
 ```
 
 # creeate server config file, e.g. server_config.json
 # adjust your vault area to where your actual vault is
 {
     "port": 8888,
-    "vault_area": "/path/.gpm",
+    "vault_area": "/path/.ecm",
     "verbose": 1
 }
 
 # start the server
-./gpm -server server_config.json
+./ecm -server server_config.json
 ```
 
-The GPM server support the following list of APIs
+The ECM server support the following list of APIs
 - GET URL/Vault provides list of records
 - GET URL/Vault/recordID provides encrypted data record
 - DELETE URL/Vault/recordID delete data record

@@ -27,7 +27,7 @@ func gpgApp(vault *Vault, interval int) {
 	input, auth := authView(app, pages, text, vault, interval)
 	pages.AddPage("auth", auth, true, true)
 	pages.AddPage("text", text, true, false)
-	go lockGPM(app, pages, input, vault, interval)
+	go lockECM(app, pages, input, vault, interval)
 
 	// Start the application.
 	if err := app.SetRoot(pages, true).EnableMouse(true).Run(); err != nil {
@@ -35,8 +35,8 @@ func gpgApp(vault *Vault, interval int) {
 	}
 }
 
-// helper function to lock gpm
-func lockGPM(app *tview.Application, pages *tview.Pages, input *tview.InputField, vault *Vault, interval int) {
+// helper function to lock ecm
+func lockECM(app *tview.Application, pages *tview.Pages, input *tview.InputField, vault *Vault, interval int) {
 	for {
 		if time.Since(vault.Start).Seconds() > float64(interval) {
 			log.Println("time to lock the screen")
@@ -82,7 +82,7 @@ func authView(app *tview.Application, pages *tview.Pages, textView *tview.TextVi
 		})
 	frame := tview.NewFrame(input)
 	frame.SetBorders(10, 1, 1, 1, 10, 1)
-	frame.AddText("\U0001F512 Generic Password Manager (GPM)", true, tview.AlignLeft, TitleColor)
+	frame.AddText("\U0001F512 Encrypted Content Manager (ECM)", true, tview.AlignLeft, TitleColor)
 	frame.AddText("\u00A9 2021 - github.com/vkuznet - \U0001F510", false, tview.AlignLeft, TitleColor)
 	return input, frame
 }
@@ -99,7 +99,7 @@ func lockView(app *tview.Application, verbose int) (string, error) {
 		})
 	frame := tview.NewFrame(input)
 	frame.SetBorders(10, 1, 1, 1, 10, 1)
-	frame.AddText("\U0001F512 Generic Password Manager (GPM)", true, tview.AlignLeft, TitleColor)
+	frame.AddText("\U0001F512 Encrypted Content Manager (ECM)", true, tview.AlignLeft, TitleColor)
 	frame.AddText("\u00A9 2021 - github.com/vkuznet - \U0001F510", false, tview.AlignLeft, TitleColor)
 
 	//     if err := app.SetRoot(input, true).EnableMouse(true).Run(); err != nil {

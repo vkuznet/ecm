@@ -15,7 +15,7 @@ import (
 	"time"
 
 	uuid "github.com/google/uuid"
-	"github.com/vkuznet/gpm/crypt"
+	"github.com/vkuznet/ecm/crypt"
 )
 
 // Record represent map of key-valut pairs
@@ -237,14 +237,14 @@ func (v *Vault) Create(vname string) error {
 	}
 
 	// determine vault location and if it is not provided or does not exists
-	// creat $HOME/.gpm area and assign new vault area there
+	// creat $HOME/.ecm area and assign new vault area there
 	_, err := os.Stat(v.Directory)
 	if v.Directory == "" || os.IsNotExist(err) {
 		udir, err := os.UserHomeDir()
 		if err != nil {
 			log.Fatal(err)
 		}
-		vdir := filepath.Join(udir, ".gpm")
+		vdir := filepath.Join(udir, ".ecm")
 		v.Directory = vdir
 		err = os.MkdirAll(vdir, 0755)
 		if err != nil {

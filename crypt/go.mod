@@ -1,4 +1,4 @@
-module github.com/vkuznet/gpm/crypt
+module github.com/vkuznet/ecm/crypt
 
 go 1.17
 

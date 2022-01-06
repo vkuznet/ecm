@@ -9,7 +9,7 @@ import (
 	"syscall/js"
 	"time"
 
-	"github.com/vkuznet/gpm/crypt"
+	"github.com/vkuznet/ecm/crypt"
 	//dom "honnef.co/go/js/dom/v2"
 )
 
@@ -33,10 +33,10 @@ type LoginRecord struct {
 	URL      string
 }
 
-// RecordMap type defines our GPM record map
+// RecordMap type defines our ECM record map
 type RecordMap map[string]LoginRecord
 
-// RecordsManager holds GPM records
+// RecordsManager holds ECM records
 type RecordsManager struct {
 	Map           RecordMap
 	RenewInterval int64
@@ -46,7 +46,7 @@ type RecordsManager struct {
 // global records manager which holds all vault records
 var recordsManager *RecordsManager
 
-// helper function to get GPM records
+// helper function to get ECM records
 func (mgr *RecordsManager) update(url, cipher, password string) error {
 	if recordsManager.Map == nil || recordsManager.Expire < time.Now().Unix() {
 		rmap, err := getRecords(url, cipher, password)
@@ -57,7 +57,7 @@ func (mgr *RecordsManager) update(url, cipher, password string) error {
 	return nil
 }
 
-// helper function to get GPM records from given URL
+// helper function to get ECM records from given URL
 func getRecords(url, cipher, password string) (RecordMap, error) {
 	rmap := make(RecordMap)
 
@@ -100,7 +100,7 @@ func getRecords(url, cipher, password string) (RecordMap, error) {
 	return rmap, nil
 }
 
-// main function sets JS "gpmDecode" function to call "decodeWrapper" Go counterpart
+// main function sets JS "ecmDecode" function to call "decodeWrapper" Go counterpart
 func main() {
 	// log time, filename, and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)

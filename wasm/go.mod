@@ -1,4 +1,4 @@
-module github.com/vkuznet/gpm/wasm
+module github.com/vkuznet/ecm/wasm
 
 go 1.17
 

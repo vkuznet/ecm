@@ -17,7 +17,7 @@ var gitVersion, gitTag string
 func info() string {
 	goVersion := runtime.Version()
 	tstamp := time.Now().Format("2006-02-01")
-	return fmt.Sprintf("gpm git=%s tag=%s go=%s date=%s", gitVersion, gitTag, goVersion, tstamp)
+	return fmt.Sprintf("ecm git=%s tag=%s go=%s date=%s", gitVersion, gitTag, goVersion, tstamp)
 }
 
 func main() {
@@ -70,7 +70,7 @@ func main() {
 	}
 
 	// parse input config
-	configFile := fmt.Sprintf("%s/config.json", gpmHome())
+	configFile := fmt.Sprintf("%s/config.json", ecmHome())
 	err := ParseConfig(configFile, verbose)
 	if err != nil {
 		log.Fatal(err)

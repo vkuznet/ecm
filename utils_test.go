@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/atotto/clipboard"
-	"github.com/vkuznet/gpm/crypt"
+	"github.com/vkuznet/ecm/crypt"
 )
 
 // TestDecryptInputToFile function

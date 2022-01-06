@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "gpm extension",
+  "name": "ecm extension",
   "version": "0.1",
   "permissions": [
         "http://127.0.0.1:8888/*"
@@ -8,7 +8,7 @@
   "browser_action": {
     "default_icon": "images/icon.png",
     "default_popup": "index.html",
-    "default_title": "gpm canvas"
+    "default_title": "ecm canvas"
   },
   "permissions": [
     "tabs",

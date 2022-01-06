@@ -1,4 +1,4 @@
-module github.com/vkuznet/gpm
+module github.com/vkuznet/ecm
 
 go 1.17
 
@@ -17,6 +17,7 @@ require (
 )
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20211228203721-be292294a697 // indirect
@@ -33,7 +34,6 @@ require (
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749 // indirect
 	github.com/spf13/cobra v1.2.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/vkuznet/gpm/crypt v0.0.0-20211215181347-bc108126f760 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	golang.org/x/text v0.3.7 // indirect

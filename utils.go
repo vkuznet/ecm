@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -15,12 +17,12 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
-	"github.com/vkuznet/gpm/crypt"
+	"github.com/vkuznet/ecm/crypt"
 	"golang.org/x/term"
 )
 
 const (
-	separator = "---\n" // used in gpm data format
+	separator = "---\n" // used in ecm data format
 )
 
 // StringList implement sort for []string type
@@ -35,22 +37,22 @@ func (s StringList) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 // Less implements less function for []int type
 func (s StringList) Less(i, j int) bool { return s[i] < s[j] }
 
-// helper function to determine home area for GPM
-func gpmHome() string {
+// helper function to determine home area for ECM
+func ecmHome() string {
 	var err error
-	hdir := os.Getenv("GPM_HOME")
+	hdir := os.Getenv("ECM_HOME")
 	if hdir == "" {
 		hdir, err = os.UserHomeDir()
 		if err != nil {
 			log.Fatal(err)
 		}
-		hdir = fmt.Sprintf("%s/.gpm", hdir)
+		hdir = fmt.Sprintf("%s/.ecm", hdir)
 	}
 	return hdir
 }
 
 // custom split function based on separator delimiter
-func gpmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
+func ecmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
 
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil
@@ -307,4 +309,30 @@ func getCipher(cipher string) string {
 		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, crypt.SupportedCiphers)
 	}
 	return strings.ToLower(cipher)
+}
+
+// https://gist.github.com/tsilvers/085c5f39430ced605d970094edf167ba
+func macAddress() uint64 {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return uint64(0)
+	}
+	for _, i := range interfaces {
+		if i.Flags&net.FlagUp != 0 && bytes.Compare(i.HardwareAddr, nil) != 0 {
+			// Skip locally administered addresses
+			if i.HardwareAddr[0]&2 == 2 {
+				continue
+			}
+			var mac uint64
+			for j, b := range i.HardwareAddr {
+				if j >= 8 {
+					break
+				}
+				mac <<= 8
+				mac += uint64(b)
+			}
+			return mac
+		}
+	}
+	return uint64(0)
 }
