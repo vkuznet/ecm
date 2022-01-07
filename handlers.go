@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,8 +10,18 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/dchest/captcha"
 	"github.com/gorilla/mux"
 )
+
+// we embed few html pages directly into server
+// but for advanced usage users should switch to templates
+
+//go:embed "static/tmpl/top.tmpl"
+var topHTML string
+
+//go:embed "static/tmpl/bottom.tmpl"
+var bottomHTML string
 
 // responseMsg helper function to provide response to end-user
 func responseMsg(w http.ResponseWriter, r *http.Request, msg, api string, code int) int64 {
@@ -207,4 +218,32 @@ func TokenHandler(w http.ResponseWriter, r *http.Request) {
 func FaviconHandler(w http.ResponseWriter, r *http.Request) {
 	//     http.ServeFile(w, r, "relative/path/to/favicon.ico")
 	w.WriteHeader(http.StatusOK)
+}
+
+// helper function to parse given template and return HTML page
+func tmplPage(tmpl string, tmplData TmplRecord) string {
+	if tmplData == nil {
+		tmplData = make(TmplRecord)
+	}
+	var templates Templates
+	page := templates.Tmpl(ServerConfig.Templates, tmpl, tmplData)
+	return topHTML + page + bottomHTML
+}
+
+// HomeHandler handles home page requests
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	tmplData := make(TmplRecord)
+	captchaStr := captcha.New()
+	tmplData["CaptchaId"] = captchaStr
+	page := tmplPage("index.tmpl", tmplData)
+	w.Write([]byte(page))
+}
+
+// SignUpHandler handles sign-up page requests
+func SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	tmplData := make(TmplRecord)
+	captchaStr := captcha.New()
+	tmplData["CaptchaId"] = captchaStr
+	page := tmplPage("signup.tmpl", tmplData)
+	w.Write([]byte(page))
 }

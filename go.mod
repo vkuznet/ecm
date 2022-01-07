@@ -19,6 +19,7 @@ require (
 )
 
 require (
+	github.com/dchest/captcha v0.0.0-20200903113550-03f5f0333e1f // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
@@ -26,6 +27,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
 	golang.org/x/text v0.3.6 // indirect
 )

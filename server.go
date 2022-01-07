@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -18,25 +19,31 @@ import (
 	_ "expvar"         // to be used for monitoring, see https://github.com/divan/expvarmon
 	_ "net/http/pprof" // profiler, see https://golang.org/pkg/net/http/pprof/
 
+	"github.com/dchest/captcha"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	logging "github.com/vkuznet/http-logging"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 // ServerConfiguration stores server configuration parameters
 type ServerConfiguration struct {
-	Port          int    `json:"port"`       // server port number
-	Base          string `json:"base"`       // base URL
-	Verbose       int    `json:"verbose"`    // verbose output
-	ServerCrt     string `json:"serverCrt"`  // path to server crt file
-	ServerKey     string `json:"serverKey"`  // path to server key file
-	RootCA        string `json:"rootCA"`     // RootCA file
-	CSRFKey       string `json:"csrfKey"`    // CSRF 32-byte-long-auth-key
-	Production    bool   `json:"production"` // production server or not
-	VaultArea     string `json:"vault_area"` // vault directory
-	LimiterPeriod string `json:"rate"`       // limiter rate value
-	LogFile       string `json:"log_file"`   // server log file
+	Port          int      `json:"port"`         // server port number
+	Base          string   `json:"base"`         // base URL
+	Verbose       int      `json:"verbose"`      // verbose output
+	ServerCrt     string   `json:"serverCrt"`    // path to server crt file
+	ServerKey     string   `json:"serverKey"`    // path to server key file
+	RootCA        string   `json:"rootCA"`       // RootCA file
+	CSRFKey       string   `json:"csrfKey"`      // CSRF 32-byte-long-auth-key
+	Production    bool     `json:"production"`   // production server or not
+	VaultArea     string   `json:"vault_area"`   // vault directory
+	LimiterPeriod string   `json:"rate"`         // limiter rate value
+	LogFile       string   `json:"log_file"`     // server log file
+	LetsEncrypt   bool     `json:"lets_encrypt"` // start LetsEncrypt HTTPs server
+	DomainNames   []string `json:"domain_names"` // list of domain names to use
+	StaticDir     string   `json:"static"`       // location of static files
+	Templates     string   `json:"templates"`    // server templates
 }
 
 // ServerConfig variable represents configuration object
@@ -44,6 +51,14 @@ var ServerConfig ServerConfiguration
 
 // helper function to parse configuration
 func parseServerConfig(configFile string) error {
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println("unable to get current directory", err)
+		path = "."
+	}
+	ServerConfig.StaticDir = fmt.Sprintf("%s/static", path)
+	ServerConfig.Templates = fmt.Sprintf("%s/static/tmpl", path)
+
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Println("Unable to read", err)
@@ -87,6 +102,23 @@ func srvRouter() *mux.Router {
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}"), VaultAddHandler).Methods("POST")
 	router.HandleFunc(basePath("/token"), TokenHandler).Methods("GET")
 	router.HandleFunc(basePath("/favicon.ico"), FaviconHandler)
+
+	router.HandleFunc(basePath("/signup"), SignUpHandler).Methods("GET")
+	router.HandleFunc(basePath("/"), HomeHandler).Methods("GET")
+
+	// this is for displaying the QR code on /qr end point
+	// and static area which holds user's images
+	log.Println("server static area", ServerConfig.StaticDir)
+	fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir(ServerConfig.StaticDir)))
+	router.PathPrefix(basePath("/static/{user:[0-9a-zA-Z-]+}/{file:[0-9a-zA-Z-\\.]+}")).Handler(fileServer)
+
+	// static css content
+	router.PathPrefix(basePath("/css/{file:[0-9a-zA-Z-\\.]+}")).Handler(fileServer)
+
+	// add captcha server
+	captchaServer := captcha.Server(captcha.StdWidth, captcha.StdHeight)
+	router.PathPrefix(basePath("/captcha/")).Handler(captchaServer)
+
 	// for all requests
 	router.Use(logging.LoggingMiddleware)
 	// for all requests perform first auth/authz action
@@ -96,7 +128,7 @@ func srvRouter() *mux.Router {
 	// use limiter middleware to slow down clients
 	router.Use(limitMiddleware)
 	// use cors middleware
-	router.Use(corsMiddleware)
+	//     router.Use(corsMiddleware)
 
 	return router
 }
@@ -124,10 +156,7 @@ func server(serverCrt, serverKey string) {
 		http.Handle("/", srvRouter())
 	}
 	// define our HTTP server
-	addr := fmt.Sprintf(":%d", ServerConfig.Port)
-	srv := &http.Server{
-		Addr: addr,
-	}
+	srv := getServer()
 
 	// make extra channel for graceful shutdown
 	// https://medium.com/honestbee-tw-engineer/gracefully-shutdown-in-go-http-server-5f5e6b83da5a
@@ -137,22 +166,16 @@ func server(serverCrt, serverKey string) {
 	go func() {
 		var err error
 		if serverCrt != "" && serverKey != "" {
-			//start HTTPS server which require user certificates
-			rootCA := x509.NewCertPool()
-			caCert, _ := ioutil.ReadFile(ServerConfig.RootCA)
-			rootCA.AppendCertsFromPEM(caCert)
-			srv = &http.Server{
-				Addr: addr,
-				TLSConfig: &tls.Config{
-					//                 ClientAuth: tls.RequestClientCert,
-					RootCAs: rootCA,
-				},
-			}
-			log.Println("Starting HTTPs server", addr)
+			//start HTTPS server
+			log.Printf("Starting HTTPs server :%d", ServerConfig.Port)
 			err = srv.ListenAndServeTLS(ServerConfig.ServerCrt, ServerConfig.ServerKey)
+		} else if ServerConfig.LetsEncrypt {
+			//start LetsEncrypt HTTPS server
+			log.Printf("Starting LetsEncrypt HTTPs server :%d", ServerConfig.Port)
+			err = srv.ListenAndServeTLS("", "")
 		} else {
 			// Start server without user certificates
-			log.Println("Starting HTTP server", addr)
+			log.Printf("Starting HTTP server :%d", ServerConfig.Port)
 			err = srv.ListenAndServe()
 		}
 		if err != nil {
@@ -207,4 +230,89 @@ func startServer(config string) {
 	} else {
 		server("", "")
 	}
+}
+
+// helper function to return http.Server object for different configurations
+func getServer() *http.Server {
+	srvCrt := ServerConfig.ServerCrt
+	srvKey := ServerConfig.ServerKey
+	port := ServerConfig.Port
+	verbose := ServerConfig.Verbose
+	rootCAs := ServerConfig.RootCA
+	var srv *http.Server
+	if srvCrt != "" && srvKey != "" {
+		srv = TlsServer(srvCrt, srvKey, rootCAs, port, verbose)
+	} else if ServerConfig.LetsEncrypt {
+		srv = LetsEncryptServer(ServerConfig.DomainNames...)
+	} else {
+		addr := fmt.Sprintf(":%d", port)
+		srv = &http.Server{
+			Addr: addr,
+		}
+	}
+	return srv
+}
+
+// LetsEncryptServer provides HTTPs server with Let's encrypt for
+// given domain names (hosts)
+func LetsEncryptServer(hosts ...string) *http.Server {
+	certManager := autocert.Manager{
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist(hosts...),
+		Cache:      autocert.DirCache("certs"),
+	}
+
+	server := &http.Server{
+		Addr: ":https",
+		TLSConfig: &tls.Config{
+			GetCertificate: certManager.GetCertificate,
+		},
+	}
+	// start cert Manager goroutine
+	go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+	return server
+}
+
+// TlsServer returns TLS enabled HTTP server
+func TlsServer(serverCrt, serverKey, rootCAs string, port, verbose int) *http.Server {
+	var certPool *x509.CertPool
+	if rootCAs != "" {
+		certPool := x509.NewCertPool()
+		files, err := ioutil.ReadDir(rootCAs)
+		if err != nil {
+			log.Fatal(err)
+			log.Fatalf("Unable to list files in '%s', error: %v\n", rootCAs, err)
+		}
+		for _, finfo := range files {
+			fname := fmt.Sprintf("%s/%s", rootCAs, finfo.Name())
+			caCert, err := os.ReadFile(filepath.Clean(fname))
+			if err != nil {
+				if verbose > 1 {
+					log.Printf("Unable to read %s\n", fname)
+				}
+			}
+			if ok := certPool.AppendCertsFromPEM(caCert); !ok {
+				if verbose > 1 {
+					log.Printf("invalid PEM format while importing trust-chain: %q", fname)
+				}
+			}
+		}
+	}
+	// if we do not require custom verification we'll load server crt/key and present to client
+	cert, err := tls.LoadX509KeyPair(serverCrt, serverKey)
+	if err != nil {
+		log.Fatalf("server loadkeys: %s", err)
+	}
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+	if certPool != nil {
+		tlsConfig.RootCAs = certPool
+	}
+	addr := fmt.Sprintf(":%d", port)
+	server := &http.Server{
+		Addr:      addr,
+		TLSConfig: tlsConfig,
+	}
+	return server
 }
