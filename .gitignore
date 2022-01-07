@@ -21,6 +21,7 @@ TODO*
 *config.json
 
 # ignore wasm stuff
+static/js/*.wasm
 wasm/*.wasm
 wasm/server/*.wasm
 wasm/server/index.html
