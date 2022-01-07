@@ -28,8 +28,8 @@ remote storage, storage on remote nodes, etc.
 
 This work is in progress and can only be viewed as pre-alpha release.
 
-Here is a preview of current functionality:
-![Preview](doc/images/gpm.gif)
+Here is a preview of current functionality (originally code name was gpm):
+![Preview](doc/images/ecm.gif)
 
 ### Current functionality
 So far, the ECM tool works as a CLI and web service. It supports different ciphers (AES and
