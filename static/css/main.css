@@ -54,11 +54,25 @@ body {
     padding: 1vw;
     background: white;
 }
+/* For Mobile */
 @media screen and (max-width: 540px) {
     .my-menu {
         height: 50%;
     }
 }
+/* For Tablets */
+@media only screen and (min-width: 600px) {
+    .my-menu {
+        height: 10%;
+    }
+}
+/* For desktops */
+@media only screen and (min-width: 768px) {
+    .my-menu {
+        height: 5%;
+    }
+}
+
 
 .my-footer {
     text-align: center;
