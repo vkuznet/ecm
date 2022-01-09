@@ -104,6 +104,8 @@ func srvRouter() *mux.Router {
 	router.HandleFunc(basePath("/favicon.ico"), FaviconHandler)
 
 	router.HandleFunc(basePath("/signup"), SignUpHandler).Methods("GET")
+	router.HandleFunc(basePath("/login"), LoginHandler).Methods("GET")
+	router.HandleFunc(basePath("/main"), MainHandler).Methods("GET", "POST")
 	router.HandleFunc(basePath("/"), HomeHandler).Methods("GET")
 
 	// this is for displaying the QR code on /qr end point
@@ -114,6 +116,9 @@ func srvRouter() *mux.Router {
 
 	// static css content
 	router.PathPrefix(basePath("/css/{file:[0-9a-zA-Z-\\.]+}")).Handler(fileServer)
+	router.PathPrefix(basePath("/js/{file:[0-9a-zA-Z-\\.]+}")).Handler(fileServer)
+	router.PathPrefix(basePath("/images/{file:[0-9a-zA-Z-\\.]+}")).Handler(fileServer)
+	router.PathPrefix(basePath("/fonts/{file:[0-9a-zA-Z-\\.]+}")).Handler(fileServer)
 
 	// add captcha server
 	captchaServer := captcha.Server(captcha.StdWidth, captcha.StdHeight)

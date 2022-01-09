@@ -1,0 +1,168 @@
+<div class="page">
+    <!-- Header -->
+    <header class="header my-header">
+
+    <div class="is-navbar-container">
+        <div class="is-brand">
+            <b class="is-logo">
+                ECM
+            </b>
+        </div>
+        <div class="is-navbar">
+            <!-- primary navigation -->
+            <nav>
+                <ul>
+                    <li>
+                        <a href="/settings" class="button is-tertiary">
+                            <em class="feather-settings font-menu"> Settings</em>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- secondary navigation -->
+            <nav class="is-push-right">
+                <ul>
+                    <li>
+                        <select>
+                            <option value="vault1">Vault1</option>
+                            <option value="vault2">Vault2</option>
+                            <option value="vault3">Vault3</option>
+                        </select>
+                    </li>
+                    <li><a href="javascript:ShowTag('new-sync');HideTag('new-vault');HideTag('new-record')" class="button is-secondary is-small">
+                            <em class="feather-refresh-ccw font-menu"> Sync </em>
+                        </a>
+                    </li>
+                    <li><a href="javascript:HideTag('new-sync');ShowTag('new-vault');HideTag('new-record')" class="button is-secondary is-small">
+                            <em class="feather-package font-menu"> Vault </em>
+                        </a>
+                    </li>
+                    <li><a href="javascript:HideTag('new-sync');HideTag('new-vault');ShowTag('new-record')" class="button is-secondary is-small">
+                            <em class="feather-file-text font-menu"> Record </em>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    </header>
+    <br/>
+    <hr/>
+    <br/>
+    <!-- Main container -->
+    <main class="main is-container">
+        <!-- main sidebar -->
+        <!--
+        <div class="main-sidebar">
+            <br/>
+            <div class="drop-area drop-area-text">
+                <div class="feather-download">
+                    <div>
+                        Choose a file or drag it here
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
+
+        <!-- main content -->
+        <div class="main-content">
+            <div class="is-row">
+                <div class="is-col is-20"></div>
+                <div class="is-col is-60">
+                    <!-- Vault records -->
+                    <div id="records"></div>
+
+                    <!-- New sync -->
+                    <div id="new-sync" class="hide">
+                        <div class="my-record">
+                            <div class="my-h3">Sync hosts</div>
+                            <div>
+                                From host: <input type="text" placeholder="http://host1.com">
+                                To host: <input type="text" placeholder="http://host2.com">
+                                <br/>
+                                <div>
+                                    <a href="javascript:addVault()" class="button">
+                                        Sync
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New vault -->
+                    <div id="new-vault" class="hide">
+                        <div class="my-record">
+                            <div class="my-h3">Vault</div>
+                            <div>
+                                Name: <input type="text" placeholder="name">
+                                Encryption:
+                                <select>
+                                    <option value="aes">AES</option>
+                                    <option value="nacl">NaCl</option>
+                                </select>
+                                <br/>
+                                <div>
+                                    <a href="javascript:addVault()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New record -->
+                    <div id="new-record" class="hide">
+                        <div class="my-record">
+                            <div class="my-h3">Record</div>
+                            <div>
+                                Name: <input type="text" placeholder="name">
+                                Login: <input type="text" placeholder="login">
+                                Password: <input type="password" placeholder="password">
+                                Tags: <input type="text" placeholder="Foo, Bla">
+                                <br/>
+                                <div>
+                                    <a href="javascript:addRecord()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="is-col is-20"></div>
+            </div>
+        </div>
+    </main>
+    <br/>
+    <hr/>
+    <br/>
+    <!-- Footer -->
+    <footer class="footer my-footer">
+
+            <div class="intro">
+                <div>
+                    Copyright &#169; Encrypted Content Manager (ECM)
+                    All Rights Reserved.
+                </div>
+                <br/>
+                <div class="">
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/web.png">
+                    </a>
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/support.png">
+                    </a>
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/docs.png">
+                    </a>
+                    <a href="github.com/vkuznet/ecm" class="label is-tertiary is-focus">
+                        <img src="static/images/github.png">
+                    </a>
+                </div>
+            </div>
+
+    </footer>
+</div>

@@ -1,59 +1,156 @@
-<div>
-    <div class="is-row">
-        <div class="is-col"></div>
-        <div class="is-col is-width-small is-center">
-            <div class="is-center text-center"><h3>ECM server</h3></div>
-        </div>
-        <div class="is-col"></div>
-    </div>
-    <br />
-    <br />
+<div class="page">
+    <!-- Header -->
+    <header class="header my-header">
 
-    <div class="is-row">
-        <div class="is-col"></div>
-        <div class="is-col">
-            <form method="post" action="/user">
-                <fieldset>
-                    <legend>Login form</legend>
-                    <div class="form-item">
-                        <label>User name</label>
-                        <input type="text" name="user" id="user" class="is-95">
-                    </div>
-                    <div class="form-item">
-                        <label>Password</label>
-                        <input type="password" name="password" id="password" class="is-95">
-                    </div>
-                    <div class="form-item">
-                        <p>Type the numbers you see in the picture below:</p>
-                        <p><img id=image src="/captcha/{{.CaptchaId}}.png" alt="Captcha image"></p>
-                        <a href="#" onclick="reload()">Reload</a>
-                        <input type=hidden name=captchaId value="{{.CaptchaId}}"><br>
-                        <input name=captchaSolution>
-                    </div>
-                    <div class="form-item">
-                        <div class="is-row">
-                            <div class="is-col"></div>
-                            <div class="is-col"></div>
-                            <div class="is-col">
-                                <button class="button is-secondary is-small">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-            </form>
+    <div class="is-navbar-container">
+        <div class="is-brand">
+            <b class="is-logo">
+                ECM
+            </b>
         </div>
-        <div class="is-col"></div>
+        <div class="is-navbar">
+            <!-- primary navigation -->
+            <nav>
+                <ul>
+                    <li>
+                        <a href="/" class="button is-tertiary">
+                            <em class="feather-home font-menu"> Home</em>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/" class="button is-tertiary">
+                            <em class="feather-grid font-menu"> Products</em>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/" class="button is-tertiary">
+                            <em class="feather-file-text font-menu"> FAQs</em>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- secondary navigation -->
+            <nav class="is-push-right">
+                <ul>
+                    <li>
+                        <a href="/login" class="button is-tertiary">
+                            <em class="feather-log-in font-menu"> Login</em>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/signup" class="button is-tertiary">
+                            <em class="feather-check-square font-menu"> SignUp</em>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
-    <br />
-    <div class="is-row">
-        <div class="is-col"></div>
-        <div class="is-col is-width-small is-center">
-            <div class="is-center text-center">
-                If you are not yet registered, please
-                to <a href="/signup">SignUp</a>
+
+    </header>
+    <br/>
+    <hr/>
+    <br/>
+    <!-- Main container -->
+    <main class="main is-container">
+        <!-- main sidebar -->
+        <!--
+        <div class="main-sidebar">
+            Side-bar
+            lksdjfklsj lksjd flksjd flksjdf lksdjf lksdjf lksdjf
+            klsjdflksdjfl sjdlf skldjf lsdjf lksdjf lksdj
+        </div>
+        -->
+        <!-- main content -->
+        <div class="main-content">
+            <div class="is-row">
+                <div class="is-col is-10"></div>
+                <div class="is-col is-30">
+                    <img src="static/images/security.png" class="my-image">
+                </div>
+                <div class="is-col is-50">
+                    In modern digital world the content matter the most.
+                    We should be confident that it is protected, and stored securely.
+                    It should be accessible everywhere, at home, on the web,
+                    on a road, etc.
+                </div>
+                <div class="is-col is-10"></div>
+            </div>
+            <br>
+            <br>
+            <div class="is-row">
+                <div class="is-col is-10"></div>
+                <div class="is-col is-50">
+                    How we can protect our data without loosing accessibility.
+                    There are several ways to do it
+                </div>
+                <div class="is-col is-30">
+                    <img src="static/images/devices.png" class="my-image">
+                </div>
+                <div class="is-col is-10"></div>
+            </div>
+            <br>
+            <br>
+            <div class="is-row">
+                <div class="is-col is-10"></div>
+                <div class="is-col is-30">
+                    <img src="static/images/cabinet.png" class="my-image">
+                </div>
+                <div class="is-col is-50">
+                    We provide secure solution to all your digital content,
+                    records, passwords, files, media. We rely on industry
+                    standards to encrypt our data. Here is a list of supported
+                    ciphers by ECM:
+                    <ul>
+                        <li>
+                            AES cipher: The Advanced Encryption Standard (AES),
+                            also known by its original name Rijndael is a
+                            specification for the encryption of electronic data
+                            established by the U.S. National Institute of
+                            Standards and Technology (NIST) in 2001.
+                        </li>
+                        <li>
+                            NaCl cipher: 
+                            <a href="https://nacl.cr.yp.to/index.html">NaCl</a>
+                            (pronounced "salt") is a new easy-to-use high-speed
+                            software library for network communication,
+                            encryption, decryption, signatures, etc. 
+                        </li>
+                        <li>
+                        </li>
+                    </ul>
+                </div>
+                <div class="is-col is-10"></div>
             </div>
         </div>
-        <div class="is-col"></div>
-    </div>
+    </main>
+    <br/>
+    <hr/>
+    <br/>
+    <!-- Footer -->
+    <footer class="footer my-footer">
 
+            <div class="intro">
+                <div>
+                    Copyright &#169; Encrypted Content Manager (ECM)
+                    All Rights Reserved.
+                </div>
+                <br/>
+                <div class="">
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/web.png">
+                    </a>
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/support.png">
+                    </a>
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/docs.png">
+                    </a>
+                    <a href="github.com/vkuznet/ecm" class="label is-tertiary is-focus">
+                        <img src="static/images/github.png">
+                    </a>
+                </div>
+            </div>
+
+    </footer>
 </div>

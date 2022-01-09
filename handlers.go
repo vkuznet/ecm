@@ -232,10 +232,16 @@ func tmplPage(tmpl string, tmplData TmplRecord) string {
 
 // HomeHandler handles home page requests
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	page := tmplPage("index.tmpl", nil)
+	w.Write([]byte(page))
+}
+
+// LoginHandler handles login page requests
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	tmplData := make(TmplRecord)
 	captchaStr := captcha.New()
 	tmplData["CaptchaId"] = captchaStr
-	page := tmplPage("index.tmpl", tmplData)
+	page := tmplPage("login.tmpl", tmplData)
 	w.Write([]byte(page))
 }
 
@@ -245,5 +251,12 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	captchaStr := captcha.New()
 	tmplData["CaptchaId"] = captchaStr
 	page := tmplPage("signup.tmpl", tmplData)
+	w.Write([]byte(page))
+}
+
+// MainHandler handles login page requests
+func MainHandler(w http.ResponseWriter, r *http.Request) {
+	tmplData := make(TmplRecord)
+	page := tmplPage("main.tmpl", tmplData)
 	w.Write([]byte(page))
 }

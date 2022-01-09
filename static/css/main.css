@@ -1,14 +1,84 @@
 body {
-    margin:20px;
-    margin-left:20px;
-    margin-right:20px;
-    padding:20px;
+    padding:2vw;
     color:#000;
     background:#EBEBEB;
-    opacity: 0.5;
+    opacity: 0.7;
     font-family: 'Trebuchet MS', sans-serif;
+    min-height: 100vw;
+}
+
+#outer{
+    min-height:100%;
+}
+
+* html #outer{height:100%;} /* for IE 6, if you care */
+
+.hide {
+    display: none;
+}
+.show {
+    display: block;
+}
+.show-inline {
+    display: inline-block;
+}
+.drop-area {
+    height: 20%;
+    background: #C0C0C0;
+}
+.drop-area-text {
+    text-align: center;
 }
 .text-center {
     text-align: center;
     align-items: center;
+}
+.font-menu {
+    font-weight: bold;
+}
+.main {
+  min-height: 80%;
+}
+.main-content {
+  flex: 1;
+}
+
+.is-navbar .is-active a {
+    color: #000;
+    text-decoration: none;
+    border-bottom: 2px solid red;
+    margin-bottom: -2px;
+}
+.my-header {
+    min-height: 10%;
+    padding: 1vw;
+    background: white;
+}
+.my-navbar-container {
+    align-items: flex-start;
+    display: block;
+    max-width: 100%;
+    flex-direction: column;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-width: 100%;
+/*    min-height: 100%;*/
+}
+
+.my-footer {
+    text-align: center;
+}
+.my-h3 {
+    font-size:2vw;
+    font-weight: bold;
+}
+.my-col {
+    min-width: 70%;
+    min-height: 20%;
+}
+.my-image {
+/*    max-width:100%;*/
+    max-width:80%;
+    height:auto;
 }
