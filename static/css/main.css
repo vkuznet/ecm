@@ -54,16 +54,10 @@ body {
     padding: 1vw;
     background: white;
 }
-.my-navbar-container {
-    align-items: flex-start;
-    display: block;
-    max-width: 100%;
-    flex-direction: column;
-    display: flex;
-    flex: 1;
-    align-items: center;
-    min-width: 100%;
-/*    min-height: 100%;*/
+@media screen and (max-width: 540px) {
+    .my-menu {
+        height: 50%;
+    }
 }
 
 .my-footer {
@@ -78,7 +72,6 @@ body {
     min-height: 20%;
 }
 .my-image {
-/*    max-width:100%;*/
     max-width:80%;
     height:auto;
 }
