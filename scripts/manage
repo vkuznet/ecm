@@ -1,0 +1,47 @@
+#!/bin/bash
+
+status_ecm()
+{
+    pids=`ps auxww | grep ecm | grep -v grep | awk '{ORS=""; print " "$2""}'`
+	echo "ecm runnig with PIDs: $pids"
+}
+
+stop_ecm()
+{
+    pids=`ps auxww | grep ecm | grep -v grep | awk '{ORS=""; print " "$2""}'`
+	if [ -n "$pids" ]; then
+	   echo "killing $pids ..."
+	   sudo kill -9 $pids
+	fi
+}
+
+start_ecm()
+{
+	echo "start new process ..."
+	sudo ./ecm -serverConfig config.json &
+}
+
+# Main routine, perform action requested on command line.
+case ${1:-status} in
+  start | restart )
+    stop_ecm
+    start_ecm
+    ;;
+
+  status )
+    status_ecm
+    ;;
+
+  stop )
+    stop_ecm
+    ;;
+
+  help )
+    perl -ne '/^##H/ && do { s/^##H ?//; print }' < $0
+    ;;
+
+  * )
+    echo "$0: unknown action '$1', please try '$0 help' or documentation." 1>&2
+    exit 1
+    ;;
+esac
