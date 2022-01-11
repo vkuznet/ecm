@@ -25,6 +25,11 @@
         font-size:5vw;
         font-weight: bold;
     }
+    .drop-area {
+        height: 20%;
+        background: #C0C0C0;
+        display: inline-block;
+    }
 }
 /* Desktop */
 @media screen and (min-width: 768px) {
@@ -47,6 +52,10 @@
         font-size:20px;
         font-weight: bold;
     }
+    .drop-area {
+        height: 400px;
+        background: #C0C0C0;
+    }
 }
 
 /* Common CSS rules */
@@ -58,10 +67,6 @@
 }
 .show-inline {
     display: inline-block;
-}
-.drop-area {
-    height: 20%;
-    background: #C0C0C0;
 }
 .drop-area-text {
     text-align: center;
