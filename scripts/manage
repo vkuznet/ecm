@@ -26,6 +26,7 @@ case ${1:-status} in
   start | restart )
     stop_ecm
     start_ecm
+    status_ecm
     ;;
 
   status )
