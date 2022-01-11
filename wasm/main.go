@@ -111,6 +111,13 @@ func main() {
 	js.Global().Set("getLogin", loginWrapper())
 	js.Global().Set("getPassword", passwordWrapper())
 	js.Global().Set("records", recordsWrapper())
+
+	js.Global().Set("addRecord", actionWrapper("record"))
+	js.Global().Set("addJsonRecord", actionWrapper("json"))
+	js.Global().Set("addNote", actionWrapper("note"))
+	js.Global().Set("addVault", actionWrapper("vault"))
+	js.Global().Set("syncHosts", actionWrapper("sync"))
+	js.Global().Set("uploadFile", actionWrapper("upload"))
 	<-make(chan bool)
 }
 
@@ -143,6 +150,68 @@ func ErrorHandler(reject js.Value, err error) {
 	errorConstructor := js.Global().Get("Error")
 	errorObject := errorConstructor.New(err.Error())
 	reject.Invoke(errorObject)
+}
+
+// wrapper function to add new vault
+func actionWrapper(action string) js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		//         rid := args[0].String()
+		// Create and return the Promise object
+		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			if action == "record" {
+				go ActionHandler("new login record", args)
+			} else if action == "json" {
+				go ActionHandler("new json record", args)
+			} else if action == "note" {
+				go ActionHandler("new note record", args)
+			} else if action == "upload" {
+				go ActionHandler("upload file", args)
+			} else if action == "vault" {
+				go ActionHandler("new vault", args)
+			} else if action == "sync hosts" {
+				go ActionHandler("sync", args)
+			}
+			return nil
+		})
+		// define where we should put our data
+		promiseConstructor := js.Global().Get("Promise")
+		return promiseConstructor.New(handler)
+	})
+}
+
+// ActionHandler handles vault action
+func ActionHandler(action string, args []js.Value) {
+	resolve := args[0]
+	reject := args[1]
+
+	// TODO: implement business logic, e.g. vault.AddRecord()
+	msg := fmt.Sprintf("Called ActionHandler with %s", action)
+	document := js.Global().Get("document")
+	doc := document.Call("getElementById", "records")
+	doc.Set("innerHTML", "")
+	doc = document.Call("getElementById", "results")
+	doc.Set("innerHTML", msg)
+
+	// return object
+	result := make(map[string]string)
+	result["Result"] = msg
+	data, err := json.Marshal(result)
+	if err != nil {
+		ErrorHandler(reject, err)
+		return
+	}
+
+	// "data" is a byte slice, so we need to convert it to a JS Uint8Array object
+	arrayConstructor := js.Global().Get("Uint8Array")
+	dataJS := arrayConstructor.New(len(data))
+	js.CopyBytesToJS(dataJS, data)
+
+	// Create a Response object and pass the data
+	responseConstructor := js.Global().Get("Response")
+	response := responseConstructor.New(dataJS)
+
+	// Resolve the Promise
+	resolve.Invoke(response)
 }
 
 // wrapper function to return password for given record id
