@@ -24,23 +24,27 @@
             <nav class="is-push-right">
                 <ul>
                     <li>
-                        <select>
-                            <option value="vault1">Vault1</option>
-                            <option value="vault2">Vault2</option>
-                            <option value="vault3">Vault3</option>
+                        <em class="feather-shield"></em>
+                    </li>
+                    <li>
+                        <select id="vault" onchange="ChangeValut()" class="is-warning">
+                            <option value="" selected=true disabled="disabled">Vault</option>
+                            <option value="Primary">Primary</option>
                         </select>
                     </li>
-                    <li><a href="javascript:ShowTag('new-sync');HideTag('new-vault');HideTag('new-record')" class="button is-secondary is-small">
-                            <em class="feather-refresh-ccw font-menu"> Sync </em>
-                        </a>
+                    <li>
+                        <em class="feather-plus-square"></em>
                     </li>
-                    <li><a href="javascript:HideTag('new-sync');ShowTag('new-vault');HideTag('new-record')" class="button is-secondary is-small">
-                            <em class="feather-package font-menu"> Vault </em>
-                        </a>
-                    </li>
-                    <li><a href="javascript:HideTag('new-sync');HideTag('new-vault');ShowTag('new-record')" class="button is-secondary is-small">
-                            <em class="feather-file-text font-menu"> Record </em>
-                        </a>
+                    <li>
+                        <select id="action" onchange="Action()" class="is-success">
+                            <option value="" selected=true disabled="disabled">New</option>
+                            <option value="record">Login Record</option>
+                            <option value="json">JSON Record</option>
+                            <option value="note">Note</option>
+                            <option value="vault">Vault</option>
+                            <option value="sync">Sync</option>
+                            <option value="file">File upload</option>
+                        </select>
                     </li>
                 </ul>
             </nav>
@@ -54,19 +58,6 @@
     <br/>
     <!-- Main container -->
     <main class="main is-container">
-        <!-- main sidebar -->
-        <!--
-        <div class="main-sidebar">
-            <br/>
-            <div class="drop-area drop-area-text">
-                <div class="feather-download">
-                    <div>
-                        Choose a file or drag it here
-                    </div>
-                </div>
-            </div>
-        </div>
-        -->
 
         <!-- main content -->
         <div class="main-content">
@@ -75,6 +66,7 @@
                 <div class="is-col is-60">
                     <!-- Vault records -->
                     <div id="records"></div>
+                    <div id="results"></div>
 
                     <!-- New sync -->
                     <div id="new-sync" class="hide">
@@ -85,7 +77,7 @@
                                 To host: <input type="text" placeholder="http://host2.com">
                                 <br/>
                                 <div>
-                                    <a href="javascript:addVault()" class="button">
+                                    <a href="javascript:ClearFields();syncHosts()" class="button">
                                         Sync
                                     </a>
                                 </div>
@@ -96,7 +88,7 @@
                     <!-- New vault -->
                     <div id="new-vault" class="hide">
                         <div class="my-record">
-                            <h2>Vault</h2>
+                            <h2>New Vault</h2>
                             <div>
                                 Name: <input type="text" placeholder="name">
                                 Encryption:
@@ -106,7 +98,7 @@
                                 </select>
                                 <br/>
                                 <div>
-                                    <a href="javascript:addVault()" class="button">
+                                    <a href="javascript:ClearFields();addVault()" class="button">
                                         Create
                                     </a>
                                 </div>
@@ -117,7 +109,7 @@
                     <!-- New record -->
                     <div id="new-record" class="hide">
                         <div class="my-record">
-                            <h2>Record</h2>
+                            <h2>New Record</h2>
                             <div>
                                 Name: <input type="text" placeholder="name">
                                 Login: <input type="text" placeholder="login">
@@ -125,8 +117,64 @@
                                 Tags: <input type="text" placeholder="Foo, Bla">
                                 <br/>
                                 <div>
-                                    <a href="javascript:addRecord()" class="button">
+                                    <a href="javascript:ClearFields();addRecord()" class="button">
                                         Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New json -->
+                    <div id="new-json" class="hide">
+                        <div class="my-record">
+                            <h2>New JSON record</h2>
+                            <div>
+                                Name: <input type="text" placeholder="name">
+                                JSON: <input type="textarea" placeholder='{"attribute":"value"}'>
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();addJsonRecord()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New note -->
+                    <div id="new-note" class="hide">
+                        <div class="my-record">
+                            <h2>New note</h2>
+                            <div>
+                                Name: <input type="text" placeholder="name">
+                                Note: <input type="textarea" placeholder="Note text">
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();addNote()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New record -->
+                    <div id="new-file" class="hide">
+                        <div class="my-record">
+                            <h2>New File</h2>
+                            <div>
+                                <div class="drop-area drop-area-text">
+                                    <div class="feather-download">
+                                        <div>
+                                            Choose a file or drag it here
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();uploadFile()" class="button">
+                                        Encrypt
                                     </a>
                                 </div>
                             </div>
@@ -168,3 +216,32 @@
 
     </footer>
 </div>
+
+<script>
+function ClearFields() {
+    let arr = ["new-record", "new-vault", "new-sync", "new-file", "new-json", "new-note"];
+    for (let i = 0; i < arr.length; i++) {
+        HideTag(arr[i]);
+    }
+}
+function ShowPlaceHolder(tag) {
+    ClearFields();
+    ShowTag(tag);
+}
+function Action() {
+    var id = document.getElementById("action")
+    if (id.value == "record") {
+        ShowPlaceHolder("new-record")
+    } else if(id.value == "vault") {
+        ShowPlaceHolder("new-vault")
+    } else if(id.value == "sync") {
+        ShowPlaceHolder("new-sync")
+    } else if(id.value == "file") {
+        ShowPlaceHolder("new-file")
+    } else if(id.value == "json") {
+        ShowPlaceHolder("new-json")
+    } else if(id.value == "note") {
+        ShowPlaceHolder("new-note")
+    }
+}
+</script>
