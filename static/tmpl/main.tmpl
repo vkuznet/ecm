@@ -55,6 +55,7 @@
                             <option value="record">Login Record</option>
                             <option value="json">JSON Record</option>
                             <option value="note">Note</option>
+                            <option value="card">Credit Card</option>
                             <option value="vault">Vault</option>
                             <option value="sync">Sync</option>
                             <option value="file">File upload</option>
@@ -138,6 +139,28 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- New credit card record -->
+                    <div id="new-card" class="hide">
+                        <div class="my-record">
+                            <h2>New Card information</h2>
+                            <div>
+                                Name: <input type="text" placeholder="name">
+                                Card Number: <input type="text" placeholder="digits, 4147 ...">
+                                Verification Code: <input type="password" placeholder="code, e.g. 123">
+                                Issue date: <input type="text" placeholder="YYYYMMDD">
+                                Contact phone: <input type="text" placeholder="1-800-xxx-xxxx">
+                                Tags: <input type="text" placeholder="Foo, Bla">
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();addCard()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- New json -->
                     <div id="new-json" class="hide">
@@ -233,7 +256,7 @@
 
 <script>
 function ClearFields() {
-    let arr = ["new-record", "new-vault", "new-sync", "new-file", "new-json", "new-note"];
+    let arr = ["new-record", "new-vault", "new-sync", "new-file", "new-json", "new-note", "new-card"];
     for (let i = 0; i < arr.length; i++) {
         HideTag(arr[i]);
     }
@@ -256,6 +279,8 @@ function Action() {
         ShowPlaceHolder("new-json")
     } else if(id.value == "note") {
         ShowPlaceHolder("new-note")
+    } else if(id.value == "card") {
+        ShowPlaceHolder("new-card")
     }
 }
 </script>
