@@ -56,6 +56,9 @@
         height: 400px;
         background: #C0C0C0;
     }
+    .icon-size {
+        font-size:2em;
+    }
 }
 
 /* Common CSS rules */
