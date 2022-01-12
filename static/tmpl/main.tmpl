@@ -5,17 +5,20 @@
     <div class="my-menu">
     <div class="is-navbar-container">
         <div class="is-brand">
+            <div class="menu-item">
             <b class="is-logo">
                 ECM
             </b>
+            </div>
         </div>
         <div class="is-navbar">
             <!-- primary navigation -->
             <nav>
                 <ul>
                     <li>
-                        <a href="/settings" class="button is-tertiary">
-                            <em class="feather-settings font-menu"> Settings</em>
+                        <a href="/settings" class="button is-icon is-tertiary">
+                            <span class="icon-kube-menu"></span>
+                            Settings
                         </a>
                     </li>
                 </ul>
@@ -24,7 +27,16 @@
             <nav class="is-push-right">
                 <ul>
                     <li>
-                        <em class="feather-shield"></em>
+                        <form>
+                            <div id="search" class="form-item">
+                                <input type="text" class="is-search" placeholder="Search">
+                            </div>
+                        </form>
+                    </li>
+                    <li>
+                        <div class="icon-size is-warning">
+                        <em class="feather-layers"></em>
+                        </div>
                     </li>
                     <li>
                         <select id="vault" onchange="ChangeValut()" class="is-warning">
@@ -33,7 +45,9 @@
                         </select>
                     </li>
                     <li>
-                        <em class="feather-plus-square"></em>
+                        <div class="icon-size is-success">
+                        <em class="feather-plus"></em>
+                        </div>
                     </li>
                     <li>
                         <select id="action" onchange="Action()" class="is-success">
