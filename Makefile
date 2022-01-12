@@ -39,4 +39,5 @@ clean:
 test : test1
 
 test1:
+	if ( test -d /tmp/kvdb ); then rm -rf /tmp/kvdb; fi
 	go test -v -bench=.
