@@ -1,13 +1,12 @@
+body {
+	color:#000;
+	background:#EBEBEB;
+	opacity: 0.7;
+	font-family: 'Trebuchet MS', sans-serif;
+	min-height: 100vw;
+}
 /* For Mobile */
-@media screen and (max-width: 568px) {
-    body {
-/*        padding:2vw;*/
-        color:#000;
-        background:#EBEBEB;
-        opacity: 0.7;
-        font-family: 'Trebuchet MS', sans-serif;
-        min-height: 100vw;
-    }
+@media screen and (max-width: 599px) {
     .my-header {
         min-height: 2%;
         background: white;
@@ -31,15 +30,33 @@
         display: inline-block;
     }
 }
-/* Desktop */
-@media screen and (min-width: 768px) {
-    body {
-        color:#000;
-        background:#EBEBEB;
-        opacity: 0.7;
-        font-family: 'Trebuchet MS', sans-serif;
-        min-height: 100vw;
+/* For Mobile landscape */
+@media screen and (min-width: 600px) and (max-width: 1020px) {
+    .my-header {
+        min-height: 2%;
+        background: white;
     }
+    .my-menu {
+        padding: 1vw;
+        height: 50%;
+    }
+    .my-h3 {
+        font-size:1vw;
+        font-weight: bold;
+    }
+    .my-record {
+        padding: 2vw;
+        font-size:2vw;
+        font-weight: bold;
+    }
+    .drop-area {
+        height: 20%;
+        background: #C0C0C0;
+        display: inline-block;
+    }
+}
+/* Desktop */
+@media screen and (min-width: 1024px) {
     .my-header {
         height: 10%;
         background: white;
