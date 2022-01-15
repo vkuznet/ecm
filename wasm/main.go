@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"strings"
 	"syscall/js"
 	"time"
 
@@ -100,7 +103,7 @@ func getRecords(url, cipher, password string) (RecordMap, error) {
 	return rmap, nil
 }
 
-// main function sets JS "ecmDecode" function to call "decodeWrapper" Go counterpart
+// main function sets JS functions
 func main() {
 	// log time, filename, and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -115,9 +118,14 @@ func main() {
 	js.Global().Set("addRecord", actionWrapper("record"))
 	js.Global().Set("addJsonRecord", actionWrapper("json"))
 	js.Global().Set("addNote", actionWrapper("note"))
+	js.Global().Set("addCard", actionWrapper("card"))
 	js.Global().Set("addVault", actionWrapper("vault"))
 	js.Global().Set("syncHosts", actionWrapper("sync"))
 	js.Global().Set("uploadFile", actionWrapper("upload"))
+	js.Global().Set("showRecords", actionWrapper("records"))
+	js.Global().Set("generatePassword", actionWrapper("password"))
+	//     js.Global().Set("generatePassword", genPasswordWrapper())
+	js.Global().Call("showRecords")
 	<-make(chan bool)
 }
 
@@ -159,17 +167,23 @@ func actionWrapper(action string) js.Func {
 		// Create and return the Promise object
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			if action == "record" {
-				go ActionHandler("new login record", args)
+				go ActionHandler("login_record", args)
 			} else if action == "json" {
-				go ActionHandler("new json record", args)
+				go ActionHandler("json_record", args)
 			} else if action == "note" {
-				go ActionHandler("new note record", args)
+				go ActionHandler("note_record", args)
+			} else if action == "card" {
+				go ActionHandler("card_record", args)
 			} else if action == "upload" {
-				go ActionHandler("upload file", args)
+				go ActionHandler("upload_file", args)
 			} else if action == "vault" {
-				go ActionHandler("new vault", args)
-			} else if action == "sync hosts" {
+				go ActionHandler("new_vault", args)
+			} else if action == "sync_hosts" {
 				go ActionHandler("sync", args)
+			} else if action == "records" {
+				go ActionHandler("show_records", args)
+			} else if action == "password" {
+				go ActionHandler("password", args)
 			}
 			return nil
 		})
@@ -177,6 +191,14 @@ func actionWrapper(action string) js.Func {
 		promiseConstructor := js.Global().Get("Promise")
 		return promiseConstructor.New(handler)
 	})
+}
+
+// credentials provides vault credentials
+func credentials() (string, string) {
+	// TODO: implement proper logic to get it from HTML
+	cipher := "aes"
+	password := "test"
+	return cipher, password
 }
 
 // ActionHandler handles vault action
@@ -187,15 +209,55 @@ func ActionHandler(action string, args []js.Value) {
 	// TODO: implement business logic, e.g. vault.AddRecord()
 	msg := fmt.Sprintf("Called ActionHandler with %s", action)
 	document := js.Global().Get("document")
-	doc := document.Call("getElementById", "records")
-	doc.Set("innerHTML", "")
-	doc = document.Call("getElementById", "results")
-	doc.Set("innerHTML", msg)
+	records := document.Call("getElementById", "records")
 
 	// return object
-	result := make(map[string]string)
-	result["Result"] = msg
-	data, err := json.Marshal(result)
+
+	var data []byte
+	var rids []string
+	var err error
+	if action == "show_records" {
+		records.Set("innerHTML", "")
+		doc := document.Call("getElementById", "vault")
+		vault := doc.Get("value").String()
+		url := fmt.Sprintf("/vault/%s/records", vault)
+		cipher, password := credentials()
+		extention := false
+		rids, err = updateRecords(url, cipher, password, extention)
+		if err != nil {
+			ErrorHandler(reject, err)
+			return
+		}
+		data, err = json.Marshal(rids)
+	} else if action == "password" {
+		const voc string = "abcdfghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		const numbers string = "0123456789"
+		const symbols string = "!@#$%&*+_-="
+		document := js.Global().Get("document")
+		docRecords := document.Call("getElementById", "new-password")
+		size := document.Call("getElementById", "password-size").Get("value").String()
+		chars := document.Call("getElementById", "characters").Get("value").String()
+		var password string
+		if chars == "chars+numbers" {
+			password = generatePassword(size, voc+numbers)
+		} else if chars == "chars+numbers+symbols" {
+			password = generatePassword(size, voc+numbers+symbols)
+		} else {
+			password = generatePassword(size, voc)
+		}
+		docRecords.Set("innerHTML", password)
+		result := make(map[string]string)
+		result["Result"] = "new password was generated"
+		data, err = json.Marshal(result)
+	} else {
+		records.Set("innerHTML", "")
+		doc := document.Call("getElementById", "results")
+		doc.Set("innerHTML", msg)
+		result := make(map[string]string)
+		result["Result"] = msg
+		data, err = json.Marshal(result)
+	}
+
 	if err != nil {
 		ErrorHandler(reject, err)
 		return
@@ -212,6 +274,40 @@ func ActionHandler(action string, args []js.Value) {
 
 	// Resolve the Promise
 	resolve.Invoke(response)
+}
+
+// helper function to generate password of certain length and chars
+func generatePassword(size interface{}, chars string) string {
+	rand.Seed(time.Now().UnixNano())
+	length := 16
+	switch v := size.(type) {
+	case string:
+		s, _ := strconv.Atoi(v)
+		length = s
+	case int, int32, int64:
+		length = v.(int)
+	}
+	password := ""
+	for i := 0; i < length; i++ {
+		password += string([]rune(chars)[rand.Intn(len(chars))])
+	}
+	return password
+}
+
+// wrapper function to generate new password
+func genPasswordWrapper() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		const voc string = "abcdfghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		const numbers string = "0123456789"
+		//         const symbols string = "!@#$%&*+_-="
+		size := args[0].Int()
+		chars := voc + numbers
+		password := generatePassword(size, chars)
+		document := js.Global().Get("document")
+		docRecords := document.Call("getElementById", "new-password")
+		docRecords.Set("innerHTML", password)
+		return ""
+	})
 }
 
 // wrapper function to return password for given record id
@@ -236,18 +332,15 @@ func loginWrapper() js.Func {
 	})
 }
 
-// RecordsHandler handles asynchronously HTTP requests
-func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
-	resolve := args[0]
-	reject := args[1]
-
-	err := recordsManager.update(url, cipher, passphrase)
-	if err != nil {
-		ErrorHandler(reject, err)
-		return
-	}
+// update records within DOM document
+func updateRecords(url, cipher, passphrase string, extention bool) ([]string, error) {
 
 	var rids []string
+	err := recordsManager.update(url, cipher, passphrase)
+	if err != nil {
+		return rids, err
+	}
+
 	document := js.Global().Get("document")
 	docRecords := document.Call("getElementById", "records")
 	docRecords.Set("innerHTML", "")
@@ -259,6 +352,7 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 		login := lrec.Login
 		password := lrec.Password
 		rurl := lrec.URL
+		tags := lrec.Tags
 		rids = append(rids, key)
 
 		// construct frontend UI
@@ -282,7 +376,11 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 		button := document.Call("createElement", "button")
 		bid := "bid-" + key
 		button.Set("id", bid)
-		button.Call("setAttribute", "class", "label")
+		if extention {
+			button.Call("setAttribute", "class", "label is-focus is-pointer")
+		} else {
+			button.Call("setAttribute", "class", "button is-secondary is-small")
+		}
 		button.Set("innerHTML", "Show password")
 		var callback js.Func
 		callback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
@@ -300,25 +398,72 @@ func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
 			return nil
 		})
 		button.Call("addEventListener", "click", callback)
-		buttons.Call("appendChild", button)
+		if extention && password != "" {
+			buttons.Call("appendChild", button)
+		} else {
+			// create grid with two columns and add button to second one
+			grid := document.Call("createElement", "div")
+			grid.Call("setAttribute", "class", "is-row")
+			div := document.Call("createElement", "div")
+			div.Call("setAttribute", "class", "is-col is-80")
+			img := document.Call("createElement", "img")
+			if strings.Contains(tags, "file") {
+				img.Set("src", "static/images/file-32.png")
+			} else {
+				img.Set("src", "static/images/notes-32.png")
+			}
+			div.Call("appendChild", img)
+			txt := document.Call("createElement", "span")
+			txt.Set("innerHTML", fmt.Sprintf("&nbsp;&nbsp; %s", key))
+			div.Call("appendChild", txt)
+			grid.Call("appendChild", div)
+			div = document.Call("createElement", "div")
+			div.Call("setAttribute", "class", "is-col is-20")
+			div.Call("appendChild", button)
+			grid.Call("appendChild", div)
+			// add grid to buttons
+			buttons.Call("appendChild", grid)
+		}
 
 		// add autofill button
-		button = document.Call("createElement", "button")
-		aid := "autofill-" + key
-		button.Set("id", aid)
-		button.Call("setAttribute", "class", "label autofill is-bold")
-		button.Set("innerHTML", "Autofill")
-		button.Set("RecordID", key)
-		buttons.Call("appendChild", button)
+		if extention {
+			button = document.Call("createElement", "button")
+			aid := "autofill-" + key
+			button.Set("id", aid)
+			button.Call("setAttribute", "class", "label autofill is-bold")
+			button.Set("innerHTML", "Autofill")
+			button.Set("RecordID", key)
+			buttons.Call("appendChild", button)
+		}
 
 		siteDiv := document.Call("createElement", "div")
 		siteDiv.Set("innerHTML", "URL: "+rurl)
 
+		if !extention {
+			li.Call("append", buttons)
+		}
 		li.Call("append", nameDiv)
 		li.Call("append", siteDiv)
 		li.Call("append", loginDiv)
 		li.Call("append", passDiv)
-		li.Call("append", buttons)
+		if extention {
+			li.Call("append", buttons)
+		}
+	}
+	return rids, nil
+}
+
+// RecordsHandler handles asynchronously HTTP requests
+func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
+	resolve := args[0]
+	reject := args[1]
+
+	// place records within DOM page
+	extention := true
+	rids, err := updateRecords(url, cipher, passphrase, extention)
+	if err != nil {
+		ErrorHandler(reject, err)
+		return
 	}
 
 	adata, err := json.Marshal(rids)

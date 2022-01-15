@@ -105,3 +105,34 @@
     max-width:80%;
     height:auto;
 }
+
+/* records */
+ul.records {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  padding: 5px 10px;
+  border-bottom: 1px solid #DDDDDD;
+}
+.is-pointer {
+    cursor: pointer;
+}
+.label.is-bold {
+    font-weight: bolder;
+}
+.label.autofill {
+    background-color: rgba(21,141,247,.07);;
+    color: #151af7;
+    cursor: pointer;
+}
+/*
+.button-right {
+  text-align: right;
+}
+*/

@@ -39,8 +39,8 @@
                         </div>
                     </li>
                     <li>
-                        <select id="vault" onchange="ChangeValut()" class="is-warning">
-                            <option value="" selected=true disabled="disabled">Vault</option>
+                        <select id="vault" onchange="changeVault()" class="is-warning">
+                            <option value="Primary" selected=true disabled="disabled">Vault</option>
                             <option value="Primary">Primary</option>
                         </select>
                     </li>
@@ -80,7 +80,34 @@
                 <div class="is-col is-20"></div>
                 <div class="is-col is-60">
                     <!-- Vault records -->
-                    <div id="records"></div>
+                    <div class="is-row">
+                        <div class="is-col is-20">
+                            <a href="javascript:generatePassword()" class="button is tertiary is-small">
+                                Generate password
+                            </a>
+                        </div>
+                        <div class="is-col is-10">
+                            <input id="password-size" type="text" value="16"/>
+                        </div>
+                        <div class="is-col is-20">
+                            <select id="characters">
+                                <option value="chars">Characters</option>
+                                <option value="chars+numbers">Characters+Numbers</option>
+                                <option value="chars+numbers+symbols">Characters+Numbers+Symbols</option>
+                            </select>
+                        </div>
+                        <div id="new-password" class="is-col is-30">
+                        </div>
+                        <div class="is-col is-20">
+                            <a href="javascript:ClearFields();showRecords()" class="button is-secondary is-small">
+                                Show records
+                            </a>
+                        </div>
+                    </div>
+                    <br>
+                    <hr>
+                    <div id="records">
+                    </div>
                     <div id="results"></div>
 
                     <!-- New sync -->
@@ -260,6 +287,8 @@ function ClearFields() {
     for (let i = 0; i < arr.length; i++) {
         HideTag(arr[i]);
     }
+    var records = document.getElementById("records");
+    records.innerHTML = "";
 }
 function ShowPlaceHolder(tag) {
     ClearFields();
