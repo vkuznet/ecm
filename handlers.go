@@ -274,12 +274,6 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	passwordHash, err := getPasswordHash(password)
-	if err != nil {
-		log.Println("unable to get password hash", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 
 	// check if our user exist in DBStore
 	if !userExist(user, password) {
