@@ -1,11 +1,9 @@
 package main
 
+// KV store based on badger DB
+// https://dgraph.io/docs/badger/get-started/
+
 import (
-	"crypto/sha1"
-	"crypto/sha256"
-	"crypto/sha512"
-	"encoding/hex"
-	"hash"
 	"log"
 	"path"
 	"time"
@@ -17,7 +15,6 @@ import (
 type KVRecord struct {
 	Key   string
 	Value []byte
-	Sha   string
 }
 
 // Store represents Badger DB
@@ -52,26 +49,15 @@ func (s *Store) Cleaner() {
 	}
 }
 
-func (s *Store) Add(rec KVRecord, sha string) error {
-	// create hash value for given key
-	var h hash.Hash
-	if sha == "sha256" || rec.Sha == "sha256" {
-		h = sha256.New()
-		rec.Sha = "sha256"
-	} else if sha == "sha512" || rec.Sha == "sha512" {
-		h = sha512.New()
-		rec.Sha = "sha512"
-	} else {
-		h = sha1.New()
-		rec.Sha = "sha1"
-	}
-	h.Write([]byte(rec.Key))
-	// if record value is not provided we'll create a hash for it
-	// this will allow to anonimise the data
-	if len(rec.Value) == 0 {
-		rec.Value = []byte(hex.EncodeToString(h.Sum(nil)))
-	}
+// Delete deletes key entry in our store
+func (s *Store) Delete(key string) error {
+	return s.DB.Update(func(txn *badger.Txn) error {
+		return txn.Delete([]byte(key))
+	})
+}
 
+// Add adds give record to the store
+func (s *Store) Add(rec KVRecord) error {
 	// commit new key-value records into our store
 	txn := s.DB.NewTransaction(true)
 	defer txn.Discard()
@@ -90,6 +76,7 @@ func (s *Store) Add(rec KVRecord, sha string) error {
 	return nil
 }
 
+// Get finds record in our store for given key
 func (s *Store) Get(key string) ([]byte, error) {
 	var val []byte
 	err := s.DB.View(func(txn *badger.Txn) error {
@@ -106,4 +93,30 @@ func (s *Store) Get(key string) ([]byte, error) {
 // Close closes KV Store
 func (s *Store) Close() {
 	s.DB.Close()
+}
+
+// Records returns full list of records in our store
+func (s *Store) Records() []KVRecord {
+	var records []KVRecord
+	err := s.DB.Update(func(txn *badger.Txn) error {
+		it := txn.NewIterator(badger.DefaultIteratorOptions)
+		defer it.Close()
+
+		for it.Rewind(); it.Valid(); it.Next() {
+			item := it.Item()
+			key := item.Key()
+			val, err := item.ValueCopy(nil)
+			if err != nil {
+				return err
+			}
+			rec := KVRecord{Key: string(key), Value: val}
+			records = append(records, rec)
+			return nil
+		}
+		return nil
+	})
+	if err != nil {
+		log.Println("fail during store iteration", err)
+	}
+	return records
 }

@@ -44,10 +44,14 @@ type ServerConfiguration struct {
 	DomainNames   []string `json:"domain_names"` // list of domain names to use
 	StaticDir     string   `json:"static"`       // location of static files
 	Templates     string   `json:"templates"`    // server templates
+	DBStore       string   `json:"dbstore"`      // location of dbstore
 }
 
 // ServerConfig variable represents configuration object
 var ServerConfig ServerConfiguration
+
+// DBStore represents user data store
+var DBStore *Store
 
 // helper function to parse configuration
 func parseServerConfig(configFile string) error {
@@ -106,6 +110,8 @@ func srvRouter() *mux.Router {
 	router.HandleFunc(basePath("/signup"), SignUpHandler).Methods("GET")
 	router.HandleFunc(basePath("/login"), LoginHandler).Methods("GET")
 	router.HandleFunc(basePath("/main"), MainHandler).Methods("GET", "POST")
+	router.HandleFunc(basePath("/user"), UserHandler).Methods("GET", "POST")
+	router.HandleFunc(basePath("/qrcode"), QRHandler).Methods("GET", "POST")
 	router.HandleFunc(basePath("/"), HomeHandler).Methods("GET")
 
 	// this is for displaying the QR code on /qr end point
@@ -140,6 +146,14 @@ func srvRouter() *mux.Router {
 
 // http server implementation
 func server(serverCrt, serverKey string) {
+
+	// setup our DB store
+	store, err := NewStore(ServerConfig.DBStore)
+	if err != nil {
+		log.Fatalf("unable to create new KV store %v", err)
+	}
+	defer store.Close()
+	DBStore = store
 
 	// define server hand	// dynamic handlers
 	if ServerConfig.CSRFKey != "" {
