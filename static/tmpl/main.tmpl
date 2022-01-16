@@ -16,7 +16,7 @@
             <nav>
                 <ul>
                     <li>
-                        <a href="/settings" class="button is-icon is-tertiary">
+                        <a href="javascript:ShowPlaceHolder('settings')" class="button is-icon is-tertiary">
                             <span class="icon-kube-menu"></span>
                             Settings
                         </a>
@@ -83,14 +83,14 @@
                     <div class="is-row my-record">
                         <div class="is-col is-20">
                             <a href="javascript:generatePassword()" class="button is tertiary is-small">
-                                Generate password
+                                New password
                             </a>
                         </div>
                         <div class="is-col is-10">
-                            <input id="password-size" type="text" value="16"/>
+                            <input id="password-size" type="text" value="16" class="is-small" />
                         </div>
                         <div class="is-col is-20">
-                            <select id="characters">
+                            <select id="characters" class="is-small">
                                 <option value="chars">Characters</option>
                                 <option value="chars+numbers">Characters+Numbers</option>
                                 <option value="chars+numbers+symbols">Characters+Numbers+Symbols</option>
@@ -109,6 +109,23 @@
                     <div id="records">
                     </div>
                     <div id="results"></div>
+
+                    <!-- setting form -->
+                    <div id="settings" class="hide">
+                        <div class="my-record">
+                            <h2>Settings</h2>
+                            <div>
+                                Records/page: <input type="text" value="10">
+                                Cipher: <input type="text" value="AES">
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();saveSettings()" class="button">
+                                        Save
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- New sync -->
                     <div id="new-sync" class="hide">
@@ -283,7 +300,7 @@
 
 <script>
 function ClearFields() {
-    let arr = ["new-record", "new-vault", "new-sync", "new-file", "new-json", "new-note", "new-card"];
+    let arr = ["new-record", "new-vault", "new-sync", "new-file", "new-json", "new-note", "new-card", "settings"];
     for (let i = 0; i < arr.length; i++) {
         HideTag(arr[i]);
     }
