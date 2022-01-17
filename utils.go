@@ -25,7 +25,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	// clone of "code.google.com/p/rsc/qr" which no longer available
-	"github.com/vkuznet/rsc/qr"
+	// "github.com/vkuznet/rsc/qr"
+	qr "rsc.io/qr"
 
 	// imaging library
 	"github.com/disintegration/imaging"
