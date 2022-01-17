@@ -53,14 +53,6 @@
     <hr/>
     <!-- Main container -->
     <main class="main is-container">
-        <!-- main sidebar -->
-        <!--
-        <div class="main-sidebar">
-            Side-bar
-            lksdjfklsj lksjd flksjd flksjdf lksdjf lksdjf lksdjf
-            klsjdflksdjfl sjdlf skldjf lsdjf lksdjf lksdj
-        </div>
-        -->
         <!-- main content -->
         <div class="main-content">
             <div class="is-row">
@@ -69,10 +61,30 @@
                     <img src="static/images/security.png" class="my-image">
                 </div>
                 <div class="is-col is-50">
+                    <p>
                     In modern digital world the content matter the most.
                     We should be confident that it is protected, and stored securely.
                     It should be accessible everywhere, at home, on the web,
                     on a road, etc.
+                    </p>
+                    <p>
+                    <blockquote>
+                    <p>
+                    Companies spend millions of dollars on firewalls and secure
+                    access devices, and it is money wasted because none of these
+                    measures address the weakest link in the security chain:
+                    the people who use, administer and operate computer systems
+                    </p>
+                    <p><small>Kevin Mitnick</small></p>
+                    </blockquote>
+                    We believe that our customers should be in full control
+                    of tools, technology, and moreover have clear understanding
+                    how the entire process works. Therefore, we outline every
+                    single step of ECM workflows and provide full details
+                    of its
+                    <a href="/architecture.html">architecture</a>
+                    and <a href="https://github.com/vkuznet/ecm">open-source codebase</a>
+                    </p>
                 </div>
                 <div class="is-col is-10"></div>
             </div>
@@ -81,8 +93,29 @@
             <div class="is-row">
                 <div class="is-col is-10"></div>
                 <div class="is-col is-50">
-                    How we can protect our data without loosing accessibility.
-                    There are several ways to do it
+                    <blockquote>
+                    <p>
+                    Technology trust is a good thing, but control is a better one.
+                    </p>
+                    <p><small>Stephane Nappo</small></p>
+                    </blockquote>
+                    <p>
+                    ECM provides tools to encrypt your data in your OS, and
+                    safely share it among devices or clients through ECM
+                    secure server which can be installed on your premises,
+                    within your organization, at cloud provider, etc.
+                    All of your data is encrypted before put on a wire.
+                    All server communications and APIs use HTTPs protocol to
+                    exchange your encrypted data. For complete guide of ECM
+                    architecture please follow this
+                    <a href="/architecture.html">link</a>.
+                    </p>
+                    <p>
+                    ECM provides RESTful APIs to exchange your data within
+                    your favorie application. Please refer to our
+                    <a href="/apis.html">APIs documentation</a> for
+                    more details.
+                    </p>
                 </div>
                 <div class="is-col is-30">
                     <img src="static/images/technology-icon.png" class="my-image">
@@ -97,13 +130,14 @@
                     <img src="static/images/encryption-icon.png" class="my-image">
                 </div>
                 <div class="is-col is-50">
-                    We provide secure solution to all your digital content,
-                    records, passwords, files, media. We rely on industry
-                    standards to encrypt our data. Here is a list of supported
-                    ciphers by ECM:
+                    We provide secure solutions to all of your digital content,
+                    including login records, passwords, notes, files, and media.
+                    We rely on industry standards to encrypt our data. Client
+                    can choose among the following available ciphers:
                     <ul>
                         <li>
-                            AES cipher: The Advanced Encryption Standard (AES),
+                            AES cipher: The Advanced Encryption Standard
+                            (<a href="https://www.wikiwand.com/en/Advanced_Encryption_Standard">AES</a>),
                             also known by its original name Rijndael is a
                             specification for the encryption of electronic data
                             established by the U.S. National Institute of
@@ -116,9 +150,13 @@
                             software library for network communication,
                             encryption, decryption, signatures, etc. 
                         </li>
-                        <li>
-                        </li>
                     </ul>
+                    Our server relies on
+                    <a href="https://letsencrypt.org/">LetsEncrypt</a> provider for
+                    our server certificates, and we rely on Web Assembly
+                    (<a href="https://webassembly.org/">WASM</a>)
+                    technology to enforce the same-origin and permissions
+                    security policies of the browser.
                 </div>
                 <div class="is-col is-10"></div>
             </div>
