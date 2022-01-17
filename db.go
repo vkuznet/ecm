@@ -68,10 +68,8 @@ func userExist(name, password string) bool {
 	if err != nil {
 		return false
 	}
-	log.Printf("### found user %+v check against password %s", user, password)
 	if password == "do not check" {
 		return true
-		//     } else if user.Password == password {
 	} else if checkPasswordHash(password, user.Password) {
 		return true
 	}
