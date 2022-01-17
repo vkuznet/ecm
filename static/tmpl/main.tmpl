@@ -61,6 +61,11 @@
                             <option value="file">File upload</option>
                         </select>
                     </li>
+                    <li>
+                        <a href="/logout" class="button is-tertiary is-small">
+                           Logout 
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -78,10 +83,11 @@
             <div class="is-row">
                 <div class="is-col is-20"></div>
                 <div class="is-col is-60">
+                    User: {{.User}}
                     <!-- generate password section -->
                     <div class="is-row my-record">
                         <div class="is-col is-20">
-                            <a href="javascript:generatePassword()" class="button is tertiary is-small">
+                            <a href="javascript:generatePassword()" class="button is-small">
                                 New password
                             </a>
                         </div>

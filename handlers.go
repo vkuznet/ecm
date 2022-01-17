@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	_ "embed"
 	"encoding/base32"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -243,11 +245,13 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 // LoginHandler handles login page requests
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	//     tmplData := make(TmplRecord)
-	//     captchaStr := captcha.New()
-	//     tmplData["CaptchaId"] = captchaStr
-	//     page := tmplPage("login.tmpl", tmplData)
 	page := tmplPage("login.tmpl", nil)
+	w.Write([]byte(page))
+}
+
+// LogoutHandler handles login page requests
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	page := tmplPage("logout.tmpl", nil)
 	w.Write([]byte(page))
 }
 
@@ -264,27 +268,18 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 func MainHandler(w http.ResponseWriter, r *http.Request) {
 
 	// we should be redirected to this handler from login page
-	var user, password string
+	var user string
 	err := r.ParseForm()
 	if err == nil {
 		user = r.FormValue("user")
-		password = r.FormValue("password")
 	} else {
 		log.Println("unable to parse user form data", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// check if our user exist in DBStore
-	if !userExist(user, password) {
-		tmplData := make(TmplRecord)
-		tmplData["Message"] = "Wrong password or user does not exist"
-		page := tmplPage("error.tmpl", tmplData)
-		w.Write([]byte(page))
-		return
-	}
-
 	tmplData := make(TmplRecord)
+	tmplData["User"] = user
 	page := tmplPage("main.tmpl", tmplData)
 	w.Write([]byte(page))
 }
@@ -301,9 +296,27 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse form parameters
-	var user string
+	var user, password, otp string
 	if err := r.ParseForm(); err == nil {
 		user = r.FormValue("user")
+		password = r.FormValue("password")
+		otp = r.FormValue("otp")
+	}
+
+	// check if our user exist in DBStore
+	if !userExist(user, password) {
+		msg := "Wrong password or user does not exist"
+		if r.Header.Get("Content-Type") == "application/json" {
+			rec := make(map[string]string)
+			rec["error"] = msg
+			json.NewEncoder(w).Encode(rec)
+			return
+		}
+		tmplData := make(TmplRecord)
+		tmplData["Message"] = msg
+		page := tmplPage("error.tmpl", tmplData)
+		w.Write([]byte(page))
+		return
 	}
 
 	secret := findUserSecret(user)
@@ -312,11 +325,6 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	// TODO: may be use userData := jwt.MapClaims{}
-	//     userData := make(map[string]interface{})
-	//     userData["username"] = user
-	//     userData["password"] = secret
-	//     userData["authorized"] = false
 	mapClaims := jwt.MapClaims{}
 	mapClaims["username"] = user
 	mapClaims["authorized"] = false
@@ -325,12 +333,63 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	// for verification we can use either user's secret
 	// or server secret
 	// in latter case it should be global and available to all APIs
-	//     tokenString, err := SignJwt(userData, secret)
 	tokenString, err := SignJwt(mapClaims, secret)
 	if err != nil {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
+
+	if otp != "" {
+		// send POST request to /verify end-point to receive OTP token
+		// JSON {"otp":"383878", "user": "UserName"}
+		rec := make(map[string]string)
+		rec["otp"] = otp
+		rec["user"] = user
+		data, err := json.Marshal(rec)
+		if err != nil {
+			log.Println("unable to marshal user data", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		host := fmt.Sprintf("http://localhost:%d/verify", ServerConfig.Port)
+		req, err := http.NewRequest("POST", host, bytes.NewBuffer(data))
+		if err != nil {
+			log.Println("unable to post request to /verify", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokenString))
+		req.Header.Set("Content-Type", "application/json")
+		client := http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Println("unable to post request to /verify", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("unable to read body from /verify", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// get data from verify with OTP token
+		var otpToken string
+		err = json.Unmarshal(body, &otpToken)
+		if err != nil {
+			log.Println("unable to unmarshal otpToken", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// post request to MainHandler with user data
+		r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", otpToken))
+		MainHandler(w, r)
+	}
+
+	// for non web clients return JSON document with JWT token
 	json.NewEncoder(w).Encode(JwtToken{Token: tokenString})
 }
 
@@ -343,8 +402,7 @@ func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(decoded)
 }
 
-// VerifyHandler authorizes user based on provided token
-// and OTP code
+// VerifyHandler authorizes user based on provided token and OTP code
 func VerifyHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)

@@ -12,7 +12,7 @@
     <div class="is-row">
         <div class="is-col"></div>
         <div class="is-col">
-            <form method="post" action="/main">
+            <form method="post" action="/authenticate">
                 <fieldset>
                     <legend>Login form</legend>
                     <div class="form-item">
@@ -22,6 +22,10 @@
                     <div class="form-item">
                         <label>Password</label>
                         <input type="password" name="password" id="password" class="is-95">
+                    </div>
+                    <div class="form-item">
+                        <label>OTP code</label>
+                        <input type="text" name="otp" id="otp" class="is-95" placeholder="One-Time Password code">
                     </div>
                     <div class="form-item">
                         <div class="is-row">

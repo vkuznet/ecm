@@ -109,7 +109,10 @@ func srvRouter() *mux.Router {
 
 	router.HandleFunc(basePath("/signup"), SignUpHandler).Methods("GET")
 	router.HandleFunc(basePath("/login"), LoginHandler).Methods("GET")
-	router.HandleFunc(basePath("/main"), MainHandler).Methods("GET", "POST")
+	router.HandleFunc(basePath("/logout"), LogoutHandler).Methods("GET")
+	router.HandleFunc("/authenticate", AuthHandler).Methods("POST")
+	router.HandleFunc("/verify", VerifyHandler).Methods("POST")
+	router.HandleFunc(basePath("/main"), ValidateMiddleware(MainHandler)).Methods("GET", "POST")
 	router.HandleFunc(basePath("/user"), UserHandler).Methods("GET", "POST")
 	router.HandleFunc(basePath("/qrcode"), QRHandler).Methods("GET", "POST")
 	router.HandleFunc(basePath("/"), HomeHandler).Methods("GET")
@@ -148,9 +151,16 @@ func srvRouter() *mux.Router {
 func server(serverCrt, serverKey string) {
 
 	// setup our DB store
+	_, err := os.Stat(ServerConfig.DBStore)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(ServerConfig.DBStore, 0755)
+		if err != nil {
+			log.Fatalf("unable to create new KV store, error %v", err)
+		}
+	}
 	store, err := NewStore(ServerConfig.DBStore)
 	if err != nil {
-		log.Fatalf("unable to create new KV store %v", err)
+		log.Fatalf("unable to init KV store, error %v", err)
 	}
 	defer store.Close()
 	DBStore = store
