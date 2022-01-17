@@ -444,7 +444,7 @@ func VerifyHandler(w http.ResponseWriter, r *http.Request) {
 	otpc := &dgoogauth.OTPConfig{
 		Secret:      secret,
 		WindowSize:  3,
-		HotpCounter: 0,
+		HotpCounter: 1, // originally was 0
 	}
 	decodedToken["authorized"], err = otpc.Authenticate(otpToken.Token)
 	if err != nil {
