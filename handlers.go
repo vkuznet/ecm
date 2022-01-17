@@ -47,6 +47,15 @@ func responseMsg(w http.ResponseWriter, r *http.Request, msg, api string, code i
 	return int64(len(data))
 }
 
+// helper function to generate error page with given message
+func errorPage(w http.ResponseWriter, r *http.Request, msg string) {
+	log.Println("ERROR:", msg)
+	tmplData := make(TmplRecord)
+	tmplData["Message"] = msg
+	page := tmplPage("error.tmpl", tmplData)
+	w.Write([]byte(page))
+}
+
 // helper function to get vault parameters from the HTTP request
 func getVault(r *http.Request) (string, error) {
 	vars := mux.Vars(r)
@@ -288,6 +297,67 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
  * 2fa handlers
  */
 
+// helper function to authenticate web request to MainHandler
+func authMainHandler(w http.ResponseWriter, r *http.Request, otp, user, tokenString, secret string) {
+	// send POST request to /verify end-point to receive OTP token
+	// JSON {"otp":"383878", "user": "UserName"}
+	rec := make(map[string]string)
+	rec["otp"] = otp
+	rec["user"] = user
+	data, err := json.Marshal(rec)
+	if err != nil {
+		msg := fmt.Sprintf("unable to marshal user data, error %v", err)
+		errorPage(w, r, msg)
+		return
+	}
+	host := fmt.Sprintf("http://localhost:%d/verify", ServerConfig.Port)
+	req, err := http.NewRequest("POST", host, bytes.NewBuffer(data))
+	if err != nil {
+		msg := fmt.Sprintf("unable to post verification request, error %v", err)
+		errorPage(w, r, msg)
+		return
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokenString))
+	req.Header.Set("Content-Type", "application/json")
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		msg := fmt.Sprintf("unable to request verification, error %v", err)
+		errorPage(w, r, msg)
+		return
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		msg := fmt.Sprintf("unable to read body, error %v", err)
+		errorPage(w, r, msg)
+		return
+	}
+
+	// get data from verify with OTP token
+	var otpToken string
+	err = json.Unmarshal(body, &otpToken)
+	if err != nil {
+		msg := fmt.Sprintf("unable to unmarshal otp token, error %v", err)
+		errorPage(w, r, msg)
+		return
+	}
+	decodedToken, err := VerifyJwt(otpToken, secret)
+	if err != nil {
+		msg := fmt.Sprintf("unable to verify otp token, error %v", err)
+		errorPage(w, r, msg)
+		return
+	}
+	if decodedToken["authorized"] == true {
+		context.Set(r, "decoded", decodedToken)
+		// post request to MainHandler with user data and our token
+		r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", otpToken))
+		MainHandler(w, r)
+	}
+	msg := fmt.Sprintf("2fa verification process fails")
+	errorPage(w, r, msg)
+}
+
 // AuthHandler authenticate user via POST HTTP request
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -340,53 +410,8 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if otp != "" {
-		// send POST request to /verify end-point to receive OTP token
-		// JSON {"otp":"383878", "user": "UserName"}
-		rec := make(map[string]string)
-		rec["otp"] = otp
-		rec["user"] = user
-		data, err := json.Marshal(rec)
-		if err != nil {
-			log.Println("unable to marshal user data", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		host := fmt.Sprintf("http://localhost:%d/verify", ServerConfig.Port)
-		req, err := http.NewRequest("POST", host, bytes.NewBuffer(data))
-		if err != nil {
-			log.Println("unable to post request to /verify", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokenString))
-		req.Header.Set("Content-Type", "application/json")
-		client := http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			log.Println("unable to post request to /verify", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Println("unable to read body from /verify", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		// get data from verify with OTP token
-		var otpToken string
-		err = json.Unmarshal(body, &otpToken)
-		if err != nil {
-			log.Println("unable to unmarshal otpToken", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		// post request to MainHandler with user data
-		r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", otpToken))
-		MainHandler(w, r)
+		authMainHandler(w, r, otp, user, tokenString, secret)
+		return
 	}
 
 	// for non web clients return JSON document with JWT token
@@ -438,17 +463,17 @@ func VerifyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	decodedToken, err := VerifyJwt(bearerToken, secret)
 	if err != nil {
+		log.Println("unable to verify jwt token", err)
 		json.NewEncoder(w).Encode(err)
 		return
 	}
 	otpc := &dgoogauth.OTPConfig{
 		Secret:      secret,
 		WindowSize:  3,
-		HotpCounter: 1, // originally was 0
+		HotpCounter: 0,
 	}
 	decodedToken["authorized"], err = otpc.Authenticate(otpToken.Token)
 	if err != nil {
-		log.Println("error", err)
 		json.NewEncoder(w).Encode(err)
 		return
 	}
