@@ -29,6 +29,16 @@ body {
         background: #C0C0C0;
         display: inline-block;
     }
+    .title {
+        font-size: 2vw;
+        font-weight: bolder;
+    }
+    .my-image {
+        max-width:0%;
+        height:0%;
+        display: none;
+        visibility: hidden;
+    }
 }
 /* For Mobile landscape */
 @media screen and (min-width: 600px) and (max-width: 1020px) {
@@ -46,13 +56,25 @@ body {
     }
     .my-record {
         padding: 2vw;
-        font-size:2vw;
+        font-size:2.5vw;
         font-weight: bold;
     }
     .drop-area {
         height: 20%;
         background: #C0C0C0;
         display: inline-block;
+    }
+    .title {
+        font-size: 5vw;
+        font-weight: bolder;
+    }
+    .my-image {
+/*        max-width:20%;*/
+/*        height:auto;*/
+        max-width:0%;
+        height:0%;
+        display: none;
+        visibility: hidden;
     }
 }
 /* Desktop */
@@ -75,6 +97,14 @@ body {
     }
     .icon-size {
         font-size:2em;
+    }
+    .title {
+        font-size: 40px;
+        font-weight: bolder;
+    }
+    .my-image {
+        max-width:80%;
+        height:auto;
     }
 }
 
@@ -117,10 +147,6 @@ body {
 .my-col {
     min-width: 70%;
     min-height: 20%;
-}
-.my-image {
-    max-width:80%;
-    height:auto;
 }
 
 /* records */
