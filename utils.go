@@ -20,6 +20,7 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/vkuznet/ecm/crypt"
+	vt "github.com/vkuznet/ecm/vault"
 	"golang.org/x/term"
 
 	"golang.org/x/crypto/bcrypt"
@@ -231,7 +232,7 @@ func decryptInput(fname, password, cipher, write, attr string) {
 		log.Fatal(err)
 	}
 	if attr != "" {
-		var rec VaultRecord
+		var rec vt.VaultRecord
 		err := json.Unmarshal(data, &rec)
 		if err != nil {
 			log.Fatal("unable to unarmashal vault record", err)

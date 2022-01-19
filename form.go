@@ -11,13 +11,14 @@ import (
 	tcell "github.com/gdamore/tcell/v2"
 	uuid "github.com/google/uuid"
 	"github.com/rivo/tview"
+	vt "github.com/vkuznet/ecm/vault"
 )
 
 // initGrid controls when we read our grid view
 var initGrid bool
 
 // helper function to start our UI app
-func gpgApp(vault *Vault, interval int) {
+func gpgApp(vault *vt.Vault, interval int) {
 
 	// create vault app and run it
 	app := tview.NewApplication()
@@ -36,7 +37,7 @@ func gpgApp(vault *Vault, interval int) {
 }
 
 // helper function to lock ecm
-func lockECM(app *tview.Application, pages *tview.Pages, input *tview.InputField, vault *Vault, interval int) {
+func lockECM(app *tview.Application, pages *tview.Pages, input *tview.InputField, vault *vt.Vault, interval int) {
 	for {
 		if time.Since(vault.Start).Seconds() > float64(interval) {
 			log.Println("time to lock the screen")
@@ -53,7 +54,7 @@ func lockECM(app *tview.Application, pages *tview.Pages, input *tview.InputField
 }
 
 // helper function to make secret prompt
-func authView(app *tview.Application, pages *tview.Pages, textView *tview.TextView, vault *Vault, interval int) (*tview.InputField, *tview.Frame) {
+func authView(app *tview.Application, pages *tview.Pages, textView *tview.TextView, vault *vt.Vault, interval int) (*tview.InputField, *tview.Frame) {
 	input := tview.NewInputField()
 	input.SetFieldWidth(50).
 		SetMaskCharacter('*').
@@ -111,8 +112,8 @@ func lockView(app *tview.Application, verbose int) (string, error) {
 }
 
 // helper function to provide input form, returns vault record
-func inputForm(app *tview.Application) VaultRecord {
-	var vrec VaultRecord
+func inputForm(app *tview.Application) vt.VaultRecord {
+	var vrec vt.VaultRecord
 	form := tview.NewForm()
 	form.AddInputField("Name", "", 100, nil, nil)
 	form.AddInputField("Login", "", 100, nil, nil)
@@ -133,21 +134,21 @@ func inputForm(app *tview.Application) VaultRecord {
 }
 
 // helper function to save input form
-func saveForm(form *tview.Form) VaultRecord {
+func saveForm(form *tview.Form) vt.VaultRecord {
 	uid := uuid.NewString()
-	rmap := make(Record)
+	rmap := make(vt.Record)
 	for i := 0; i < form.GetFormItemCount(); i++ {
 		item := form.GetFormItem(i)
 		key := item.GetLabel()
 		val := form.GetFormItemByLabel(key).(*tview.InputField).GetText()
 		rmap[key] = val
 	}
-	rec := VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
+	rec := vt.VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
 	return rec
 }
 
 // helper function to list vault records
-func listForm(list *tview.List, records []VaultRecord) *tview.List {
+func listForm(list *tview.List, records []vt.VaultRecord) *tview.List {
 	list.Clear()
 	for _, rec := range records {
 		name, _ := rec.Map["Name"]
@@ -157,8 +158,8 @@ func listForm(list *tview.List, records []VaultRecord) *tview.List {
 }
 
 // helper function to present recordForm
-func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info *tview.TextView, index int, vault *Vault) *tview.Form {
-	var rec VaultRecord
+func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info *tview.TextView, index int, vault *vt.Vault) *tview.Form {
+	var rec vt.VaultRecord
 	if len(vault.Records) > index {
 		rec = vault.Records[index]
 	}
@@ -177,14 +178,14 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 	}
 	form.AddButton("Save", func() {
 		uid := rec.ID
-		rmap := make(Record)
+		rmap := make(vt.Record)
 		for i := 0; i < form.GetFormItemCount(); i++ {
 			item := form.GetFormItem(i)
 			key := item.GetLabel()
 			val := form.GetFormItemByLabel(key).(*tview.InputField).GetText()
 			rmap[key] = val
 		}
-		rec := VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
+		rec := vt.VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
 		vault.Update(rec)
 		vault.Write()
 
@@ -204,7 +205,7 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 }
 
 // helper function to build our application grid view
-func gridView(app *tview.Application, pages *tview.Pages, textView *tview.TextView, vault *Vault) *tview.Grid {
+func gridView(app *tview.Application, pages *tview.Pages, textView *tview.TextView, vault *vt.Vault) *tview.Grid {
 	info := tview.NewTextView()
 	list := tview.NewList()
 	field := tview.NewInputField()
@@ -403,7 +404,7 @@ func copyToClipboard(key string, form *tview.Form, verbose int) {
 }
 
 // helper function to build our application grid view
-func textView(app *tview.Application, pages *tview.Pages, vault *Vault) *tview.TextView {
+func textView(app *tview.Application, pages *tview.Pages, vault *vt.Vault) *tview.TextView {
 	textView := tview.NewTextView().
 		SetTextColor(tcell.ColorBlack).
 		SetScrollable(true).

@@ -12,6 +12,7 @@ import (
 	limiter "github.com/ulule/limiter/v3"
 	stdlib "github.com/ulule/limiter/v3/drivers/middleware/stdlib"
 	memory "github.com/ulule/limiter/v3/drivers/store/memory"
+	vt "github.com/vkuznet/ecm/vault"
 )
 
 // limiter middleware pointer
@@ -74,7 +75,7 @@ func validateMiddleware(next http.Handler) http.Handler {
 				log.Printf("HTTP %s %v validation error %v\n", r.Method, r.RequestURI, err)
 			}
 			w.WriteHeader(http.StatusBadRequest)
-			rec := make(Record)
+			rec := make(vt.Record)
 			rec["error"] = fmt.Sprintf("Validation error %v", err)
 			if r, e := json.Marshal(rec); e == nil {
 				w.Write(r)

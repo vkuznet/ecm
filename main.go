@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"time"
 	//     "github.com/rivo/tview"
+	vt "github.com/vkuznet/ecm/vault"
 )
 
 // version of the code
@@ -77,7 +78,7 @@ func main() {
 	}
 
 	// initialize our vault
-	vault := Vault{Cipher: getCipher(cipher), Verbose: verbose, Start: time.Now()}
+	vault := vt.Vault{Cipher: getCipher(cipher), Verbose: verbose, Start: time.Now()}
 
 	// create our vault
 	err = vault.Create(vname)

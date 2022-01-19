@@ -9,6 +9,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/rivo/tview"
+	vt "github.com/vkuznet/ecm/vault"
 	"golang.org/x/term"
 )
 
@@ -37,14 +38,14 @@ func secretPlain(verbose int) (string, error) {
 }
 
 // helper function to get user input
-func input(verbose int) (VaultRecord, error) {
+func input(verbose int) (vt.VaultRecord, error) {
 	app := tview.NewApplication()
 	rec := inputForm(app)
 	return rec, nil
 }
 
 // helper function to print the record
-func printRecord(rec VaultRecord) {
+func printRecord(rec vt.VaultRecord) {
 	// initialize tabwriter
 	w := new(tabwriter.Writer)
 

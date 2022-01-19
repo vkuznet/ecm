@@ -17,7 +17,7 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/rivo/tview v0.0.0-20220106183741-90d72bc664f5
 	github.com/ulule/limiter/v3 v3.9.0
-	github.com/vkuznet/ecm/crypt v0.0.0-20220117005607-bc1fd5925209
+	github.com/vkuznet/ecm/crypt v0.0.0-20220119151129-1d6a1f7f7ccd
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
@@ -43,6 +43,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/vkuznet/ecm/vault v0.0.0-20220119160654-08347aa71a9e // indirect
 	go.opencensus.io v0.22.5 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect

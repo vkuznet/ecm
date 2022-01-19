@@ -19,6 +19,7 @@ import (
 	"github.com/dgryski/dgoogauth"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
+	vt "github.com/vkuznet/ecm/vault"
 )
 
 // we embed few html pages directly into server
@@ -32,14 +33,14 @@ var bottomHTML string
 
 // responseMsg helper function to provide response to end-user
 func responseMsg(w http.ResponseWriter, r *http.Request, msg, api string, code int) int64 {
-	rec := make(Record)
+	rec := make(vt.Record)
 	rec["error"] = msg
 	rec["api"] = api
 	rec["method"] = r.Method
 	rec["exception"] = fmt.Sprintf("%d", code)
 	rec["type"] = "HTTPError"
 	//     data, _ := json.Marshal(rec)
-	var out []Record
+	var out []vt.Record
 	out = append(out, rec)
 	data, _ := json.Marshal(out)
 	w.WriteHeader(code)
@@ -90,7 +91,7 @@ func VaultHandler(w http.ResponseWriter, r *http.Request) {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultHandler", http.StatusBadRequest)
 		return
 	}
-	vault := Vault{Cipher: getCipher(""), Secret: "", Directory: vdir}
+	vault := vt.Vault{Cipher: getCipher(""), Secret: "", Directory: vdir}
 	files, err := vault.Files()
 	if err != nil {
 		responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
@@ -135,7 +136,7 @@ func VaultRecordsHandler(w http.ResponseWriter, r *http.Request) {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultHandler", http.StatusBadRequest)
 		return
 	}
-	vault := Vault{Directory: vdir}
+	vault := vt.Vault{Directory: vdir}
 	files, err := vault.Files()
 	if err != nil {
 		responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
@@ -209,7 +210,7 @@ func VaultDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultDeleteHandler", http.StatusBadRequest)
 		return
 	}
-	vault := Vault{Cipher: getCipher(""), Secret: "", Directory: vdir}
+	vault := vt.Vault{Cipher: getCipher(""), Secret: "", Directory: vdir}
 	err = vault.DeleteRecord(rid)
 	if err != nil {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultDeleteHandler", http.StatusBadRequest)
