@@ -9,6 +9,7 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/vkuznet/ecm/crypt"
+	vt "github.com/vkuznet/ecm/vault"
 )
 
 // TestDecryptInputToFile function
@@ -53,9 +54,9 @@ func TestDecryptInputToClipboard(t *testing.T) {
 		return
 	}
 	password := "test"
-	rec := make(Record)
+	rec := make(vt.Record)
 	rec["attr"] = "test"
-	vrec := VaultRecord{ID: "123", Map: rec}
+	vrec := vt.VaultRecord{ID: "123", Map: rec}
 	cipher := "aes"
 	data, err := json.Marshal(vrec)
 	if err != nil {
