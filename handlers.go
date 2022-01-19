@@ -613,7 +613,7 @@ func QRHandler(w http.ResponseWriter, r *http.Request) {
 	// authentication link.
 	// for more details see
 	// https://github.com/google/google-authenticator/wiki/Key-Uri-Format
-	authLink := fmt.Sprintf("otpauth://totp/GPM:%s?secret=%s&issuer=GPM", user, jwtSecret)
+	authLink := fmt.Sprintf("otpauth://totp/ECM:%s?secret=%s&issuer=ECM", user, jwtSecret)
 
 	// generate QR image
 	// Remember to clean up the file afterwards

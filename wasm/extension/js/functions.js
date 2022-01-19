@@ -15,7 +15,7 @@ async function asyncRecords() {
         Lock();
         var doc = document.getElementById('records');
         doc.setAttribute('class', 'alert is-error');
-        doc.innerHTML = 'Invalid GPM password';
+        doc.innerHTML = 'Invalid password';
         return
     }
     try {
@@ -48,7 +48,7 @@ async function asyncRecords_Original() {
     if(password=="") {
         var doc = document.getElementById('records');
         doc.setAttribute('class', 'alert is-error');
-        doc.innerHTML = 'Invalid GPM password';
+        doc.innerHTML = 'Invalid password';
         document.getElementById('records').appendChild(doc);
         return
     }

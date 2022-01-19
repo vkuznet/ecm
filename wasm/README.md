@@ -1,5 +1,5 @@
 ### WabAssembly plugin
-This area contains wasm (WebAssembly) plugin for GPM.
+This area contains wasm (WebAssembly) plugin for ECM.
 Please use the following instructions:
 ```
 # build wasm executable

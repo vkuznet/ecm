@@ -6,7 +6,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-// jwtSecret is GPM secret (randomly generated) used by
+// jwtSecret is a secret (randomly generated) used by
 // QRHandler to generate QR code and VerifyHandler API
 // to authorize user
 var jwtSecret string
