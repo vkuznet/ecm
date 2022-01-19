@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
-	"strconv"
 	"strings"
 	"syscall/js"
 	"time"
@@ -115,15 +113,15 @@ func main() {
 	js.Global().Set("getPassword", passwordWrapper())
 	js.Global().Set("records", recordsWrapper())
 
-	js.Global().Set("addRecord", actionWrapper("record"))
-	js.Global().Set("addJsonRecord", actionWrapper("json"))
-	js.Global().Set("addNote", actionWrapper("note"))
-	js.Global().Set("addCard", actionWrapper("card"))
-	js.Global().Set("addVault", actionWrapper("vault"))
-	js.Global().Set("syncHosts", actionWrapper("sync"))
-	js.Global().Set("uploadFile", actionWrapper("upload"))
-	js.Global().Set("showRecords", actionWrapper("records"))
-	js.Global().Set("generatePassword", actionWrapper("password"))
+	js.Global().Set("addRecord", actionWrapper("login_record"))
+	js.Global().Set("addJsonRecord", actionWrapper("json_record"))
+	js.Global().Set("addNote", actionWrapper("note_record"))
+	js.Global().Set("addCard", actionWrapper("card_record"))
+	js.Global().Set("addVault", actionWrapper("new_vault"))
+	js.Global().Set("syncHosts", actionWrapper("sync_hosts"))
+	js.Global().Set("uploadFile", actionWrapper("upload_file"))
+	js.Global().Set("showRecords", actionWrapper("show_records"))
+	js.Global().Set("generatePassword", actionWrapper("gen_password"))
 	//     js.Global().Set("generatePassword", genPasswordWrapper())
 	js.Global().Call("showRecords")
 	<-make(chan bool)
@@ -163,28 +161,9 @@ func ErrorHandler(reject js.Value, err error) {
 // wrapper function to add new vault
 func actionWrapper(action string) js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		//         rid := args[0].String()
 		// Create and return the Promise object
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			if action == "record" {
-				go ActionHandler("login_record", args)
-			} else if action == "json" {
-				go ActionHandler("json_record", args)
-			} else if action == "note" {
-				go ActionHandler("note_record", args)
-			} else if action == "card" {
-				go ActionHandler("card_record", args)
-			} else if action == "upload" {
-				go ActionHandler("upload_file", args)
-			} else if action == "vault" {
-				go ActionHandler("new_vault", args)
-			} else if action == "sync_hosts" {
-				go ActionHandler("sync", args)
-			} else if action == "records" {
-				go ActionHandler("show_records", args)
-			} else if action == "password" {
-				go ActionHandler("password", args)
-			}
+			go ActionHandler(action, args)
 			return nil
 		})
 		// define where we should put our data
@@ -193,71 +172,35 @@ func actionWrapper(action string) js.Func {
 	})
 }
 
-// credentials provides vault credentials
-func credentials() (string, string) {
-	// TODO: implement proper logic to get it from HTML
-	cipher := "aes"
-	password := "test"
-	return cipher, password
-}
-
 // ActionHandler handles vault action
 func ActionHandler(action string, args []js.Value) {
 	resolve := args[0]
 	reject := args[1]
 
-	// TODO: implement business logic, e.g. vault.AddRecord()
-	msg := fmt.Sprintf("Called ActionHandler with %s", action)
-	document := js.Global().Get("document")
-	records := document.Call("getElementById", "records")
-
-	// return object
-
+	// perform action with our action
 	var data []byte
-	var rids []string
 	var err error
 	if action == "show_records" {
-		records.Set("innerHTML", "")
-		doc := document.Call("getElementById", "vault")
-		vault := doc.Get("value").String()
-		url := fmt.Sprintf("/vault/%s/records", vault)
-		cipher, password := credentials()
-		extention := false
-		rids, err = updateRecords(url, cipher, password, extention)
-		if err != nil {
-			ErrorHandler(reject, err)
-			return
-		}
-		data, err = json.Marshal(rids)
-	} else if action == "password" {
-		const voc string = "abcdfghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		const numbers string = "0123456789"
-		const symbols string = "!@#$%&*+_-="
-		document := js.Global().Get("document")
-		docRecords := document.Call("getElementById", "new-password")
-		size := document.Call("getElementById", "password-size").Get("value").String()
-		chars := document.Call("getElementById", "characters").Get("value").String()
-		var password string
-		if chars == "chars+numbers" {
-			password = generatePassword(size, voc+numbers)
-		} else if chars == "chars+numbers+symbols" {
-			password = generatePassword(size, voc+numbers+symbols)
-		} else {
-			password = generatePassword(size, voc)
-		}
-		docRecords.Set("innerHTML", password)
-		result := make(map[string]string)
-		result["Result"] = "new password was generated"
-		data, err = json.Marshal(result)
+		data, err = showRecords()
+	} else if action == "login_record" {
+		data, err = loginRecord()
+	} else if action == "json_record" {
+		data, err = jsonRecord()
+	} else if action == "card_record" {
+		data, err = cardRecord()
+	} else if action == "note_record" {
+		data, err = noteRecord()
+	} else if action == "upload_file" {
+		data, err = uploadFile()
+	} else if action == "sync_host" {
+		data, err = syncHosts()
+	} else if action == "new_vault" {
+		data, err = createVault()
+	} else if action == "gen_password" {
+		data, err = newPassword()
 	} else {
-		records.Set("innerHTML", "")
-		doc := document.Call("getElementById", "results")
-		doc.Set("innerHTML", msg)
-		result := make(map[string]string)
-		result["Result"] = msg
-		data, err = json.Marshal(result)
+		data, err = defaultAction()
 	}
-
 	if err != nil {
 		ErrorHandler(reject, err)
 		return
@@ -274,24 +217,6 @@ func ActionHandler(action string, args []js.Value) {
 
 	// Resolve the Promise
 	resolve.Invoke(response)
-}
-
-// helper function to generate password of certain length and chars
-func generatePassword(size interface{}, chars string) string {
-	rand.Seed(time.Now().UnixNano())
-	length := 16
-	switch v := size.(type) {
-	case string:
-		s, _ := strconv.Atoi(v)
-		length = s
-	case int, int32, int64:
-		length = v.(int)
-	}
-	password := ""
-	for i := 0; i < length; i++ {
-		password += string([]rune(chars)[rand.Intn(len(chars))])
-	}
-	return password
 }
 
 // wrapper function to generate new password

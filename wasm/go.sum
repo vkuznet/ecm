@@ -1,3 +1,5 @@
+github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
+github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/vkuznet/ecm/crypt v0.0.0-20220106221637-7ae43505a096 h1:55s2oT6CBW5qL5wGzdTfY/p4wBVKJyaUdLYiFxYAHCo=
 github.com/vkuznet/ecm/crypt v0.0.0-20220106221637-7ae43505a096/go.mod h1:Sh3CzUjQIWSHqc66FD4kCf07hd+NHD2ogIlJuhnQlLQ=
 golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 h1:0es+/5331RGQPcXlMfP+WrnIIS6dNnNRe0WB02W0F4M=
