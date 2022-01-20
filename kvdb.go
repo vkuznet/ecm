@@ -24,8 +24,13 @@ type Store struct {
 
 // NewStore create new Store object
 func NewStore(dir string) (*Store, error) {
-	opt := badger.DefaultOptions(dir)
-	opt.ValueDir = path.Join(dir, "data")
+	var opt badger.Options
+	if dir == "memory" {
+		opt = badger.DefaultOptions("").WithInMemory(true)
+	} else {
+		opt = badger.DefaultOptions(dir)
+		opt.ValueDir = path.Join(dir, "data")
+	}
 	opt.Logger = nil
 
 	db, err := badger.Open(opt)
@@ -54,6 +59,26 @@ func (s *Store) Delete(key string) error {
 	return s.DB.Update(func(txn *badger.Txn) error {
 		return txn.Delete([]byte(key))
 	})
+}
+
+// Add adds give record to the store
+func (s *Store) AddKeyValue(key, value string) error {
+	// commit new key-value records into our store
+	txn := s.DB.NewTransaction(true)
+	defer txn.Discard()
+	err := txn.Set([]byte(key), []byte(value))
+	if err != nil {
+		msg := "unable to set new key-value pair"
+		log.Println(msg)
+		return err
+	}
+	err = txn.Commit()
+	if err != nil {
+		msg := "unable to commit new key-value pair"
+		log.Println(msg)
+		return err
+	}
+	return nil
 }
 
 // Add adds give record to the store

@@ -124,3 +124,32 @@ func TestKVStoreRecords(t *testing.T) {
 		log.Printf("kvdb record %+v", r)
 	}
 }
+
+// TestKVStoreInMemory function
+func TestKVStoreInMemory(t *testing.T) {
+	store, err := NewStore("memory")
+	if err != nil {
+		t.Errorf("unable to create new KV store %v", err)
+		return
+	}
+	defer store.Close()
+
+	// store new record
+	key := "test"
+	val := "test"
+	err = store.AddKeyValue(key, val)
+	if err != nil {
+		t.Errorf("fail to add new key-value pair to KV store %v", err)
+		return
+	}
+
+	data, err := store.Get(key)
+	if err != nil {
+		t.Errorf("fail to get, error %v", err)
+		return
+	}
+	if string(data) != val {
+		t.Errorf("wrong value")
+		return
+	}
+}
