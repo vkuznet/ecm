@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -8,15 +9,46 @@ import (
 	"syscall/js"
 	"time"
 
+	"github.com/carlmjohnson/requests"
 	uuid "github.com/google/uuid"
+	crypt "github.com/vkuznet/ecm/crypt"
+	vt "github.com/vkuznet/ecm/vault"
 )
 
 // credentials provides vault credentials
-func credentials() (string, string) {
-	// TODO: implement proper logic to get it from HTML
-	cipher := "aes"
-	password := "test"
-	return cipher, password
+func credentials() (string, string, string) {
+	document := js.Global().Get("document")
+	vault := document.Call("getElementById", "vault-name").Get("value").String()
+	cipher := document.Call("getElementById", "vault-cipher").Get("value").String()
+	password := document.Call("getElementById", "vault-password").Get("value").String()
+	return vault, cipher, password
+}
+
+// helper function to post data to our server in secure manner
+// first we encrypt the data, and then send it over HTTP
+func postData(api string, rec interface{}) error {
+	data, err := json.Marshal(rec)
+	if err != nil {
+		return err
+	}
+	// get user credentials
+	vault, cipher, password := credentials()
+
+	// TODO: we may need to replace url with end-point
+	url := "http://localhost:8888"
+	data, err = crypt.Encrypt(data, password, cipher)
+	if err != nil {
+		return err
+	}
+	api = fmt.Sprintf("/vault/%s/%s", vault, api)
+	host := fmt.Sprintf("%s%s", url, api)
+	err = requests.
+		URL(host).
+		BodyBytes(data).
+		ContentType("application/json").
+		//         Header("Authorization", fmt.Sprintf("Bearer: %s", token)).
+		Fetch(context.Background())
+	return err
 }
 
 func defaultAction() ([]byte, error) {
@@ -31,13 +63,15 @@ func defaultAction() ([]byte, error) {
 	return data, err
 }
 func showRecords() ([]byte, error) {
+	var empty []byte
 	document := js.Global().Get("document")
 	records := document.Call("getElementById", "records")
+	if records.IsNull() || records.IsUndefined() {
+		return empty, nil
+	}
 	records.Set("innerHTML", "")
-	doc := document.Call("getElementById", "vault")
-	vault := doc.Get("value").String()
+	vault, cipher, password := credentials()
 	url := fmt.Sprintf("/vault/%s/records", vault)
-	cipher, password := credentials()
 	extention := false
 	rids, err := updateRecords(url, cipher, password, extention)
 	if err != nil {
@@ -47,49 +81,61 @@ func showRecords() ([]byte, error) {
 	return data, err
 }
 
-func loginRecord() ([]byte, error) {
+// helper function to create new vault record
+func newRecord(rmap vt.Record) ([]byte, error) {
 	var data []byte
 	var err error
 
 	document := js.Global().Get("document")
 	records := document.Call("getElementById", "records")
-	// get all inputs for login record
-	name := document.Call("getElementById", "new-record-name").String()
-	login := document.Call("getElementById", "new-record-login").String()
-	password := document.Call("getElementById", "new-record-password").String()
-	tags := document.Call("getElementById", "new-record-tags").String()
-	url := document.Call("getElementById", "new-record-url").String()
-
 	uid := uuid.NewString()
-	rmap := make(Record)
-	rmap["Name"] = name
-	rmap["Login"] = login
-	rmap["Password"] = password
-	rmap["URL"] = url
-	rmap["Tags"] = tags
-	//     vrec := vault.VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
-	//     data, err := json.Marshal(rmap)
-	//     err = vault.WriteRecord(vrec)
-	data, err = json.Marshal(rmap)
+
+	vrec := vt.VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
+	err = postData("record", vrec)
 	msg := fmt.Sprintf("New record created with UUID: %s", uid)
 	records.Set("innerHTML", msg)
 
 	return data, err
 }
+
+func loginRecord() ([]byte, error) {
+	rmap := make(vt.Record)
+	document := js.Global().Get("document")
+	rmap["Name"] = document.Call("getElementById", "new-record-name").Get("value").String()
+	rmap["Login"] = document.Call("getElementById", "new-record-login").Get("value").String()
+	rmap["Password"] = document.Call("getElementById", "new-record-password").Get("value").String()
+	rmap["Tags"] = document.Call("getElementById", "new-record-tags").Get("value").String()
+	rmap["Url"] = document.Call("getElementById", "new-record-url").Get("value").String()
+	return newRecord(rmap)
+
+}
 func cardRecord() ([]byte, error) {
-	var data []byte
-	var err error
-	return data, err
+	rmap := make(vt.Record)
+	document := js.Global().Get("document")
+	rmap["Name"] = document.Call("getElementById", "new-card-name").Get("value").String()
+	rmap["Number"] = document.Call("getElementById", "new-card-number").Get("value").String()
+	rmap["Code"] = document.Call("getElementById", "new-card-code").Get("value").String()
+	rmap["Tags"] = document.Call("getElementById", "new-card-tags").Get("value").String()
+	rmap["Date"] = document.Call("getElementById", "new-card-date").Get("value").String()
+	rmap["Phone"] = document.Call("getElementById", "new-card-phone").Get("value").String()
+	return newRecord(rmap)
 }
 func jsonRecord() ([]byte, error) {
-	var data []byte
-	var err error
-	return data, err
+	rmap := make(vt.Record)
+	// get all inputs for login record
+	document := js.Global().Get("document")
+	rmap["name"] = document.Call("getElementById", "new-json-name").Get("value").String()
+	json := document.Call("getElementById", "new-json-record").Get("value").String()
+	// TODO: I need to parse and decompose JSON into individual key-value pairs
+	rmap["JSON"] = json
+	return newRecord(rmap)
 }
 func noteRecord() ([]byte, error) {
-	var data []byte
-	var err error
-	return data, err
+	rmap := make(vt.Record)
+	document := js.Global().Get("document")
+	rmap["Name"] = document.Call("getElementById", "new-note-name").Get("value").String()
+	rmap["Note"] = document.Call("getElementById", "new-note-record").Get("value").String()
+	return newRecord(rmap)
 }
 func uploadFile() ([]byte, error) {
 	var data []byte

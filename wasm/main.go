@@ -11,17 +11,18 @@ import (
 	"time"
 
 	"github.com/vkuznet/ecm/crypt"
+	vt "github.com/vkuznet/ecm/vault"
 	//dom "honnef.co/go/js/dom/v2"
 )
 
 // Record represent map of key-valut pairs
-type Record map[string]string
+// type Record map[string]string
 
 // VaultRecord represents vault record subset suitable for web UI
-type VaultRecord struct {
-	ID  string // record ID
-	Map Record // record map (key-vault pairs)
-}
+// type VaultRecord struct {
+//     ID  string // record ID
+//     Map Record // record map (key-vault pairs)
+// }
 
 // LoginRecord represent login credentials
 type LoginRecord struct {
@@ -85,7 +86,7 @@ func getRecords(url, cipher, password string) (RecordMap, error) {
 		if err != nil {
 			return rmap, err
 		}
-		var vrec VaultRecord
+		var vrec vt.VaultRecord
 		err = json.Unmarshal(data, &vrec)
 		lrec := LoginRecord{
 			ID:       vrec.ID,
@@ -122,8 +123,9 @@ func main() {
 	js.Global().Set("uploadFile", actionWrapper("upload_file"))
 	js.Global().Set("showRecords", actionWrapper("show_records"))
 	js.Global().Set("generatePassword", actionWrapper("gen_password"))
-	//     js.Global().Set("generatePassword", genPasswordWrapper())
-	js.Global().Call("showRecords")
+
+	//     js.Global().Call("showRecords")
+
 	<-make(chan bool)
 }
 
@@ -198,6 +200,8 @@ func ActionHandler(action string, args []js.Value) {
 		data, err = createVault()
 	} else if action == "gen_password" {
 		data, err = newPassword()
+		//     } else if action == "init_mgr" {
+		//         requestManager = initRequestManager()
 	} else {
 		data, err = defaultAction()
 	}
