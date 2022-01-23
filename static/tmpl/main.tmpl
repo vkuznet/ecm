@@ -3,6 +3,44 @@
     <header class="header my-header">
 
     <div class="my-menu">
+    <div class="is-row">
+        <div class="is-col is-15">
+        </div>
+        <div class="is-col is-5">
+            <div class="">
+            <a href="javascript:ShowPlaceHolder('settings')" class="button is-tertiary">
+                <img src="static/images/list.png">
+            </a>
+            </div>
+        </div>
+        <div class="is-col is-60">
+            <form>
+                <div id="search" class="form-item">
+                    <input type="text" class="is-search" placeholder="Search">
+                </div>
+            </form>
+        </div>
+        <div class="is-col is-15">
+            <select id="action" onchange="Action()" class="is-success">
+                <option value="" selected=true disabled="disabled">New</option>
+                <option value="record">Login Record</option>
+                <option value="json">JSON Record</option>
+                <option value="note">Note</option>
+                <option value="card">Credit Card</option>
+                <option value="vault">Vault</option>
+                <option value="sync">Sync</option>
+                <option value="file">File upload</option>
+            </select>
+        </div>
+        <div class="is-col is-5">
+            <div class="">
+            <a href="/logout" class="button is-tertiary">
+                <img src="static/images/lock.png">
+            </a>
+            </div>
+        </div>
+    </div>
+    <!--
     <div class="is-navbar-container">
         <div class="is-brand">
             <div class="menu-item">
@@ -12,7 +50,6 @@
             </div>
         </div>
         <div class="is-navbar">
-            <!-- primary navigation -->
             <nav>
                 <ul>
                     <li>
@@ -23,7 +60,6 @@
                     </li>
                 </ul>
             </nav>
-            <!-- secondary navigation -->
             <nav class="is-push-right">
                 <ul>
                     <li>
@@ -32,17 +68,6 @@
                                 <input type="text" class="is-search" placeholder="Search">
                             </div>
                         </form>
-                    </li>
-                    <li>
-                        <div class="icon-size is-warning">
-                        <em class="feather-layers"></em>
-                        </div>
-                    </li>
-                    <li>
-                        <select id="vault" onchange="changeVault()" class="is-warning">
-                            <option value="Primary" selected=true disabled="disabled">Vault</option>
-                            <option value="Primary">Primary</option>
-                        </select>
                     </li>
                     <li>
                         <div class="icon-size is-success">
@@ -70,7 +95,8 @@
             </nav>
         </div>
     </div>
-    </div>
+    -->
+    </div> <!-- end of div menu -->
 
     </header>
     <br/>
@@ -104,13 +130,36 @@
                         <div id="new-password" class="is-col is-30">
                         </div>
                         <div class="is-col is-20">
+                            <div class="">
+                                <a href="javascript:ClearFields();ShowPlaceHolder('vault-credentials')">
+                                    <img src="static/images/key-up.png">
+                                </a>
+                                &nbsp;
+
+                                <a href="javascript:ClearFields();showRecords()">
+                                    <img src="static/images/records.png">
+                                </a>
+                            </div>
+                            <!--
                             <a href="javascript:ClearFields();showRecords()" class="button is-secondary is-small">
                                 Show records
                             </a>
+                            -->
                         </div>
                     </div>
                     <br>
                     <hr>
+                    <div id="vault-credentials">
+                        Vault: <input id="vault-name" type="text" value="Primary">
+                        Vault password: <input id="vault-password" type="password" placeholder="password">
+                        Cipher: <input id="vault-cipher" type="text" value="aes">
+                        <br/>
+                        <div>
+                            <a href="javascript:ClearFields();showRecords()" class="button">
+                                Access vault
+                            </a>
+                        </div>
+                    </div>
                     <div id="records">
                     </div>
                     <div id="results"></div>
@@ -195,12 +244,12 @@
                         <div class="my-record">
                             <h2>New Card information</h2>
                             <div>
-                                Name: <input type="text" placeholder="name">
-                                Card Number: <input type="text" placeholder="digits, 4147 ...">
-                                Verification Code: <input type="password" placeholder="code, e.g. 123">
-                                Issue date: <input type="text" placeholder="YYYYMMDD">
-                                Contact phone: <input type="text" placeholder="1-800-xxx-xxxx">
-                                Tags: <input type="text" placeholder="Foo, Bla">
+                                Name: <input id="new-card-name" type="text" placeholder="name">
+                                Card Number: <input id="new-card-number" type="text" placeholder="digits, 4147 ...">
+                                Verification Code: <input id="new-card-code" type="password" placeholder="code, e.g. 123">
+                                Issue date: <input id="new-card-date" type="text" placeholder="YYYYMMDD">
+                                Contact phone: <input id="new-card-phone" type="text" placeholder="1-800-xxx-xxxx">
+                                Tags: <input id="new-card-tags" type="text" placeholder="Foo, Bla">
                                 <br/>
                                 <div>
                                     <a href="javascript:ClearFields();addCard()" class="button">
@@ -217,8 +266,8 @@
                         <div class="my-record">
                             <h2>New JSON record</h2>
                             <div>
-                                Name: <input type="text" placeholder="name">
-                                JSON: <input type="textarea" placeholder='{"attribute":"value"}'>
+                                Name: <input id="new-json-name" type="text" placeholder="name">
+                                JSON: <input id="new-json-record" type="textarea" placeholder='{"attribute":"value"}'>
                                 <br/>
                                 <div>
                                     <a href="javascript:ClearFields();addJsonRecord()" class="button">
@@ -234,8 +283,8 @@
                         <div class="my-record">
                             <h2>New note</h2>
                             <div>
-                                Name: <input type="text" placeholder="name">
-                                Note: <input type="textarea" placeholder="Note text">
+                                Name: <input id="new-note-name" type="text" placeholder="name">
+                                Note: <input id="new-note-record" type="textarea" placeholder="Note text">
                                 <br/>
                                 <div>
                                     <a href="javascript:ClearFields();addNote()" class="button">
@@ -306,7 +355,7 @@
 
 <script>
 function ClearFields() {
-    let arr = ["new-record", "new-vault", "new-sync", "new-file", "new-json", "new-note", "new-card", "settings"];
+    let arr = ["new-record", "new-vault", "new-sync", "new-file", "new-json", "new-note", "new-card", "settings", "vault-credentials"];
     for (let i = 0; i < arr.length; i++) {
         HideTag(arr[i]);
     }
