@@ -23,6 +23,7 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	kvdb "github.com/vkuznet/ecm/kvdb"
 	logging "github.com/vkuznet/http-logging"
 	"golang.org/x/crypto/acme/autocert"
 )
@@ -45,13 +46,14 @@ type ServerConfiguration struct {
 	StaticDir     string   `json:"static"`       // location of static files
 	Templates     string   `json:"templates"`    // server templates
 	DBStore       string   `json:"dbstore"`      // location of dbstore
+	DevelopMode   bool     `json:"develop_mode"` // development mode
 }
 
 // ServerConfig variable represents configuration object
 var ServerConfig ServerConfiguration
 
 // DBStore represents user data store
-var DBStore *Store
+var DBStore *kvdb.Store
 
 // helper function to parse configuration
 func parseServerConfig(configFile string) error {
@@ -101,7 +103,7 @@ func srvRouter() *mux.Router {
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/auth"), VaultAuthHandler).Methods("POST")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/records"), VaultRecordsHandler).Methods("GET")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}"), VaultHandler).Methods("GET")
-	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/{rid:[0-9a-zA-Z-\\.]+}"), VaultRecordHandler).Methods("GET")
+	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/{rid:[0-9a-zA-Z-\\.]+}"), VaultRecordHandler).Methods("GET", "POST")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}/{rid:[0-9a-zA-Z-]+}"), VaultDeleteHandler).Methods("DELETE")
 	router.HandleFunc(basePath("/vault/{vault:[0-9a-zA-Z]+}"), VaultAddHandler).Methods("POST")
 	router.HandleFunc(basePath("/token"), TokenHandler).Methods("GET")
@@ -112,7 +114,11 @@ func srvRouter() *mux.Router {
 	router.HandleFunc(basePath("/logout"), LogoutHandler).Methods("GET")
 	router.HandleFunc("/authenticate", AuthHandler).Methods("POST")
 	router.HandleFunc("/verify", VerifyHandler).Methods("POST")
-	router.HandleFunc(basePath("/main"), ValidateMiddleware(MainHandler)).Methods("GET", "POST")
+	if ServerConfig.DevelopMode {
+		router.HandleFunc(basePath("/main"), MainHandler).Methods("GET", "POST")
+	} else {
+		router.HandleFunc(basePath("/main"), ValidateMiddleware(MainHandler)).Methods("GET", "POST")
+	}
 	router.HandleFunc(basePath("/user"), UserHandler).Methods("GET", "POST")
 	router.HandleFunc(basePath("/qrcode"), QRHandler).Methods("GET", "POST")
 	router.HandleFunc(basePath("/"), HomeHandler).Methods("GET")
@@ -158,7 +164,7 @@ func server(serverCrt, serverKey string) {
 			log.Fatalf("unable to create new KV store, error %v", err)
 		}
 	}
-	store, err := NewStore(ServerConfig.DBStore)
+	store, err := kvdb.NewStore(ServerConfig.DBStore)
 	if err != nil {
 		log.Fatalf("unable to init KV store, error %v", err)
 	}

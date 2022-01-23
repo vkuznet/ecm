@@ -43,6 +43,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/vkuznet/ecm/kvdb v0.0.0-20220120205203-84d431c599f2 // indirect
 	github.com/vkuznet/ecm/vault v0.0.0-20220119160654-08347aa71a9e // indirect
 	go.opencensus.io v0.22.5 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect

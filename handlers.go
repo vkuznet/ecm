@@ -19,6 +19,7 @@ import (
 	"github.com/dgryski/dgoogauth"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
+	"github.com/vkuznet/ecm/crypt"
 	vt "github.com/vkuznet/ecm/vault"
 )
 
@@ -162,6 +163,26 @@ func VaultRecordsHandler(w http.ResponseWriter, r *http.Request) {
 
 // VaultRecordHandler provides basic functionality of status response
 func VaultRecordHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		defer r.Body.Close()
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Println("unable to read body", err)
+		}
+		password := "test"
+		cipher := "aes"
+		data, err := crypt.Decrypt(body, password, cipher)
+		if err != nil {
+			log.Println("unable to decrypt", err)
+		}
+		var rec vt.VaultRecord
+		err = json.Unmarshal(data, &rec)
+		if err != nil {
+			log.Println("unable to unmarshal", err, "received data:", string(data))
+		}
+		log.Println("received", rec)
+		return
+	}
 	vdir, err := getVault(r)
 	if err != nil {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultRecordHandler", http.StatusBadRequest)
@@ -354,6 +375,7 @@ func authMainHandler(w http.ResponseWriter, r *http.Request, otp, user, tokenStr
 		// post request to MainHandler with user data and our token
 		r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", otpToken))
 		MainHandler(w, r)
+		return
 	}
 	msg := fmt.Sprintf("2fa verification process fails")
 	errorPage(w, r, msg)
