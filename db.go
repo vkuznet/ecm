@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"log"
+
+	kvdb "github.com/vkuznet/ecm/kvdb"
 )
 
 // User represents our user attributes
@@ -23,7 +25,7 @@ func getUser(name string) (User, error) {
 	}
 	err = json.Unmarshal(data, &user)
 	if err != nil {
-		log.Println("unable to unmarshal user data", err)
+		log.Printf("unable to unmarshal user '%s' data '%s', error %v", name, string(data), err)
 		return user, err
 	}
 	return user, nil
@@ -52,7 +54,7 @@ func addUser(user User) {
 	if err != nil {
 		log.Println("unable to marshal user", err)
 	}
-	rec := KVRecord{
+	rec := kvdb.KVRecord{
 		Key:   user.Name,
 		Value: data,
 	}
