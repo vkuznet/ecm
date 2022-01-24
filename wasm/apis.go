@@ -1,15 +1,15 @@
 package main
 
 import (
-	"context"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"syscall/js"
 	"time"
 
-	"github.com/carlmjohnson/requests"
 	uuid "github.com/google/uuid"
 	crypt "github.com/vkuznet/ecm/crypt"
 	vt "github.com/vkuznet/ecm/vault"
@@ -34,20 +34,18 @@ func postData(api string, rec interface{}) error {
 	// get user credentials
 	vault, cipher, password := credentials()
 
-	// TODO: we may need to replace url with end-point
-	url := "http://localhost:8888"
 	data, err = crypt.Encrypt(data, password, cipher)
 	if err != nil {
 		return err
 	}
-	api = fmt.Sprintf("/vault/%s/%s", vault, api)
-	host := fmt.Sprintf("%s%s", url, api)
-	err = requests.
-		URL(host).
-		BodyBytes(data).
-		ContentType("application/json").
-		//         Header("Authorization", fmt.Sprintf("Bearer: %s", token)).
-		Fetch(context.Background())
+	host := fmt.Sprintf("/vault/%s/%s", vault, api)
+	body := bytes.NewReader(data)
+	req, err := http.NewRequest(http.MethodPost, host, body)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	_, err = http.DefaultClient.Do(req)
 	return err
 }
 
@@ -93,6 +91,10 @@ func newRecord(rmap vt.Record) ([]byte, error) {
 	vrec := vt.VaultRecord{ID: uid, Map: rmap, ModificationTime: time.Now()}
 	err = postData("record", vrec)
 	msg := fmt.Sprintf("New record created with UUID: %s", uid)
+	if err != nil {
+		msg = fmt.Sprintf("Failt to create new record %s, error %v", uid, err)
+		msg = fmt.Sprintf("<div class=\"alert is-error is-shadow-2\">%s</div>", msg)
+	}
 	records.Set("innerHTML", msg)
 
 	return data, err
