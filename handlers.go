@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/base32"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -180,7 +181,28 @@ func VaultRecordHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("unable to unmarshal", err, "received data:", string(data))
 		}
-		log.Println("received", rec)
+		tags, _ := rec.Map["Tags"]
+		if tags == "file" {
+			// TMP: write file
+			name, _ := rec.Map["Name"]
+			fname := fmt.Sprintf("/tmp/%s", name)
+			file, err := os.Create(fname)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer file.Close()
+			data, _ := rec.Map["Data"] // is a hex string
+			raw, err := hex.DecodeString(data)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = os.WriteFile(fname, []byte(raw), 0755)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Println("received", rec)
+		}
 		return
 	}
 	vdir, err := getVault(r)

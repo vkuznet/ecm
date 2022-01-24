@@ -24,9 +24,11 @@ function readFile(input) {
     let file = input.files[0];
     let fileReader = new FileReader();
     // TODO: replace readAsText to reading bytes
-    fileReader.readAsText(file);
+//    fileReader.readAsText(file);
+//    fileReader.readAsBinaryString(file);
+    fileReader.readAsArrayBuffer(file);
     fileReader.onload = function() {
-        let data = fileReader.result
+        let data = buf2hex(fileReader.result);
         console.log(file.name);
         console.log(data);
         // call wasm uploadFile function
@@ -35,4 +37,9 @@ function readFile(input) {
     fileReader.onerror = function() {
       alert(fileReader.error);
     };
+}
+function buf2hex(buffer) { // buffer is an ArrayBuffer
+  return [...new Uint8Array(buffer)]
+      .map(x => x.toString(16).padStart(2, '0'))
+      .join('');
 }
