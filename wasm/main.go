@@ -113,6 +113,7 @@ func main() {
 	js.Global().Set("getLogin", loginWrapper())
 	js.Global().Set("getPassword", passwordWrapper())
 	js.Global().Set("records", recordsWrapper())
+	js.Global().Set("uploadFile", uploadFileWrapper())
 
 	js.Global().Set("addRecord", actionWrapper("login_record"))
 	js.Global().Set("addJsonRecord", actionWrapper("json_record"))
@@ -120,7 +121,6 @@ func main() {
 	js.Global().Set("addCard", actionWrapper("card_record"))
 	js.Global().Set("addVault", actionWrapper("new_vault"))
 	js.Global().Set("syncHosts", actionWrapper("sync_hosts"))
-	js.Global().Set("uploadFile", actionWrapper("upload_file"))
 	js.Global().Set("showRecords", actionWrapper("show_records"))
 	js.Global().Set("generatePassword", actionWrapper("gen_password"))
 
@@ -144,6 +144,24 @@ func recordsWrapper() js.Func {
 		// Create and return the Promise object
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			go RecordsHandler(url, cipher, password, args)
+			return nil
+		})
+		// define where we should put our data
+		promiseConstructor := js.Global().Get("Promise")
+		return promiseConstructor.New(handler)
+	})
+}
+
+// uploadFileWraper function performs file uploadFile
+func uploadFileWrapper() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		fname := args[0].String()
+		size := args[1].Int()
+		ftype := args[2].String()
+		content := args[3].String() // adjust accordingly with utils.js:readFile function
+		// Create and return the Promise object
+		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			go uploadFile(fname, size, ftype, content)
 			return nil
 		})
 		// define where we should put our data
@@ -192,16 +210,12 @@ func ActionHandler(action string, args []js.Value) {
 		data, err = cardRecord()
 	} else if action == "note_record" {
 		data, err = noteRecord()
-	} else if action == "upload_file" {
-		data, err = uploadFile()
 	} else if action == "sync_host" {
 		data, err = syncHosts()
 	} else if action == "new_vault" {
 		data, err = createVault()
 	} else if action == "gen_password" {
 		data, err = newPassword()
-		//     } else if action == "init_mgr" {
-		//         requestManager = initRequestManager()
 	} else {
 		data, err = defaultAction()
 	}

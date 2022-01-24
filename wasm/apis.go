@@ -139,11 +139,16 @@ func noteRecord() ([]byte, error) {
 	rmap["Note"] = document.Call("getElementById", "new-note-record").Get("value").String()
 	return newRecord(rmap)
 }
-func uploadFile() ([]byte, error) {
-	var data []byte
-	var err error
-	return data, err
+func uploadFile(fname string, size int, ftype, content string) ([]byte, error) {
+	rmap := make(vt.Record)
+	rmap["Name"] = fname
+	rmap["Size"] = fmt.Sprintf("%d", size)
+	rmap["Type"] = ftype
+	rmap["Tags"] = "file"
+	rmap["Data"] = content
+	return newRecord(rmap)
 }
+
 func syncHosts() ([]byte, error) {
 	var data []byte
 	var err error
