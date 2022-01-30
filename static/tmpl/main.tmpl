@@ -60,18 +60,15 @@
                         <div class="is-col">
                             <div class="">
                                 <a href="javascript:ClearFields();generatePassword()">
-                                    <img src="static/images/reset-password.png" alt="New password" title="New password">
-                                </a>
+                                    <img src="static/images/reset-password.png" alt="New password" title="New password"></a>
                                 &nbsp;
 
                                 <a href="javascript:ClearFields();ShowPlaceHolder('vault-credentials')">
-                                    <img src="static/images/key-up.png" alt="Vault credentials" title="Vault credentials">
-                                </a>
+                                    <img src="static/images/key-up.png" alt="Vault credentials" title="Vault credentials"></a>
                                 &nbsp;
 
                                 <a href="javascript:ClearFields();showRecords()">
-                                    <img src="static/images/records.png" alt="Show records" title="Show records">
-                                </a>
+                                    <img src="static/images/records.png" alt="Show records" title="Show records"></a>
                                 &nbsp;
 
                             </div>
@@ -79,7 +76,7 @@
                     </div>
                     <br>
                     <hr>
-                    <div id="vault-credentials">
+                    <div id="vault-credentials" class="my-record">
                         Vault: <input id="vault-name" type="text" value="Primary">
                         Vault password: <input id="vault-password" type="password" placeholder="password">
                         Cipher: <input id="vault-cipher" type="text" value="aes">
@@ -91,7 +88,7 @@
                         </div>
                     </div>
                     <!-- results placeholders -->
-                    <div id="new-password"></div>
+                    <div id="new-password" class="my-record"></div>
                     <div id="records"></div>
                     <div id="results"></div>
 
