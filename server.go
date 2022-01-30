@@ -55,6 +55,9 @@ var ServerConfig ServerConfiguration
 // DBStore represents user data store
 var DBStore *kvdb.Store
 
+// Localhost represents URL of the localhost
+var Localhost string
+
 // helper function to parse configuration
 func parseServerConfig(configFile string) error {
 	path, err := os.Getwd()
@@ -202,14 +205,17 @@ func server(serverCrt, serverKey string) {
 		var err error
 		if serverCrt != "" && serverKey != "" {
 			//start HTTPS server
+			Localhost = fmt.Sprintf("https://localhost:%d", ServerConfig.Port)
 			log.Printf("Starting HTTPs server :%d", ServerConfig.Port)
 			err = srv.ListenAndServeTLS(ServerConfig.ServerCrt, ServerConfig.ServerKey)
 		} else if ServerConfig.LetsEncrypt {
 			//start LetsEncrypt HTTPS server
+			Localhost = fmt.Sprintf("https://%s", ServerConfig.DomainNames[0])
 			log.Printf("Starting LetsEncrypt HTTPs server :%d", ServerConfig.Port)
 			err = srv.ListenAndServeTLS("", "")
 		} else {
 			// Start server without user certificates
+			Localhost = fmt.Sprintf("http://localhost:%d", ServerConfig.Port)
 			log.Printf("Starting HTTP server :%d", ServerConfig.Port)
 			err = srv.ListenAndServe()
 		}

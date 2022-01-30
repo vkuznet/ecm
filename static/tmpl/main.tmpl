@@ -35,67 +35,12 @@
         <div class="is-col is-5">
             <div class="">
             <a href="/logout" class="button is-tertiary">
-                <img src="static/images/lock.png">
+                <img src="static/images/lock.png" alt="lock" title="Logout and lock the vault">
             </a>
             </div>
         </div>
     </div>
-    <!--
-    <div class="is-navbar-container">
-        <div class="is-brand">
-            <div class="menu-item">
-            <b class="is-logo">
-                ECM
-            </b>
-            </div>
-        </div>
-        <div class="is-navbar">
-            <nav>
-                <ul>
-                    <li>
-                        <a href="javascript:ShowPlaceHolder('settings')" class="button is-icon is-tertiary">
-                            <span class="icon-kube-menu"></span>
-                            Settings
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <nav class="is-push-right">
-                <ul>
-                    <li>
-                        <form>
-                            <div id="search" class="form-item">
-                                <input type="text" class="is-search" placeholder="Search">
-                            </div>
-                        </form>
-                    </li>
-                    <li>
-                        <div class="icon-size is-success">
-                        <em class="feather-plus"></em>
-                        </div>
-                    </li>
-                    <li>
-                        <select id="action" onchange="Action()" class="is-success">
-                            <option value="" selected=true disabled="disabled">New</option>
-                            <option value="record">Login Record</option>
-                            <option value="json">JSON Record</option>
-                            <option value="note">Note</option>
-                            <option value="card">Credit Card</option>
-                            <option value="vault">Vault</option>
-                            <option value="sync">Sync</option>
-                            <option value="file">File upload</option>
-                        </select>
-                    </li>
-                    <li>
-                        <a href="/logout" class="button is-tertiary is-small">
-                           Logout 
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </div>
-    -->
+
     </div> <!-- end of div menu -->
 
     </header>
@@ -112,39 +57,24 @@
                     <h3>User: {{.User}}</h3>
                     <!-- generate password section -->
                     <div class="is-row my-record">
-                        <div class="is-col is-20">
-                            <a href="javascript:generatePassword()" class="button is-small">
-                                New password
-                            </a>
-                        </div>
-                        <div class="is-col is-10">
-                            <input id="password-size" type="text" value="16" class="is-small" />
-                        </div>
-                        <div class="is-col is-20">
-                            <select id="characters" class="is-small">
-                                <option value="chars">Characters</option>
-                                <option value="chars+numbers">Characters+Numbers</option>
-                                <option value="chars+numbers+symbols">Characters+Numbers+Symbols</option>
-                            </select>
-                        </div>
-                        <div id="new-password" class="is-col is-30">
-                        </div>
-                        <div class="is-col is-20">
+                        <div class="is-col">
                             <div class="">
+                                <a href="javascript:ClearFields();generatePassword()">
+                                    <img src="static/images/reset-password.png" alt="New password" title="New password">
+                                </a>
+                                &nbsp;
+
                                 <a href="javascript:ClearFields();ShowPlaceHolder('vault-credentials')">
-                                    <img src="static/images/key-up.png">
+                                    <img src="static/images/key-up.png" alt="Vault credentials" title="Vault credentials">
                                 </a>
                                 &nbsp;
 
                                 <a href="javascript:ClearFields();showRecords()">
-                                    <img src="static/images/records.png">
+                                    <img src="static/images/records.png" alt="Show records" title="Show records">
                                 </a>
+                                &nbsp;
+
                             </div>
-                            <!--
-                            <a href="javascript:ClearFields();showRecords()" class="button is-secondary is-small">
-                                Show records
-                            </a>
-                            -->
                         </div>
                     </div>
                     <br>
@@ -160,8 +90,9 @@
                             </a>
                         </div>
                     </div>
-                    <div id="records">
-                    </div>
+                    <!-- results placeholders -->
+                    <div id="new-password"></div>
+                    <div id="records"></div>
                     <div id="results"></div>
 
                     <!-- setting form -->
@@ -171,6 +102,15 @@
                             <div>
                                 Records/page: <input type="text" value="10">
                                 Cipher: <input type="text" value="AES">
+                                <hr/>
+                                <h3>New password</h3>
+                                Password size: <input id="password-size" type="text" value="16" class="is-small" />
+                                Password salt:
+                                <select id="characters" class="is-small">
+                                    <option value="chars">Characters</option>
+                                    <option value="chars+numbers">Characters+Numbers</option>
+                                    <option value="chars+numbers+symbols">Characters+Numbers+Symbols</option>
+                                </select>
                                 <br/>
                                 <div>
                                     <a href="javascript:ClearFields();saveSettings()" class="button">
@@ -351,6 +291,8 @@ function ClearFields() {
     }
     var records = document.getElementById("records");
     records.innerHTML = "";
+    var password = document.getElementById("new-password");
+    password.innerHTML = "";
 }
 function ShowPlaceHolder(tag) {
     ClearFields();

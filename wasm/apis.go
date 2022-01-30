@@ -176,7 +176,7 @@ func newPassword() ([]byte, error) {
 	} else {
 		password = generatePassword(size, voc)
 	}
-	docRecords.Set("innerHTML", password)
+	docRecords.Set("innerHTML", fmt.Sprintf("New password: <b>%s</b>", password))
 	result := make(map[string]string)
 	result["Result"] = "new password was generated"
 	data, err := json.Marshal(result)

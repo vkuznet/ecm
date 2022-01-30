@@ -354,8 +354,8 @@ func authMainHandler(w http.ResponseWriter, r *http.Request, otp, user, tokenStr
 		errorPage(w, r, msg)
 		return
 	}
-	host := fmt.Sprintf("http://localhost:%d/verify", ServerConfig.Port)
-	req, err := http.NewRequest("POST", host, bytes.NewBuffer(data))
+	url := fmt.Sprintf("%s/verify", Localhost)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		msg := fmt.Sprintf("unable to post verification request, error %v", err)
 		errorPage(w, r, msg)
@@ -382,6 +382,7 @@ func authMainHandler(w http.ResponseWriter, r *http.Request, otp, user, tokenStr
 	var otpToken string
 	err = json.Unmarshal(body, &otpToken)
 	if err != nil {
+		log.Println("otpToken body", string(body))
 		msg := fmt.Sprintf("unable to unmarshal otp token, error %v", err)
 		errorPage(w, r, msg)
 		return
