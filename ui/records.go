@@ -52,17 +52,32 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 	))
 }
 
+// helper function to create record form item representation
+func (a *vaultRecords) formItem(entry Entry, key string) *widget.FormItem {
+	rec := &widget.Entry{Text: entry.Text, OnChanged: func(v string) {}}
+	if key == "Login" {
+		rec = &widget.Entry{Text: "some login", OnChanged: func(v string) {}}
+	}
+	recContainer := container.NewVBox(
+		container.NewGridWithColumns(2,
+			rec, a.copyIcon(rec),
+		),
+	)
+	return widget.NewFormItem(key, recContainer)
+}
+
 // helper function to create record representation
 func (a *vaultRecords) recordContainer(entry Entry) *fyne.Container {
 	// create entry object
-	name := &widget.Entry{Text: entry.Text, OnChanged: func(v string) {}}
-	login := &widget.Entry{Text: "some login", OnChanged: func(v string) {}}
-	recContainer := container.NewVBox(
-		container.NewGridWithColumns(3,
-			newBoldLabel("Name"), name, a.copyIcon(name),
-			newBoldLabel("Login"), login, a.copyIcon(login),
-		),
-	)
+	form := &widget.Form{
+		Items: []*widget.FormItem{
+			a.formItem(entry, "Name"),
+			a.formItem(entry, "Login"),
+		},
+		SubmitText: "Update",
+		OnSubmit:   func() { /* TODO: update entry record */ },
+	}
+	recContainer := container.NewVBox(form)
 	return recContainer
 }
 
