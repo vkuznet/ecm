@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"log"
 
 	"fyne.io/fyne/v2"
 	canvas "fyne.io/fyne/v2/canvas"
@@ -25,7 +24,7 @@ func AppWindow(app fyne.App, w fyne.Window) {
 func LoginWindow(app fyne.App, w fyne.Window) {
 	password := widget.NewPasswordEntry()
 	password.OnSubmitted = func(p string) {
-		log.Println("password", p)
+		//         log.Println("password", p)
 		var err error
 		if err != nil {
 			ErrWindow(app, w)
@@ -50,11 +49,9 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	}
 	text := canvas.NewText("Encrypted Content", fontColor)
 	text.Alignment = fyne.TextAlignCenter
-
-	//     grid := container.New(layout.NewGridWrapLayout(windowSize), text, form)
-	//     content := container.New(layout.NewCenterLayout(), grid)
-	//     content := container.New(layout.NewCenterLayout(), text, form)
 	spacer := &layout.Spacer{}
+
+	// set final container
 	content := container.NewVBox(
 		spacer,
 		text,
@@ -62,6 +59,7 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 		spacer,
 	)
 
+	// set window settings
 	w.SetContent(content)
 	w.Resize(windowSize)
 	w.Canvas().Focus(password)
@@ -209,7 +207,6 @@ func (r *Record) buildUI() *container.Scroll {
 			{Title: "Sync", Detail: syncContainer},
 		}},
 	))
-	//     return container.NewVBox(&widget.Label{})
 }
 func (r *Record) tabItem() *container.TabItem {
 	return &container.TabItem{Text: "", Icon: theme.ContentAddIcon(), Content: r.buildUI()}
@@ -224,8 +221,53 @@ type Password struct {
 func newPassword(a fyne.App, w fyne.Window) *Password {
 	return &Password{app: a, window: w}
 }
+func (r *Password) GeneratePassword() {
+}
+func (r *Password) CharactersChange(v string) {
+}
 func (r *Password) buildUI() *fyne.Container {
-	return container.NewVBox(&widget.Label{})
+	// widgets
+	spacer := &layout.Spacer{}
+	genPassword := &widget.Entry{}
+	//     icon := widget.NewIcon(theme.ContentCopyIcon())
+	icon := &widget.Button{
+		Text: "Copy",
+		Icon: theme.ContentCopyIcon(),
+		OnTapped: func() {
+			text := genPassword.Text
+			r.window.Clipboard().SetContent(text)
+		},
+	}
+	size := &widget.Entry{Text: "16"}
+	names := []string{"letters", "letters+digits"}
+	characters := widget.NewSelect(names, r.CharactersChange)
+
+	// form widget
+	passForm := &widget.Form{
+		Items: []*widget.FormItem{
+			widget.NewFormItem("Characters", characters),
+			widget.NewFormItem("Size", size),
+		},
+		SubmitText: "Generate password",
+		OnSubmit: func() {
+			genPassword.Text = "some new password"
+			genPassword.Refresh()
+		},
+	}
+
+	// password container
+	passContainer := container.NewVBox(
+		container.NewGridWithColumns(3,
+			newBoldLabel("Generated password"), genPassword, icon,
+		),
+	)
+
+	// final container
+	return container.NewVBox(
+		passForm,
+		spacer,
+		passContainer,
+	)
 }
 func (r *Password) tabItem() *container.TabItem {
 	return &container.TabItem{Text: "", Icon: theme.VisibilityIcon(), Content: r.buildUI()}
@@ -289,11 +331,6 @@ func (r *Settings) onThemeChanged(v string) {
 }
 
 func (r *Settings) buildUI() *container.Scroll {
-	// TODO:
-	// - vault settings
-	//   - sync settings
-	//   - encryption settings, e.g. cipher choice
-	// - app settings
 
 	// set initial values of internal data
 	onOffOptions := []string{"On", "Off"}
@@ -335,8 +372,6 @@ func (r *Settings) buildUI() *container.Scroll {
 		&widget.Card{Title: "Vault Settings", Content: vaultContainer},
 		&widget.Card{Title: "User Interface", Content: uiContainer},
 	))
-
-	//     return container.NewVBox(&widget.Label{})
 }
 func (r *Settings) tabItem() *container.TabItem {
 	return &container.TabItem{Text: "", Icon: theme.SettingsIcon(), Content: r.buildUI()}
