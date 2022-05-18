@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"log"
 
 	fyne "fyne.io/fyne/v2"
@@ -10,6 +11,7 @@ import (
 
 // various sizes of our application
 var windowSize, inputSize fyne.Size
+var fontColor color.Color
 
 func main() {
 	// use New method for generic app
@@ -26,9 +28,11 @@ func main() {
 	if mobile {
 		windowSize = fyne.NewSize(700, 400)
 		inputSize = fyne.NewSize(300, 50)
+		fontColor = color.White
 	} else {
 		windowSize = fyne.NewSize(700, 400)
 		inputSize = fyne.NewSize(300, 50)
+		fontColor = color.White
 	}
 
 	// original idea

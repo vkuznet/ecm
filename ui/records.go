@@ -29,17 +29,10 @@ func makeRecords() map[string]Entry {
 }
 
 func (a *vaultRecords) buildUI() *container.Scroll {
-	//     a.icon = canvas.NewImageFromResource(assets.AppIcon)
-	//     a.icon.SetMinSize(fyne.NewSize(256, 256))
-
-	//     a.nameLabel = newBoldLabel("Rymdport")
-	//     a.spacerLabel = newBoldLabel("-")
-	//     a.hyperlink = &widget.Hyperlink{Text: version, URL: releaseURL, TextStyle: fyne.TextStyle{Bold: true}}
 	search := widget.NewEntry()
 	search.PlaceHolder = "search keyword"
 	label := ""
 	formItem := widget.NewFormItem(label, search)
-	//     formItem.HintText = "search keyword"
 
 	form := &widget.Form{
 		Items: []*widget.FormItem{formItem},
