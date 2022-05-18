@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/dchest/captcha"
@@ -330,9 +331,17 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	agent := strings.ToLower(r.Header.Get("User-Agent"))
+	mobile := false
+	if strings.Contains(agent, "ipad") ||
+		strings.Contains(agent, "iphone") ||
+		strings.Contains(agent, "android") {
+		mobile = true
+	}
 
 	tmplData := make(TmplRecord)
 	tmplData["User"] = user
+	tmplData["Mobile"] = mobile
 	page := tmplPage("main.tmpl", tmplData)
 	w.Write([]byte(page))
 }
