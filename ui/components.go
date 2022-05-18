@@ -229,7 +229,6 @@ func (r *Password) buildUI() *fyne.Container {
 	// widgets
 	spacer := &layout.Spacer{}
 	genPassword := &widget.Entry{}
-	//     icon := widget.NewIcon(theme.ContentCopyIcon())
 	icon := &widget.Button{
 		Text: "Copy",
 		Icon: theme.ContentCopyIcon(),

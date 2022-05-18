@@ -42,7 +42,17 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 	entries := widget.NewAccordion()
 	items := makeRecords()
 	for key, entry := range items {
-		entries.Append(widget.NewAccordionItem(key, &widget.Entry{Text: entry.Text}))
+		// create entry object
+		name := &widget.Entry{Text: entry.Text, OnChanged: func(v string) {}}
+		login := &widget.Entry{Text: "some login", OnChanged: func(v string) {}}
+		recContainer := container.NewVBox(
+			container.NewGridWithColumns(3,
+				newBoldLabel("Name"), name, a.copyIcon(name),
+				newBoldLabel("Login"), login, a.copyIcon(login),
+			),
+		)
+		entries.Append(widget.NewAccordionItem(key, recContainer))
+		//         entries.Append(widget.NewAccordionItem(key, &widget.Entry{Text: entry.Text}))
 	}
 	//     icon := container.NewHBox(spacer, a.icon, spacer),
 
@@ -50,6 +60,19 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 		form,
 		entries,
 	))
+}
+
+// helper function to create appropriate copy icon
+func (a *vaultRecords) copyIcon(entry *widget.Entry) *widget.Button {
+	icon := &widget.Button{
+		Text: "Copy",
+		Icon: theme.ContentCopyIcon(),
+		OnTapped: func() {
+			text := entry.Text
+			a.window.Clipboard().SetContent(text)
+		},
+	}
+	return icon
 }
 
 func (a *vaultRecords) tabItem() *container.TabItem {
