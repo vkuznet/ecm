@@ -42,24 +42,28 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 	entries := widget.NewAccordion()
 	items := makeRecords()
 	for key, entry := range items {
-		// create entry object
-		name := &widget.Entry{Text: entry.Text, OnChanged: func(v string) {}}
-		login := &widget.Entry{Text: "some login", OnChanged: func(v string) {}}
-		recContainer := container.NewVBox(
-			container.NewGridWithColumns(3,
-				newBoldLabel("Name"), name, a.copyIcon(name),
-				newBoldLabel("Login"), login, a.copyIcon(login),
-			),
-		)
-		entries.Append(widget.NewAccordionItem(key, recContainer))
+		entries.Append(widget.NewAccordionItem(key, a.recordContainer(entry)))
 		//         entries.Append(widget.NewAccordionItem(key, &widget.Entry{Text: entry.Text}))
 	}
-	//     icon := container.NewHBox(spacer, a.icon, spacer),
 
 	return container.NewScroll(container.NewVBox(
 		form,
 		entries,
 	))
+}
+
+// helper function to create record representation
+func (a *vaultRecords) recordContainer(entry Entry) *fyne.Container {
+	// create entry object
+	name := &widget.Entry{Text: entry.Text, OnChanged: func(v string) {}}
+	login := &widget.Entry{Text: "some login", OnChanged: func(v string) {}}
+	recContainer := container.NewVBox(
+		container.NewGridWithColumns(3,
+			newBoldLabel("Name"), name, a.copyIcon(name),
+			newBoldLabel("Login"), login, a.copyIcon(login),
+		),
+	)
+	return recContainer
 }
 
 // helper function to create appropriate copy icon
