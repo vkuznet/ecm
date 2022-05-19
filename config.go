@@ -71,10 +71,6 @@ func ParseConfig(configFile string, verbose int) error {
 	if Config.TokenExpireInterval == 0 {
 		Config.TokenExpireInterval = 60
 	}
-	if Config.TokenSecret == "" {
-		chars := voc + numbers + symbols
-		Config.TokenSecret = generatePassword(24, chars)
-	}
 	if Config.LogFile == "" {
 		Config.LogFile = fmt.Sprintf("%s/ecm.log", ecmHome())
 	}
