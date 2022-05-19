@@ -1,12 +1,11 @@
 package main
 
 import (
-	"fmt"
-
 	fyne "fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	vt "github.com/vkuznet/ecm/vault"
 )
 
 type vaultRecords struct {
@@ -17,15 +16,6 @@ type vaultRecords struct {
 
 func newVaultRecords(a fyne.App, w fyne.Window) *vaultRecords {
 	return &vaultRecords{app: a, window: w}
-}
-
-func makeRecords() map[string]Entry {
-	records := make(map[string]Entry)
-	for i := 0; i < 20; i++ {
-		key := fmt.Sprintf("key-%d", i)
-		records[key] = Entry{Text: key}
-	}
-	return records
 }
 
 func (a *vaultRecords) buildUI() *container.Scroll {
@@ -40,10 +30,8 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 
 	// list of entries
 	entries := widget.NewAccordion()
-	items := makeRecords()
-	for key, entry := range items {
-		entries.Append(widget.NewAccordionItem(key, a.recordContainer(entry)))
-		//         entries.Append(widget.NewAccordionItem(key, &widget.Entry{Text: entry.Text}))
+	for _, rec := range _vault.Records {
+		entries.Append(widget.NewAccordionItem(rec.ID, a.recordContainer(rec.Map)))
 	}
 
 	return container.NewScroll(container.NewVBox(
@@ -53,11 +41,8 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 }
 
 // helper function to create record form item representation
-func (a *vaultRecords) formItem(entry Entry, key string) *widget.FormItem {
-	rec := &widget.Entry{Text: entry.Text, OnChanged: func(v string) {}}
-	if key == "Login" {
-		rec = &widget.Entry{Text: "some login", OnChanged: func(v string) {}}
-	}
+func (a *vaultRecords) formItem(key, val string) *widget.FormItem {
+	rec := &widget.Entry{Text: val, OnChanged: func(v string) {}}
 	recContainer := container.NewVBox(
 		container.NewGridWithColumns(2,
 			rec, a.copyIcon(rec),
@@ -67,13 +52,14 @@ func (a *vaultRecords) formItem(entry Entry, key string) *widget.FormItem {
 }
 
 // helper function to create record representation
-func (a *vaultRecords) recordContainer(entry Entry) *fyne.Container {
+func (a *vaultRecords) recordContainer(record vt.Record) *fyne.Container {
 	// create entry object
+	var items []*widget.FormItem
+	for k, v := range record {
+		items = append(items, a.formItem(k, v))
+	}
 	form := &widget.Form{
-		Items: []*widget.FormItem{
-			a.formItem(entry, "Name"),
-			a.formItem(entry, "Login"),
-		},
+		Items:      items,
 		SubmitText: "Update",
 		OnSubmit:   func() { /* TODO: update entry record */ },
 	}

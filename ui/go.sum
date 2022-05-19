@@ -21,6 +21,8 @@ github.com/godbus/dbus/v5 v5.0.4 h1:9349emZab16e7zQvpmsbtjc18ykshndd8y2PG3sgJbA=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff h1:W71vTCKoxtdXgnm1ECDFkfQnpdqAO00zzGXLA5yaEX8=
 github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff/go.mod h1:wfqRWLHRBsRgkp5dmbG56SA0DmVtwrF5N3oPdI8t+Aw=
+github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
+github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/jackmordaunt/icns v0.0.0-20181231085925-4f16af745526/go.mod h1:UQkeMHVoNcyXYq9otUupF7/h/2tmHlhrS2zw7ZVvUqc=
 github.com/josephspurrier/goversioninfo v0.0.0-20200309025242-14b0ab84c6ca/go.mod h1:eJTEwMjXb7kZ633hO3Ln9mBUCOjX2+FlTljvpl9SYdE=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
@@ -50,6 +52,8 @@ github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/urfave/cli/v2 v2.3.0/go.mod h1:LJmUH05zAU44vOAcrfzZQKsZbVcdbOG8rtL3/XcUArI=
 github.com/vkuznet/ecm/crypt v0.0.0-20220519172042-010c7ce81f03 h1:0QXTcAzUIsXYtvG9QFF5XVXP7vL0rj5vlahrESt8ffE=
 github.com/vkuznet/ecm/crypt v0.0.0-20220519172042-010c7ce81f03/go.mod h1:Sh3CzUjQIWSHqc66FD4kCf07hd+NHD2ogIlJuhnQlLQ=
+github.com/vkuznet/ecm/vault v0.0.0-20220519182015-9b2c954bf1a4 h1:OIPbW2I2GqtmArY8j+2JrFz15Wlg2sQ8U+pzvFz74QI=
+github.com/vkuznet/ecm/vault v0.0.0-20220519182015-9b2c954bf1a4/go.mod h1:Cd578+x/OVyVWKhYV45Nrdot/fx/HRFVfitnGS6/3Bw=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.3.8 h1:Nw158Q8QN+CPgTmVRByhVwapp8Mm1e2blinhmx4wx5E=
 github.com/yuin/goldmark v1.3.8/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=

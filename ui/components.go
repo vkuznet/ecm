@@ -1,15 +1,25 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"time"
+
 	"fyne.io/fyne/v2"
 	canvas "fyne.io/fyne/v2/canvas"
 	container "fyne.io/fyne/v2/container"
 	layout "fyne.io/fyne/v2/layout"
 	widget "fyne.io/fyne/v2/widget"
+	vt "github.com/vkuznet/ecm/vault"
 )
 
+// define our vault
+var _vault *vt.Vault
+
 // ErrWindow represents generic error window content
-func ErrWindow(app fyne.App, w fyne.Window) {
+func ErrWindow(app fyne.App, w fyne.Window, err error) {
+	log.Println("ERROR", err)
 	w.SetContent(widget.NewLabel("Error window"))
 }
 
@@ -22,12 +32,21 @@ func AppWindow(app fyne.App, w fyne.Window) {
 
 // LoginWindow represents login window
 func LoginWindow(app fyne.App, w fyne.Window) {
+	// get vault records
+	if _vault == nil {
+		cipher := "aes" // or use crypt.SupportedCiphers and getCipher
+		verbose := 1
+		vdir := fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME"))
+		_vault = &vt.Vault{Directory: vdir, Cipher: cipher, Verbose: verbose, Start: time.Now()}
+	}
+
 	password := widget.NewPasswordEntry()
 	password.OnSubmitted = func(p string) {
-		//         log.Println("password", p)
-		var err error
+		log.Println("password", p)
+		_vault.Secret = p
+		err := _vault.Read()
 		if err != nil {
-			ErrWindow(app, w)
+			ErrWindow(app, w, err)
 		} else {
 			AppWindow(app, w)
 		}
@@ -41,7 +60,7 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 		OnSubmit: func() {
 			var err error
 			if err != nil {
-				ErrWindow(app, w)
+				ErrWindow(app, w, err)
 			} else {
 				AppWindow(app, w)
 			}

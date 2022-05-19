@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 	"net/url"
@@ -152,4 +153,12 @@ func makeAccordionTab(_ fyne.Window) fyne.CanvasObject {
 	)
 	ac.Append(widget.NewAccordionItem("D", &widget.Entry{Text: "Four"}))
 	return ac
+}
+func makeRecords() map[string]Entry {
+	records := make(map[string]Entry)
+	for i := 0; i < 20; i++ {
+		key := fmt.Sprintf("key-%d", i)
+		records[key] = Entry{Text: key}
+	}
+	return records
 }
