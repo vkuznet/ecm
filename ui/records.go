@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	crypt "github.com/vkuznet/ecm/crypt"
 	vt "github.com/vkuznet/ecm/vault"
 )
 
@@ -42,21 +43,38 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 
 // helper function to create record form item representation
 func (a *vaultRecords) formItem(key, val string) *widget.FormItem {
+	if key == "Password" || key == "password" {
+		rec := widget.NewPasswordEntry()
+		rec.Text = val
+		rec.Refresh()
+		recContainer := container.NewVBox(
+			container.NewGridWithColumns(2,
+				rec, a.copyIcon(rec),
+			),
+		)
+		return widget.NewFormItem(key, recContainer)
+	}
 	rec := &widget.Entry{Text: val, OnChanged: func(v string) {}}
-	recContainer := container.NewVBox(
-		container.NewGridWithColumns(2,
-			rec, a.copyIcon(rec),
-		),
-	)
-	return widget.NewFormItem(key, recContainer)
+	return widget.NewFormItem(key, rec)
 }
 
 // helper function to create record representation
 func (a *vaultRecords) recordContainer(record vt.Record) *fyne.Container {
 	// create entry object
+	orderedKeys := []string{
+		"Name", "Login", "Password", "URL", "Tags", "Note",
+	}
 	var items []*widget.FormItem
+	for _, k := range orderedKeys {
+		if v, ok := record[k]; ok {
+			items = append(items, a.formItem(k, v))
+		}
+	}
+	// other keys can follow ordered ones
 	for k, v := range record {
-		items = append(items, a.formItem(k, v))
+		if !crypt.InList(k, orderedKeys) {
+			items = append(items, a.formItem(k, v))
+		}
 	}
 	form := &widget.Form{
 		Items:      items,
