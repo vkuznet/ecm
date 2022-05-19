@@ -11,6 +11,7 @@ import (
 	tcell "github.com/gdamore/tcell/v2"
 	uuid "github.com/google/uuid"
 	"github.com/rivo/tview"
+	crypt "github.com/vkuznet/ecm/crypt"
 	vt "github.com/vkuznet/ecm/vault"
 )
 
@@ -342,7 +343,7 @@ func gridView(app *tview.Application, pages *tview.Pages, textView *tview.TextVi
 			info.SetText(helpKeys())
 			return event
 		case tcell.KeyCtrlG:
-			password := CreatePassword(24, true, true)
+			password := crypt.CreatePassword(24, true, true)
 			info.SetText(password)
 			return event
 		case tcell.KeyCtrlP:
