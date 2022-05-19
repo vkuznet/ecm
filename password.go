@@ -15,8 +15,8 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// helper function to create password of certain length
-func createPassword(length int, hasNumbers bool, hasSymbols bool) string {
+// CreatePassword creates password of certain length
+func CreatePassword(length int, hasNumbers bool, hasSymbols bool) string {
 	chars := voc
 	if hasNumbers {
 		chars = chars + numbers

@@ -342,7 +342,7 @@ func gridView(app *tview.Application, pages *tview.Pages, textView *tview.TextVi
 			info.SetText(helpKeys())
 			return event
 		case tcell.KeyCtrlG:
-			password := createPassword(24, true, true)
+			password := CreatePassword(24, true, true)
 			info.SetText(password)
 			return event
 		case tcell.KeyCtrlP:
