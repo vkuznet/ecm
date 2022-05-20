@@ -86,7 +86,7 @@ func ecmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error
 func backup(src, dst string) (int64, error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
-		log.Println("file src does not exist, error ", err)
+		log.Printf("file '%s' does not exist, error %v", src, err)
 		return 0, err
 	}
 
