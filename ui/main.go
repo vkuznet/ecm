@@ -12,38 +12,30 @@ import (
 // various sizes of our application
 var windowSize, inputSize fyne.Size
 var fontColor color.Color
+var mobile bool
 
 func main() {
-	// use New method for generic app
-	//     a := app.New()
-	// use NewWithID for preferences
-	a := app.NewWithID("io.github.vkuznet")
-	a.Settings().SetTheme(theme.DarkTheme())
-	w := a.NewWindow("ECM application")
-
-	// TODO: make configuration
-	mobile := false
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
+	a := app.NewWithID("io.github.vkuznet")
+	a.Settings().SetTheme(theme.DarkTheme())
+	w := a.NewWindow("ECM")
+
+	appSettings()
+	LoginWindow(a, w)
+
+	w.ShowAndRun()
+}
+
+// helper function to set application settings
+func appSettings() {
 	if mobile {
-		windowSize = fyne.NewSize(700, 400)
-		inputSize = fyne.NewSize(300, 50)
+		windowSize = fyne.NewSize(100, 400)
+		inputSize = fyne.NewSize(50, 50)
 		fontColor = color.White
 	} else {
 		windowSize = fyne.NewSize(700, 400)
 		inputSize = fyne.NewSize(300, 50)
 		fontColor = color.White
 	}
-
-	// original idea
-	//     MainWindow(a, w)
-	//     w.ShowAndRun()
-
-	LoginWindow(a, w)
-	w.ShowAndRun()
-
-	//     w.SetContent(Create(a, w))
-	//     w.Resize(fyne.NewSize(700, 400))
-	//     w.SetMaster()
-	//     w.ShowAndRun()
 }
