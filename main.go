@@ -34,9 +34,9 @@ func main() {
 	var pcopy string
 	flag.StringVar(&pcopy, "pcopy", "", "extract given attribute from the record and copy to clipboard")
 	var export string
-	flag.StringVar(&export, "export", "", "export vault records to given file")
+	flag.StringVar(&export, "export", "", "export vault records to given file (ECM JSON native format)")
 	var vimport string
-	flag.StringVar(&vimport, "import", "", "import vault records to given file")
+	flag.StringVar(&vimport, "import", "", "import records from a given file. Support: CSV, JSON, or ecm.json (native format)")
 	var recreate bool
 	flag.BoolVar(&recreate, "recreate", false, "recreate vault and its records with new password/cipher")
 	var pat string
