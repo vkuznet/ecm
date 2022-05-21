@@ -79,6 +79,9 @@ func cli(
 		if err != nil {
 			log.Fatal(err)
 		}
+		if !InList(newCipher, crypt.SupportedCiphers) {
+			log.Fatal("Unsupported cipher")
+		}
 		newPassword, err := readPassword()
 		if err != nil {
 			log.Fatal(err)
