@@ -61,7 +61,9 @@ func main() {
 	}
 
 	// use file name in a log
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	if verbose > 0 {
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
+	}
 
 	// start HTTP server if it is required
 	if serverConfig != "" {
