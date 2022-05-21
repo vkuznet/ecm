@@ -443,7 +443,7 @@ func (v *Vault) Info() string {
 // Recreate re-creates vault records with new password and cipher
 func (v *Vault) Recreate(secret, cipher string) error {
 	// make copy of existing vault directory
-	tstamp := time.Now().Unix()
+	tstamp := time.Now().Format(time.RFC3339)
 	dstDir := fmt.Sprintf("%s.%d", v.Directory, tstamp)
 	err := CopyDir(v.Directory, dstDir)
 	if err != nil {
