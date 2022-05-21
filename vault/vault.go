@@ -444,7 +444,7 @@ func (v *Vault) Info() string {
 func (v *Vault) Recreate(secret, cipher string) error {
 	// make copy of existing vault directory
 	tstamp := time.Now().Format(time.RFC3339)
-	dstDir := fmt.Sprintf("%s.%d", v.Directory, tstamp)
+	dstDir := fmt.Sprintf("%s.%s", v.Directory, tstamp)
 	err := CopyDir(v.Directory, dstDir)
 	if err != nil {
 		return err
