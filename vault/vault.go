@@ -20,6 +20,17 @@ import (
 	"github.com/vkuznet/ecm/crypt"
 )
 
+// recordAttribute performs conversion from one record attribute
+// name to another, e.g. when we import 1Password records to ECM format
+func recordAttribute(key string) string {
+	if key == "Username" { // 1Password convention
+		key = "Login"
+	} else if key == "Title" {
+		key = "Name"
+	}
+	return key
+}
+
 // Record represent map of key-valut pairs
 type Record map[string]string
 
@@ -33,7 +44,7 @@ type VaultRecord struct {
 
 // String provides string representation of vault record
 func (r *VaultRecord) String() string {
-	data, err := json.Marshal(r)
+	data, err := json.MarshalIndent(r, "", "   ")
 	if err == nil {
 		return string(data)
 	}
@@ -475,8 +486,8 @@ func (v *Vault) Recreate(secret, cipher string) error {
 }
 
 // Import allows to import vault records to a given file
-// so far we only support CSV data-format
-func (v *Vault) Import(fname string) error {
+// CSV, JSON or ECM-JSON data-format are supported
+func (v *Vault) Import(fname, oname string) error {
 	// open file
 	f, err := os.Open(fname)
 	if err != nil {
@@ -486,38 +497,108 @@ func (v *Vault) Import(fname string) error {
 	// remember to close the file at the end of the program
 	defer f.Close()
 
-	// read csv values using csv.Reader
-	reader := csv.NewReader(f)
-	var headers []string
-	for {
-		values, err := reader.Read()
-		if len(headers) == 0 {
-			headers = values
-			continue
-		}
-		if err == io.EOF {
-			break
-		}
+	var records []VaultRecord
+	if fname == "ecm.json" {
+		data, err := io.ReadAll(f)
 		if err != nil {
 			return err
 		}
-		vRecord := NewVaultRecord("login")
-		for idx := range values {
-			vRecord.Map[headers[idx]] = values[idx]
+		err = json.Unmarshal(data, &records)
+		if err != nil {
+			return err
 		}
-		log.Println("VaultRecord", vRecord.String())
+
+	} else if strings.HasSuffix(fname, "csv") {
+
+		// read csv values using csv.Reader
+		reader := csv.NewReader(f)
+		var headers []string
+		for {
+			values, err := reader.Read()
+			if len(headers) == 0 {
+				headers = values
+				continue
+			}
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return err
+			}
+			vRecord := NewVaultRecord("login")
+			for idx := range values {
+				if values[idx] == "" {
+					continue
+				}
+				key := recordAttribute(headers[idx])
+				vRecord.Map[key] = values[idx]
+			}
+			if v.Verbose > 0 {
+				log.Println("Import VaultRecord\n", vRecord.String())
+			}
+			records = append(records, *vRecord)
+		}
+
+	} else if strings.HasSuffix(fname, "json") {
+
+		data, err := io.ReadAll(f)
+		if err != nil {
+			return err
+		}
+		var jsonRecords []map[string]any
+		err = json.Unmarshal(data, &jsonRecords)
+		if err != nil {
+			return err
+		}
+		for _, rec := range jsonRecords {
+			vRecord := NewVaultRecord("login")
+			for key, val := range rec {
+				vRecord.Map[key] = fmt.Sprintf("%svs", val)
+			}
+			if v.Verbose > 0 {
+				log.Println("Import VaultRecord\n", vRecord.String())
+			}
+			records = append(records, *vRecord)
+		}
+	}
+
+	if oname != "" {
+		// check if our destination is a vault
+		if oname == v.Directory {
+			for _, rec := range records {
+				err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
+				if err != nil {
+					log.Fatalf("unable to write vault record %s, error %v", rec.ID, err)
+				}
+			}
+			return nil
+		}
+
+		// otherwise write records to destination file
+		file, err := os.Open(oname)
+		if err != nil {
+			return err
+		}
+		// remember to close the file at the end of the program
+		defer file.Close()
+		data, err := json.MarshalIndent(records, "", "   ")
+		if err != nil {
+			return err
+		}
+		err = os.WriteFile(oname, data, 0755)
+		return err
 	}
 	return nil
 }
 
-// Export allows to export vault records to a given file
+// Export allows to export vault records in JSON data format to a given file
 func (v *Vault) Export(fname string) error {
 	file, err := os.Create(fname)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	data, err := json.Marshal(v.Records)
+	data, err := json.MarshalIndent(v.Records, "", "   ")
 	if err != nil {
 		return err
 	}
