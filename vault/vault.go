@@ -426,6 +426,16 @@ func (v *Vault) Info() string {
 	return info
 }
 
+// ChangeMaster allows to import vault records to a given file
+func (v *Vault) ChangeMaster(master string) error {
+	return nil
+}
+
+// Import allows to import vault records to a given file
+func (v *Vault) Import(fname string) error {
+	return nil
+}
+
 // Export allows to export vault records to a given file
 func (v *Vault) Export(fname string) error {
 	file, err := os.Create(fname)
