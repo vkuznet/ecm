@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"time"
 	//     "github.com/rivo/tview"
+
 	vt "github.com/vkuznet/ecm/vault"
 )
 
@@ -27,23 +28,31 @@ func main() {
 	var cipher string
 	flag.StringVar(&cipher, "cipher", "", "cipher to use (aes, nacl)")
 	var dfile string
-	flag.StringVar(&dfile, "decrypt", "", "decrypt given file name")
+	flag.StringVar(&dfile, "decrypt", "", "decrypt given file to stdout")
 	var efile string
 	flag.StringVar(&efile, "encrypt", "", "encrypt given file and place it into vault")
-	var attr string
-	flag.StringVar(&attr, "attr", "", "extract certain attribute from the record")
-	var write string
-	flag.StringVar(&write, "write", "stdout", "write record to (stdout|clipboard|<filename>)")
+	var pcopy string
+	flag.StringVar(&pcopy, "pcopy", "", "extract given attribute from the record and copy to clipboard")
 	var export string
 	flag.StringVar(&export, "export", "", "export vault records to given file")
+	var vimport string
+	flag.StringVar(&vimport, "import", "", "import vault records to given file")
+	var master string
+	flag.StringVar(&master, "master", "", "change master password of the vault and re-encrypt its records")
+	var pat string
+	flag.StringVar(&pat, "pat", "", "search pattern in vault records")
 	var version bool
 	flag.BoolVar(&version, "version", false, "Show version")
+	var rid string
+	flag.StringVar(&rid, "rid", "", "show record with given ID and copy its password to clipboard")
 	var lockInterval int
 	flag.IntVar(&lockInterval, "lock", 60, "lock interval in seconds")
 	var verbose int
 	flag.IntVar(&verbose, "verbose", 0, "verbose level")
 	var serverConfig string
 	flag.StringVar(&serverConfig, "serverConfig", "", "start HTTP server with provided configuration")
+	var gui bool
+	flag.BoolVar(&gui, "gui", false, "start in gui mode")
 	flag.Parse()
 	if version {
 		fmt.Println(info())
@@ -60,60 +69,18 @@ func main() {
 		os.Exit(0)
 	}
 
-	// decrypt record
-	if dfile != "" {
-		password, err := readPassword()
-		if err != nil {
-			panic(err)
-		}
-		decryptInput(dfile, password, cipher, write, attr)
-		os.Exit(0)
-	}
-
-	// parse input config
-	configFile := fmt.Sprintf("%s/config.json", ecmHome())
-	err := ParseConfig(configFile, verbose)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// initialize our vault
 	vault := vt.Vault{Cipher: getCipher(cipher), Verbose: verbose, Start: time.Now()}
 
-	// create our vault
-	err = vault.Create(vname)
+	// create vault if necessary
+	err := vault.Create(vname)
 	if err != nil {
 		log.Fatalf("unable to create vault, error %v", err)
 	}
 
-	// we split either at CLI or UI mode
-	if efile != "" || export != "" {
-		// get vault secret
-		salt, err := secret(verbose)
-		if err != nil {
-			log.Fatal(err)
-		}
-		vault.Secret = salt
-
-		// encrypt given record
-		if efile != "" {
-			vault.EncryptFile(efile)
-		}
-
-		// read from our vault
-		err = vault.Read()
-		if err != nil {
-			log.Fatal("unable to read vault, error ", err)
-		}
-
-		// export vault records
-		if export != "" {
-			err = vault.Export(export)
-			if err != nil {
-				log.Fatalf("unable to export vault records, error %v", err)
-			}
-			os.Exit(0)
-		}
+	// CLI or UI mode
+	if !gui {
+		cli(&vault, cipher, efile, dfile, pat, rid, export, vimport, master, pcopy, verbose)
 	} else { // UI mode
 		setTheme("grey")
 		gpgApp(&vault, lockInterval)
