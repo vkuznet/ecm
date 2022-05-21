@@ -78,7 +78,7 @@ func userExist(name, password string) bool {
 	return false
 }
 
-// helper funtion to find user secret
+// helper function to find user secret
 func findUserSecret(name string) string {
 	user, err := getUser(name)
 	if err != nil {

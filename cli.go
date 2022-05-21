@@ -24,6 +24,7 @@ func decryptFile(dfile, cipher, pcopy string) {
 }
 
 // cli main function
+//gocyclo:ignore
 func cli(
 	vault *vt.Vault,
 	efile, dfile, pat, rid, pcopy, export, vimport string,
