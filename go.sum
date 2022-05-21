@@ -128,8 +128,8 @@ github.com/vkuznet/ecm/crypt v0.0.0-20220519172042-010c7ce81f03 h1:0QXTcAzUIsXYt
 github.com/vkuznet/ecm/crypt v0.0.0-20220519172042-010c7ce81f03/go.mod h1:Sh3CzUjQIWSHqc66FD4kCf07hd+NHD2ogIlJuhnQlLQ=
 github.com/vkuznet/ecm/kvdb v0.0.0-20220519172042-010c7ce81f03 h1:Eyjr1GMxegJOL0xRfdOsktDRV21M8SQXF8Y2iaCD+Zw=
 github.com/vkuznet/ecm/kvdb v0.0.0-20220519172042-010c7ce81f03/go.mod h1:RuPRs3gxetfsIOP5r0QDbT/lrVD3+WFQhk7llJe8dWg=
-github.com/vkuznet/ecm/vault v0.0.0-20220519172042-010c7ce81f03 h1:/kCyZT1VLzbGA4PYGnf6avx8KU2734N+aKFeI5RdLj8=
-github.com/vkuznet/ecm/vault v0.0.0-20220519172042-010c7ce81f03/go.mod h1:Cd578+x/OVyVWKhYV45Nrdot/fx/HRFVfitnGS6/3Bw=
+github.com/vkuznet/ecm/vault v0.0.0-20220521202616-69cbb0c722e4 h1:u1/RQNs7z/j8Yo8NlqjqqJqvfI7f8fSnIFcY5kEPELs=
+github.com/vkuznet/ecm/vault v0.0.0-20220521202616-69cbb0c722e4/go.mod h1:nRpBJpYL49ghY/NKN7HhDWaSYJWDeWPLEm+JFKr9F2I=
 github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868 h1:kOyoL9dkgDzi/5qVBsTlzCEOmCGnJYYl+u7aBzMR6c4=
 github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868/go.mod h1:wy8w8lLvz/ZauEqQh0fjv/vkZZlLbdDfSDewsy5jWvA=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=

@@ -18,7 +18,7 @@ require (
 	github.com/ulule/limiter/v3 v3.10.0
 	github.com/vkuznet/ecm/crypt v0.0.0-20220519172042-010c7ce81f03
 	github.com/vkuznet/ecm/kvdb v0.0.0-20220519172042-010c7ce81f03
-	github.com/vkuznet/ecm/vault v0.0.0-20220519172042-010c7ce81f03
+	github.com/vkuznet/ecm/vault v0.0.0-20220521202616-69cbb0c722e4
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
 	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171
@@ -52,3 +52,5 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 )
+
+// replace github.com/vkuznet/ecm/vault => /Users/vk/Work/Languages/Go/ecm/vault
