@@ -37,8 +37,8 @@ func main() {
 	flag.StringVar(&export, "export", "", "export vault records to given file")
 	var vimport string
 	flag.StringVar(&vimport, "import", "", "import vault records to given file")
-	var master string
-	flag.StringVar(&master, "master", "", "change master password of the vault and re-encrypt its records")
+	var recreate bool
+	flag.BoolVar(&recreate, "recreate", false, "recreate vault and its records with new password/cipher")
 	var pat string
 	flag.StringVar(&pat, "pat", "", "search pattern in vault records")
 	var version bool
@@ -80,7 +80,18 @@ func main() {
 
 	// CLI or UI mode
 	if !gui {
-		cli(&vault, cipher, efile, dfile, pat, rid, export, vimport, master, pcopy, verbose)
+		cli(
+			&vault,
+			efile,
+			dfile,
+			pat,
+			rid,
+			pcopy,
+			export,
+			vimport,
+			recreate,
+			verbose,
+		)
 	} else { // UI mode
 		setTheme("grey")
 		gpgApp(&vault, lockInterval)
