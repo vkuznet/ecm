@@ -30,7 +30,7 @@ func TestDecryptInputToFile(t *testing.T) {
 	}
 	tmpFile.Close()
 	// create output file
-	outTmpFile, err := ioutil.TempFile(os.TempDir(), "ouput-")
+	outTmpFile, err := ioutil.TempFile(os.TempDir(), "output-")
 	if err != nil {
 		t.Error(err.Error())
 	}
