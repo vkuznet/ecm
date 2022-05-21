@@ -206,6 +206,7 @@ func recordForm(app *tview.Application, form *tview.Form, list *tview.List, info
 }
 
 // helper function to build our application grid view
+//gocyclo:ignore
 func gridView(app *tview.Application, pages *tview.Pages, textView *tview.TextView, vault *vt.Vault) *tview.Grid {
 	info := tview.NewTextView()
 	list := tview.NewList()

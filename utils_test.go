@@ -19,6 +19,9 @@ func TestDecryptInputToFile(t *testing.T) {
 	cipher := "aes"
 	attr := ""
 	edata, err := crypt.Encrypt(data, password, cipher)
+	if err != nil {
+		t.Error(err.Error())
+	}
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "input-")
 	if err != nil {
 		t.Error(err.Error())

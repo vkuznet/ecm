@@ -108,7 +108,7 @@ func VaultHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-// fill them out at VaultAuthHandler
+// AuthRecord keeps vault auth attributes
 type AuthRecord struct {
 	Cipher string
 	Secret string
