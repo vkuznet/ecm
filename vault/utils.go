@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
+	"text/tabwriter"
 )
 
 // StringList implement sort for []string type
@@ -84,4 +86,30 @@ func SizeFormat(val interface{}) string {
 		size = size / base
 	}
 	return fmt.Sprintf("%v (%3.1f%s)", val, size, xlist[len(xlist)])
+}
+
+// TabularPrint provide tabular print of reocrds
+// based on http://networkbit.ch/golang-column-print/
+func TabularPrint(records []VaultRecord) {
+	// initialize tabwriter
+	w := new(tabwriter.Writer)
+	// minwidth, tabwidth, padding, padchar, flags
+	w.Init(os.Stdout, 8, 8, 0, '\t', 0)
+	defer w.Flush()
+	for _, rec := range records {
+		fmt.Fprintf(w, "\n------------")
+		fmt.Fprintf(w, "\nID:\t%s", rec.ID)
+		for key, val := range rec.Map {
+			if strings.ToLower(key) == "password" {
+				newVal := "*"
+				for i := 0; i < len(val); i++ {
+					newVal += "*"
+				}
+				val = newVal
+			}
+			fmt.Fprintf(w, "\n%v:\t%v", key, val)
+		}
+		fmt.Fprintf(w, "\n")
+	}
+
 }
