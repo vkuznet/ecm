@@ -23,7 +23,7 @@ func secret(verbose int) (string, error) {
 
 // helper function to read vault secret from stdin
 func secretPlain(verbose int) (string, error) {
-	fmt.Print("\n\tEnter vault secret: ")
+	fmt.Print("\nEnter vault secret: ")
 	bytes, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		log.Println("unable to read stdin, error ", err)
