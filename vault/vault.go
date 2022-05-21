@@ -2,9 +2,11 @@ package vault
 
 import (
 	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -77,8 +79,9 @@ func (r *VaultRecord) WriteRecord(vdir, secret, cipher string, verbose int) erro
 	// make backup of our record
 	_, err = backup(fname, bname)
 	if err != nil {
-		log.Println("unable to make backup for record", r.ID, " error ", err)
-		//         return err
+		if verbose > 0 {
+			log.Println("unable to make backup for record", r.ID, " error ", err)
+		}
 	}
 
 	file, err := os.Create(fname)
@@ -155,6 +158,17 @@ func (v *Vault) AddRecord(kind string) int {
 	rec := NewVaultRecord(kind)
 	v.Records = append(v.Records, *rec)
 	return len(v.Records) - 1
+}
+
+// Delete deletes given vault record file from the vault directory
+func (v *Vault) DeleteRecordFile(rid string) error {
+	// physically delete vault record file
+	fname := fmt.Sprintf("%s.%s", filepath.Join(v.Directory, rid), v.Cipher)
+	err := os.Remove(fname)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // DeleteRecord vault record
@@ -426,13 +440,73 @@ func (v *Vault) Info() string {
 	return info
 }
 
-// ChangeMaster allows to import vault records to a given file
-func (v *Vault) ChangeMaster(master string) error {
+// Recreate re-creates vault records with new password and cipher
+func (v *Vault) Recreate(secret, cipher string) error {
+	// make copy of existing vault directory
+	tstamp := time.Now().Unix()
+	dstDir := fmt.Sprintf("%s.%d", v.Directory, tstamp)
+	err := CopyDir(v.Directory, dstDir)
+	if err != nil {
+		return err
+	}
+	log.Printf("Original vault records are saved in %s", dstDir)
+	// get all existing records
+	for _, rec := range v.Records {
+		err := rec.WriteRecord(v.Directory, secret, cipher, v.Verbose)
+		if err != nil {
+			return err
+		}
+		// delete record from the vault
+		err = v.DeleteRecord(rec.ID)
+		if err != nil {
+			return err
+		}
+		// delete existing record file from vault directory
+		err = v.DeleteRecordFile(rec.ID)
+		if err != nil {
+			return err
+		}
+	}
+	// change vault secret and cipher
+	v.Secret = secret
+	v.Cipher = cipher
+	log.Printf("Vault changed and re-encrypted all records in %s using cipher %s", v.Directory, v.Cipher)
 	return nil
 }
 
 // Import allows to import vault records to a given file
+// so far we only support CSV data-format
 func (v *Vault) Import(fname string) error {
+	// open file
+	f, err := os.Open(fname)
+	if err != nil {
+		return err
+	}
+
+	// remember to close the file at the end of the program
+	defer f.Close()
+
+	// read csv values using csv.Reader
+	reader := csv.NewReader(f)
+	var headers []string
+	for {
+		values, err := reader.Read()
+		if len(headers) == 0 {
+			headers = values
+			continue
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		vRecord := NewVaultRecord("login")
+		for idx := range values {
+			vRecord.Map[headers[idx]] = values[idx]
+		}
+		log.Println("VaultRecord", vRecord.String())
+	}
 	return nil
 }
 
