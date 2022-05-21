@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/atotto/clipboard"
+	"github.com/vkuznet/ecm/crypt"
 	vt "github.com/vkuznet/ecm/vault"
 )
 
@@ -22,12 +23,17 @@ func decryptFile(dfile, cipher, pcopy string) {
 	os.Exit(0)
 }
 
-func cli(vault *vt.Vault,
-	cipher, efile, dfile, pat, rid, export, vimport, master, pcopy string, verbose int) {
+// cli main function
+func cli(
+	vault *vt.Vault,
+	efile, dfile, pat, rid, pcopy, export, vimport string,
+	recreate bool,
+	verbose int,
+) {
 
 	// decrypt file if given
 	if dfile != "" {
-		decryptFile(dfile, cipher, pcopy)
+		decryptFile(dfile, vault.Cipher, pcopy)
 	}
 	// get vault secret
 	salt, err := secretPlain(verbose)
@@ -67,8 +73,24 @@ func cli(vault *vt.Vault,
 	}
 
 	// change master password of the vault and re-encrypt all records
-	if master != "" {
-		err = vault.ChangeMaster(master)
+	if recreate {
+		log.Printf("Supported ciphers: %v", crypt.SupportedCiphers)
+		newCipher, err := readInput("Cipher to use:")
+		if err != nil {
+			log.Fatal(err)
+		}
+		newPassword, err := readPassword()
+		if err != nil {
+			log.Fatal(err)
+		}
+		newPassword2, err := readPassword()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if newPassword != newPassword2 {
+			log.Fatal("provided password strings do not match")
+		}
+		err = vault.Recreate(newPassword, newCipher)
 		if err != nil {
 			log.Fatalf("unable to change vault master password and re-encrypt its records, error %v", err)
 		}
