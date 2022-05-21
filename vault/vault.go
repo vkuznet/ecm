@@ -180,7 +180,7 @@ func remove(s []VaultRecord, i int) []VaultRecord {
 	return s[:len(s)-1]
 }
 
-// EncryptFile provides ability to encrypt given file name and place into the fault
+// EncryptFile provides ability to encrypt given file name and place into the vault
 func (v *Vault) EncryptFile(efile string) {
 	data, err := ioutil.ReadFile(efile)
 	if err != nil {
@@ -294,7 +294,7 @@ func (v *Vault) Read() error {
 		fname := filepath.Join(v.Directory, file.Name())
 		rec, err := v.ReadRecord(fname)
 		if err != nil {
-			log.Fatal("unable to read fault record", fname, " error ", err)
+			log.Fatal("unable to read vault record", fname, " error ", err)
 		}
 		v.Records = append(v.Records, rec)
 	}
@@ -369,7 +369,9 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 	if v.Cipher != "" {
 		data, err = crypt.Decrypt(data, v.Secret, v.Cipher)
 		if err != nil {
-			log.Printf("unable to decrypt data, error %v", err)
+			if v.Verbose > 0 {
+				log.Printf("unable to decrypt data, error %v", err)
+			}
 			return rec, err
 		}
 	}
@@ -384,11 +386,15 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 
 // Find method finds given pattern in our vault and return its index
 func (v *Vault) Find(pat string) []VaultRecord {
+	var ids []string
 	var out []VaultRecord
 	for _, rec := range v.Records {
 		for key, val := range rec.Map {
 			if strings.Contains(key, pat) {
-				out = append(out, rec)
+				if !crypt.InList(rec.ID, ids) {
+					ids = append(ids, rec.ID)
+					out = append(out, rec)
+				}
 				if v.Verbose > 0 {
 					log.Println("match record key")
 				}
@@ -396,7 +402,10 @@ func (v *Vault) Find(pat string) []VaultRecord {
 				if v.Verbose > 0 {
 					log.Println("matched record value")
 				}
-				out = append(out, rec)
+				if !crypt.InList(rec.ID, ids) {
+					ids = append(ids, rec.ID)
+					out = append(out, rec)
+				}
 			}
 		}
 	}
