@@ -55,7 +55,7 @@ func cli(
 	}
 
 	// export vault records
-	if export != "" {
+	if export != "" && vimport == "" {
 		err = vault.Export(export)
 		if err != nil {
 			log.Fatalf("unable to export vault records, error %v", err)
@@ -65,7 +65,7 @@ func cli(
 
 	// import records to the vault
 	if vimport != "" {
-		err = vault.Import(vimport)
+		err = vault.Import(vimport, export)
 		if err != nil {
 			log.Fatalf("unable to import records to the vault, error %v", err)
 		}
