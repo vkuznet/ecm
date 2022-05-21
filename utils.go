@@ -183,6 +183,19 @@ func helpKeys() string {
 	return info
 }
 
+// helper function to read user input from stdout
+// https://gosamples.dev/read-user-input/
+func readInput(msg string) (string, error) {
+	fmt.Println(msg)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	err := scanner.Err()
+	if err != nil {
+		return "", err
+	}
+	return scanner.Text(), nil
+}
+
 // helper function to read input password
 func readPassword() (string, error) {
 	fmt.Print("Enter Password: ")
