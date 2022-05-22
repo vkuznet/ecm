@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -11,7 +12,7 @@ import (
 
 // decrypt record
 func decryptFile(dfile, cipher, pcopy string) {
-	password, err := readPassword()
+	password, err := vt.ReadPassword()
 	if err != nil {
 		panic(err)
 	}
@@ -27,8 +28,8 @@ func decryptFile(dfile, cipher, pcopy string) {
 //gocyclo:ignore
 func cli(
 	vault *vt.Vault,
-	efile, dfile, pat, rid, pcopy, export, vimport string,
-	recreate bool,
+	efile, dfile, pat, rid, edit, pcopy, export, vimport string,
+	recreate, info bool,
 	verbose int,
 ) {
 
@@ -55,6 +56,20 @@ func cli(
 		log.Fatal("unable to read vault, error ", err)
 	}
 
+	// show vault info
+	if info {
+		fmt.Println(vault.Info())
+		os.Exit(0)
+	}
+
+	// edit given record
+	if edit != "" {
+		err := vault.EditRecord(edit)
+		if err != nil {
+			log.Fatalf("unable to edit vault record, error '%s'", err)
+		}
+		os.Exit(0)
+	}
 	// export vault records
 	if export != "" && vimport == "" {
 		err = vault.Export(export)
@@ -76,18 +91,18 @@ func cli(
 	// change master password of the vault and re-encrypt all records
 	if recreate {
 		log.Printf("Supported ciphers: %v", crypt.SupportedCiphers)
-		newCipher, err := readInput("Cipher to use:")
+		newCipher, err := vt.ReadInput("Cipher to use:")
 		if err != nil {
 			log.Fatal(err)
 		}
 		if !InList(newCipher, crypt.SupportedCiphers) {
 			log.Fatal("Unsupported cipher")
 		}
-		newPassword, err := readPassword()
+		newPassword, err := vt.ReadPassword()
 		if err != nil {
 			log.Fatal(err)
 		}
-		newPassword2, err := readPassword()
+		newPassword2, err := vt.ReadPassword()
 		if err != nil {
 			log.Fatal(err)
 		}
