@@ -53,12 +53,10 @@ func main() {
 	flag.IntVar(&lockInterval, "lock", 60, "lock interval in seconds")
 	var verbose int
 	flag.IntVar(&verbose, "verbose", 0, "verbose level")
-	var serverConfig string
-	flag.StringVar(&serverConfig, "serverConfig", "", "start HTTP server with provided configuration")
+	//     var serverConfig string
+	//     flag.StringVar(&serverConfig, "serverConfig", "", "start HTTP server with provided configuration")
 	var examples bool
 	flag.BoolVar(&examples, "examples", false, "show examples")
-	var gui bool
-	flag.BoolVar(&gui, "gui", false, "start in gui mode")
 	flag.Parse()
 	if version {
 		fmt.Println(ecmInfo())
@@ -69,12 +67,6 @@ func main() {
 	// use file name in a log
 	if verbose > 0 {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
-	}
-
-	// start HTTP server if it is required
-	if serverConfig != "" {
-		startServer(serverConfig)
-		os.Exit(0)
 	}
 
 	// initialize our vault
@@ -89,23 +81,20 @@ func main() {
 	// CLI or UI mode
 	if examples {
 		ecmExamples()
-	} else if !gui {
-		cli(
-			&vault,
-			efile,
-			dfile,
-			pat,
-			rid,
-			edit,
-			pcopy,
-			export,
-			vimport,
-			recreate,
-			info,
-			verbose,
-		)
-	} else { // UI mode
-		setTheme("grey")
-		gpgApp(&vault, lockInterval)
+		os.Exit(0)
 	}
+	cli(
+		&vault,
+		efile,
+		dfile,
+		pat,
+		rid,
+		edit,
+		pcopy,
+		export,
+		vimport,
+		recreate,
+		info,
+		verbose,
+	)
 }

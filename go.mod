@@ -16,9 +16,9 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
 	github.com/ulule/limiter/v3 v3.10.0
-	github.com/vkuznet/ecm/crypt v0.0.0-20220519172042-010c7ce81f03
-	github.com/vkuznet/ecm/kvdb v0.0.0-20220519172042-010c7ce81f03
-	github.com/vkuznet/ecm/vault v0.0.0-20220522160647-7e0b3b630224
+	github.com/vkuznet/ecm/crypt v0.0.0-20220522171854-90a2e657d67a
+	github.com/vkuznet/ecm/kvdb v0.0.0-20220522171854-90a2e657d67a
+	github.com/vkuznet/ecm/vault v0.0.0-20220522171854-90a2e657d67a
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
 	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171
@@ -55,5 +55,3 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 )
-
-// replace github.com/vkuznet/ecm/vault => /Users/vk/Work/Languages/Go/ecm/vault

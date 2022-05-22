@@ -4,11 +4,30 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"syscall"
 
 	"github.com/atotto/clipboard"
 	"github.com/vkuznet/ecm/crypt"
 	vt "github.com/vkuznet/ecm/vault"
+	"golang.org/x/term"
 )
+
+// helper function to read vault secret from stdin
+func secretPlain(verbose int) (string, error) {
+	fmt.Print("\nEnter vault secret: ")
+	bytes, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		log.Println("unable to read stdin, error ", err)
+		return "", err
+	}
+	salt := strings.Replace(string(bytes), "\n", "", -1)
+	fmt.Println()
+	if verbose > 5 {
+		log.Printf("vault secret '%s'", salt)
+	}
+	return salt, nil
+}
 
 // decrypt record
 func decryptFile(dfile, cipher, pcopy string) {

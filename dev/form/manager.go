@@ -2,15 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"strings"
-	"syscall"
 	"text/tabwriter"
 
 	"github.com/rivo/tview"
 	vt "github.com/vkuznet/ecm/vault"
-	"golang.org/x/term"
 )
 
 // helper function to read vault secret from stdin
@@ -19,22 +15,6 @@ func secret(verbose int) (string, error) {
 	salt, err := lockView(app, verbose)
 	app.Stop()
 	return salt, err
-}
-
-// helper function to read vault secret from stdin
-func secretPlain(verbose int) (string, error) {
-	fmt.Print("\nEnter vault secret: ")
-	bytes, err := term.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		log.Println("unable to read stdin, error ", err)
-		return "", err
-	}
-	salt := strings.Replace(string(bytes), "\n", "", -1)
-	fmt.Println()
-	if verbose > 5 {
-		log.Printf("vault secret '%s'", salt)
-	}
-	return salt, nil
 }
 
 // helper function to get user input
