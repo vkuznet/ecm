@@ -160,6 +160,60 @@ func (v *Vault) AddRecord(kind string) int {
 	return len(v.Records) - 1
 }
 
+// EditRecord edits given vault record
+func (v *Vault) EditRecord(rid string) error {
+	var rec VaultRecord
+	for _, r := range v.Records {
+		if r.ID == rid {
+			rec = r
+			break
+		}
+	}
+	if rec.ID == "" {
+		log.Fatalf("Unable to find vault record '%s'", rid)
+	}
+	fmt.Println("For each record key")
+	fmt.Println("    provide new value and press enter to update it")
+	fmt.Println("    or just press enter to keep existing value")
+	fmt.Println("-------------------")
+	var err error
+	var nval string
+	for _, key := range OrderedKeys {
+		val, ok := rec.Map[key]
+		if !ok {
+			continue
+		}
+		fmt.Println("key='%s' value='%s", key, val)
+		if strings.ToLower(key) == "password" {
+			fmt.Println("New password:")
+			nval, err = ReadPassword()
+		} else {
+			nval, err = ReadInput("New value:")
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		if nval != "" {
+			rec.Map[key] = nval
+		}
+		for key, val := range rec.Map {
+			if crypt.InList(key, OrderedKeys) {
+				continue
+			}
+			fmt.Println("key='%s' value='%s", key, val)
+			nval, err = ReadInput("New value:")
+			if err != nil {
+				log.Fatal(err)
+			}
+			if nval != "" {
+				rec.Map[key] = nval
+			}
+		}
+	}
+	err = v.WriteRecord(rec)
+	return err
+}
+
 // Delete deletes given vault record file from the vault directory
 func (v *Vault) DeleteRecordFile(rid string) error {
 	// physically delete vault record file
