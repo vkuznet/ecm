@@ -15,8 +15,8 @@ import (
 // version of the code
 var gitVersion, gitTag string
 
-// Info function returns version string of the server
-func info() string {
+// ecmInfo function returns version string of the server
+func ecmInfo() string {
 	goVersion := runtime.Version()
 	tstamp := time.Now().Format("2006-02-01")
 	return fmt.Sprintf("ecm git=%s tag=%s go=%s date=%s", gitVersion, gitTag, goVersion, tstamp)
@@ -41,8 +41,12 @@ func main() {
 	flag.BoolVar(&recreate, "recreate", false, "recreate vault and its records with new password/cipher")
 	var pat string
 	flag.StringVar(&pat, "pat", "", "search pattern in vault records")
+	var info bool
+	flag.BoolVar(&info, "info", false, "show vault info")
 	var version bool
-	flag.BoolVar(&version, "version", false, "Show version")
+	flag.BoolVar(&version, "version", false, "show version")
+	var edit string
+	flag.StringVar(&edit, "edit", "", "edit record with given ID")
 	var rid string
 	flag.StringVar(&rid, "rid", "", "show record with given ID and copy its password to clipboard")
 	var lockInterval int
@@ -51,11 +55,13 @@ func main() {
 	flag.IntVar(&verbose, "verbose", 0, "verbose level")
 	var serverConfig string
 	flag.StringVar(&serverConfig, "serverConfig", "", "start HTTP server with provided configuration")
+	var examples bool
+	flag.BoolVar(&examples, "examples", false, "show examples")
 	var gui bool
 	flag.BoolVar(&gui, "gui", false, "start in gui mode")
 	flag.Parse()
 	if version {
-		fmt.Println(info())
+		fmt.Println(ecmInfo())
 		os.Exit(0)
 
 	}
@@ -81,17 +87,21 @@ func main() {
 	}
 
 	// CLI or UI mode
-	if !gui {
+	if examples {
+		ecmExamples()
+	} else if !gui {
 		cli(
 			&vault,
 			efile,
 			dfile,
 			pat,
 			rid,
+			edit,
 			pcopy,
 			export,
 			vimport,
 			recreate,
+			info,
 			verbose,
 		)
 	} else { // UI mode
