@@ -1,15 +1,18 @@
 package vault
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+	"syscall"
 	"text/tabwriter"
 
 	"github.com/vkuznet/ecm/crypt"
+	"golang.org/x/term"
 )
 
 // StringList implement sort for []string type
@@ -129,4 +132,30 @@ func TabularPrint(records []VaultRecord) {
 		fmt.Fprintf(w, "\n")
 	}
 
+}
+
+// ReadInput read user input from stdout
+// https://gosamples.dev/read-user-input/
+func ReadInput(msg string) (string, error) {
+	fmt.Println(msg)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	err := scanner.Err()
+	if err != nil {
+		return "", err
+	}
+	return scanner.Text(), nil
+}
+
+// ReadPassword reads input password from stdout
+func ReadPassword() (string, error) {
+	fmt.Print("Enter Password: ")
+	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
+	fmt.Println("")
+	if err != nil {
+		return "", err
+	}
+	password := string(bytePassword)
+	password = strings.Replace(password, "\n", "", -1)
+	return password, nil
 }
