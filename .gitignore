@@ -32,3 +32,8 @@ cli/ecm
 server/ecm
 server/*config.json
 term/ecm
+
+tmp/
+2fa-*
+
+ui/adb
