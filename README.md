@@ -44,3 +44,4 @@ simple and can be organized via `rsync` tool.
 - [server](server/README.md) implementation of ECM
 - [term](term/README.md) based implementation of ECM
 - [ui](ui/README.md) implementation of ECM
+- [wasm](wasm/README.md) implementation of ECM
