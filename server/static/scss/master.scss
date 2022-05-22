@@ -1,0 +1,17 @@
+// master.scss
+@import "vars.scss";
+//@import "mytheme/scss/my-custom-vars.scss";
+@import "mixins.scss";
+
+// SASS
+.main-sidebar {
+    @include make-sidebar(240px);
+    margin-right: 16px;
+
+    @include for-mobile {
+        margin-right: 0;
+    }
+}
+.main-content {
+    @include make-content;
+}

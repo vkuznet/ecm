@@ -27,3 +27,8 @@ wasm/server/*.wasm
 wasm/server/index.html
 wasm/server/wasm_exec.js
 wasm/wasm_exec.js
+
+cli/ecm
+server/ecm
+server/*config.json
+term/ecm

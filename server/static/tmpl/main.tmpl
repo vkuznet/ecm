@@ -1,0 +1,347 @@
+<div class="page">
+    <!-- Header -->
+    <header class="header my-header">
+
+    <div class="my-menu">
+    <div class="is-row">
+        <div class="is-col is-15">
+        </div>
+        <div class="is-col is-5">
+            <div class="">
+            <a href="javascript:ShowPlaceHolder('settings')" class="button is-tertiary">
+                <img src="static/images/list.png">
+            </a>
+            </div>
+        </div>
+        <div class="is-col is-60">
+            <form>
+                <div id="search" class="form-item">
+                    <input type="text" class="is-search" placeholder="Search">
+                </div>
+            </form>
+        </div>
+        <div class="is-col is-15">
+        </div>
+        <div class="is-col is-5">
+            <div class="">
+            <a href="/logout" class="button is-tertiary">
+                <img src="static/images/lock.png" alt="lock" title="Logout and lock the vault">
+            </a>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- end of div menu -->
+
+    </header>
+    <br/>
+    <br/>
+    <!-- Main container -->
+    <main class="main is-container">
+
+        <!-- main content -->
+        <div class="main-content">
+            <div class="is-row">
+                <div class="is-col is-20"></div>
+                <div class="is-col is-60">
+                    <h3>User: {{.User}}</h3>
+                    <!-- generate password section -->
+                    <div class="is-row my-record">
+                        <div class="is-col is-50">
+                                <a href="javascript:ClearFields();ShowPlaceHolder('vault-credentials')">
+                                    <img src="static/images/key-up.png" alt="Vault credentials" title="Vault credentials"></a>
+                                &nbsp;
+
+                                <a href="javascript:ClearFields();showRecords()">
+                                    <img src="static/images/records.png" alt="Show records" title="Show records"></a>
+                                &nbsp;
+                                <a href="javascript:ClearFields();generatePassword()">
+                                    <img src="static/images/reset-password.png" alt="New password" title="New password"></a>
+                                &nbsp;
+                                {{if .Mobile}}
+                                <a href="javascript:ClearFields();ShowPlaceHolder('actions')">
+                                    <img src="static/images/new-record.png" alt="New action" title="Add new record/action"></a>
+                                {{end}}
+                        </div>
+                        <div class="is-col is-50">
+                            {{if .Mobile}}
+                            <!-- do not show anything in this column -->
+                            {{else}}
+                            <!-- on desktop we show drop-down menu -->
+                            <select id="action" onchange="Action()" class="is-success">
+                                <option value="" selected=true disabled="disabled">New</option>
+                                <option value="record">Login Record</option>
+                                <option value="json">JSON Record</option>
+                                <option value="note">Note</option>
+                                <option value="card">Credit Card</option>
+                                <option value="vault">Vault</option>
+                                <option value="sync">Sync</option>
+                                <option value="file">File upload</option>
+                            </select>
+                            {{end}}
+                        </div>
+                    </div>
+                    <br>
+                    <hr>
+                    <div id="vault-credentials" class="my-record">
+                        Vault: <input id="vault-name" type="text" value="Primary">
+                        Vault password: <input id="vault-password" type="password" placeholder="password">
+                        Cipher: <input id="vault-cipher" type="text" value="aes">
+                        <br/>
+                        <div>
+                            <a href="javascript:ClearFields();showRecords()" class="button">
+                                Access vault
+                            </a>
+                        </div>
+                    </div>
+                    <!-- results placeholders -->
+                    <div id="new-password" class="my-record"></div>
+                    <div id="actions" class="my-record hide">
+                        <div class="is-row my-record">
+                            <a href="javascript:ClearFields();ShowPlaceHolder('new-record')">Login record</a>
+                        </div>
+                        <div class="is-row my-record">
+                            <a href="javascript:ClearFields();ShowPlaceHolder('new-json')">JSON record</a>
+                        </div>
+                        <div class="is-row my-record">
+                            <a href="javascript:ClearFields();ShowPlaceHolder('new-note')">Note record</a>
+                        </div>
+                        <div class="is-row my-record">
+                            <a href="javascript:ClearFields();ShowPlaceHolder('new-card')">Credit Card record</a>
+                        </div>
+                        <div class="is-row my-record">
+                            <a href="javascript:ClearFields();ShowPlaceHolder('new-vault')">New vault</a>
+                        </div>
+                        <div class="is-row my-record">
+                            <a href="javascript:ClearFields();ShowPlaceHolder('new-sync')">Sync hosts</a>
+                        </div>
+                        <div class="is-row my-record">
+                            <a href="javascript:ClearFields();ShowPlaceHolder('new-file')">File upload</a>
+                        </div>
+                    </div>
+                    <!-- placeholders for results/records -->
+                    <div id="records"></div>
+                    <div id="results"></div>
+
+                    <!-- setting form -->
+                    <div id="settings" class="hide">
+                        <div class="my-record">
+                            <h2>Settings</h2>
+                            <div>
+                                Records/page: <input type="text" value="10">
+                                Cipher: <input type="text" value="AES">
+                                <hr/>
+                                <h3>New password</h3>
+                                Password size: <input id="password-size" type="text" value="16" class="is-small" />
+                                Password salt:
+                                <select id="characters" class="is-small">
+                                    <option value="chars">Characters</option>
+                                    <option value="chars+numbers">Characters+Numbers</option>
+                                    <option value="chars+numbers+symbols">Characters+Numbers+Symbols</option>
+                                </select>
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();saveSettings()" class="button">
+                                        Save
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New sync -->
+                    <div id="new-sync" class="hide">
+                        <div class="my-record">
+                            <h2>Sync hosts</h2>
+                            <div>
+                                From host: <input type="text" placeholder="http://host1.com">
+                                To host: <input type="text" placeholder="http://host2.com">
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();syncHosts()" class="button">
+                                        Sync
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New vault -->
+                    <div id="new-vault" class="hide">
+                        <div class="my-record">
+                            <h2>New Vault</h2>
+                            <div>
+                                Name: <input type="text" placeholder="name">
+                                Encryption:
+                                <select>
+                                    <option value="aes">AES</option>
+                                    <option value="nacl">NaCl</option>
+                                </select>
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();addVault()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New record -->
+                    <div id="new-record" class="hide">
+                        <div class="my-record">
+                            <h2>New Record</h2>
+                            <div>
+                                Name: <input id="new-record-name" type="text" placeholder="name">
+                                URL: <input id="new-record-url" type="text" placeholder="URL, e.g. http://cnn.com">
+                                Login: <input id="new-record-login" type="text" placeholder="login">
+                                Password: <input id="new-record-password" type="password" placeholder="password">
+                                Tags: <input id="new-record-tags" type="text" placeholder="Foo, Bla">
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();addRecord()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New credit card record -->
+                    <div id="new-card" class="hide">
+                        <div class="my-record">
+                            <h2>New Card information</h2>
+                            <div>
+                                Name: <input id="new-card-name" type="text" placeholder="name">
+                                Card Number: <input id="new-card-number" type="text" placeholder="digits, 4147 ...">
+                                Verification Code: <input id="new-card-code" type="password" placeholder="code, e.g. 123">
+                                Issue date: <input id="new-card-date" type="text" placeholder="YYYYMMDD">
+                                Contact phone: <input id="new-card-phone" type="text" placeholder="1-800-xxx-xxxx">
+                                Tags: <input id="new-card-tags" type="text" placeholder="Foo, Bla">
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();addCard()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- New json -->
+                    <div id="new-json" class="hide">
+                        <div class="my-record">
+                            <h2>New JSON record</h2>
+                            <div>
+                                Name: <input id="new-json-name" type="text" placeholder="name">
+                                JSON: <input id="new-json-record" type="textarea" placeholder='{"attribute":"value"}'>
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();addJsonRecord()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New note -->
+                    <div id="new-note" class="hide">
+                        <div class="my-record">
+                            <h2>New note</h2>
+                            <div>
+                                Name: <input id="new-note-name" type="text" placeholder="name">
+                                Note: <input id="new-note-record" type="textarea" placeholder="Note text">
+                                <br/>
+                                <div>
+                                    <a href="javascript:ClearFields();addNote()" class="button">
+                                        Create
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New record -->
+                    <div id="new-file" class="hide">
+                        <div class="my-record">
+                            <h2>New File</h2>
+                            <div>
+                                <div class="">
+                                    <input onchange="readFile(this)" type="file" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="is-col is-20"></div>
+            </div>
+        </div>
+    </main>
+    <br/>
+    <hr/>
+    <br/>
+    <!-- Footer -->
+    <footer class="footer my-footer">
+
+            <div class="intro">
+                <div>
+                    Copyright &#169; Encrypted Content Manager (ECM)
+                    All Rights Reserved.
+                </div>
+                <br/>
+                <div class="">
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/web.png">
+                    </a>
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/support.png">
+                    </a>
+                    <a href="" class="label is-tertiary is-focus">
+                        <img src="static/images/docs.png">
+                    </a>
+                    <a href="http://github.com/vkuznet/ecm" class="label is-tertiary is-focus">
+                        <img src="static/images/github.png">
+                    </a>
+                </div>
+            </div>
+
+    </footer>
+</div>
+
+<script>
+function ClearFields() {
+    let arr = ["new-record", "new-vault", "new-sync", "new-file", "new-json", "new-note", "new-card", "settings", "vault-credentials", "actions"];
+    for (let i = 0; i < arr.length; i++) {
+        HideTag(arr[i]);
+    }
+    var records = document.getElementById("records");
+    records.innerHTML = "";
+    var password = document.getElementById("new-password");
+    password.innerHTML = "";
+}
+function ShowPlaceHolder(tag) {
+    ClearFields();
+    ShowTag(tag);
+}
+function Action() {
+    var id = document.getElementById("action")
+    if (id.value == "record") {
+        ShowPlaceHolder("new-record")
+    } else if(id.value == "vault") {
+        ShowPlaceHolder("new-vault")
+    } else if(id.value == "sync") {
+        ShowPlaceHolder("new-sync")
+    } else if(id.value == "file") {
+        ShowPlaceHolder("new-file")
+    } else if(id.value == "json") {
+        ShowPlaceHolder("new-json")
+    } else if(id.value == "note") {
+        ShowPlaceHolder("new-note")
+    } else if(id.value == "card") {
+        ShowPlaceHolder("new-card")
+    }
+}
+</script>
