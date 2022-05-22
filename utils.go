@@ -15,13 +15,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/atotto/clipboard"
 	"github.com/vkuznet/ecm/crypt"
 	vt "github.com/vkuznet/ecm/vault"
-	"golang.org/x/term"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -181,32 +179,6 @@ func helpKeys() string {
 	info = fmt.Sprintf("%s\n", info)
 	info = fmt.Sprintf("%s, [red]Ctrl-Q[white] Exit", info)
 	return info
-}
-
-// helper function to read user input from stdout
-// https://gosamples.dev/read-user-input/
-func readInput(msg string) (string, error) {
-	fmt.Println(msg)
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	err := scanner.Err()
-	if err != nil {
-		return "", err
-	}
-	return scanner.Text(), nil
-}
-
-// helper function to read input password
-func readPassword() (string, error) {
-	fmt.Print("Enter Password: ")
-	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
-	fmt.Println("")
-	if err != nil {
-		return "", err
-	}
-	password := string(bytePassword)
-	password = strings.Replace(password, "\n", "", -1)
-	return password, nil
 }
 
 // helper function to extract cipher name from file extension
