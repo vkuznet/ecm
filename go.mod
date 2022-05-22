@@ -18,7 +18,7 @@ require (
 	github.com/ulule/limiter/v3 v3.10.0
 	github.com/vkuznet/ecm/crypt v0.0.0-20220519172042-010c7ce81f03
 	github.com/vkuznet/ecm/kvdb v0.0.0-20220519172042-010c7ce81f03
-	github.com/vkuznet/ecm/vault v0.0.0-20220521202616-69cbb0c722e4
+	github.com/vkuznet/ecm/vault v0.0.0-20220522160647-7e0b3b630224
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
 	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171
@@ -31,6 +31,7 @@ require (
 	github.com/dgraph-io/badger/v3 v3.2103.2 // indirect
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/fatih/color v1.13.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
@@ -42,6 +43,8 @@ require (
 	github.com/klauspost/compress v1.15.0 // indirect
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
