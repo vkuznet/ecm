@@ -19,6 +19,7 @@ ecm
 *.aes*
 TODO*
 *config.json
+*.diff
 
 # ignore wasm stuff
 static/js/*.wasm
@@ -35,5 +36,9 @@ term/ecm
 
 tmp/
 2fa-*
+guadrian
 
 ui/adb
+extension-test
+test-server
+
