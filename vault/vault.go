@@ -31,6 +31,9 @@ func recordAttribute(key string) string {
 	return key
 }
 
+// OrderedKeys show list of records keys to be display in specific order
+var OrderedKeys = []string{"Name", "Login", "Password", "URL", "Tags", "Note"}
+
 // Record represent map of key-valut pairs
 type Record map[string]string
 

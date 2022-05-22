@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"text/tabwriter"
+
+	"github.com/vkuznet/ecm/crypt"
 )
 
 // StringList implement sort for []string type
@@ -99,7 +101,22 @@ func TabularPrint(records []VaultRecord) {
 	for _, rec := range records {
 		fmt.Fprintf(w, "\n------------")
 		fmt.Fprintf(w, "\nID:\t%s", rec.ID)
+		for _, key := range OrderedKeys {
+			if val, ok := rec.Map[key]; ok {
+				if strings.ToLower(key) == "password" {
+					newVal := "*"
+					for i := 0; i < len(val); i++ {
+						newVal += "*"
+					}
+					val = newVal
+				}
+				fmt.Fprintf(w, "\n%v:\t%v", key, val)
+			}
+		}
 		for key, val := range rec.Map {
+			if crypt.InList(key, OrderedKeys) {
+				continue
+			}
 			if strings.ToLower(key) == "password" {
 				newVal := "*"
 				for i := 0; i < len(val); i++ {
