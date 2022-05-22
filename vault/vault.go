@@ -314,6 +314,9 @@ func (v *Vault) Read() error {
 	// TODO: we can parallelize the read from vault area via goroutine pool
 	for _, file := range files {
 		if !strings.HasSuffix(file.Name(), v.Cipher) {
+			if strings.HasPrefix(file.Name(), "backups") {
+				continue
+			}
 			log.Fatalf("File '%s' and Vault cipher '%s' do not match\n", file.Name(), v.Cipher)
 		}
 		fname := filepath.Join(v.Directory, file.Name())
