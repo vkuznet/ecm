@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"text/tabwriter"
 
+	"github.com/fatih/color"
 	"github.com/vkuznet/ecm/crypt"
 	"golang.org/x/term"
 )
@@ -158,4 +159,11 @@ func ReadPassword() (string, error) {
 	password := string(bytePassword)
 	password = strings.Replace(password, "\n", "", -1)
 	return password, nil
+}
+
+// helper function to return white message on black bold foreground
+func whiteBoldMessage(msg string) string {
+	white := color.New(color.FgWhite)
+	boldWhite := white.Add(color.Bold)
+	return boldWhite.Sprint(msg)
 }

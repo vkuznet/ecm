@@ -172,45 +172,35 @@ func (v *Vault) EditRecord(rid string) error {
 	if rec.ID == "" {
 		log.Fatalf("Unable to find vault record '%s'", rid)
 	}
-	fmt.Println("For each record key")
-	fmt.Println("    provide new value and press enter to update it")
-	fmt.Println("    or just press enter to keep existing value")
-	fmt.Println("-------------------")
-	var err error
-	var nval string
-	for _, key := range OrderedKeys {
-		val, ok := rec.Map[key]
-		if !ok {
-			continue
-		}
-		fmt.Printf("key='%s' value='%s", key, val)
-		if strings.ToLower(key) == "password" {
-			fmt.Println("New password:")
-			nval, err = ReadPassword()
-		} else {
-			nval, err = ReadInput("New value:")
-		}
+	// print existing record
+	TabularPrint([]VaultRecord{rec})
+
+	// provide input for which key we need a change
+	for {
+		save := whiteBoldMessage("save")
+		msg := "\nEnter record key you wish to chagne or"
+		msg += fmt.Sprintf(" or type %s to save the record", save)
+		key, err := ReadInput(msg)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if nval != "" {
-			rec.Map[key] = nval
+		if strings.ToLower(key) == "save" {
+			log.Printf("\nRecord %s is saved", rid)
+			break
 		}
-		for key, val := range rec.Map {
-			if crypt.InList(key, OrderedKeys) {
-				continue
+		if val, ok := rec.Map[key]; ok {
+			if strings.ToLower(key) == "password" {
+				fmt.Println("\nNew password:")
+				val, err = ReadPassword()
+			} else {
+				val, err = ReadInput("\nNew value:")
 			}
-			fmt.Printf("key='%s' value='%s", key, val)
-			nval, err = ReadInput("New value:")
-			if err != nil {
-				log.Fatal(err)
-			}
-			if nval != "" {
-				rec.Map[key] = nval
-			}
+			rec.Map[key] = val
+		} else {
+			log.Printf("WARNING: there is no '%s' in record", key)
 		}
 	}
-	err = v.WriteRecord(rec)
+	err := v.WriteRecord(rec)
 	return err
 }
 
