@@ -44,6 +44,11 @@ jobs:
         make
         cd -
 
+        echo "Build UI"
+        cd ui
+        make
+        cd -
+
         echo "Build term"
         cd term
         make
@@ -73,6 +78,11 @@ jobs:
 
         echo "Test server"
         cd server
+        make test
+        cd -
+
+        echo "Test UI"
+        cd ui
         make test
         cd -
 
