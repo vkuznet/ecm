@@ -23,7 +23,31 @@ jobs:
         go-version: 1.18
 
     - name: Build
-      run: make
+      run: |
+        echo "Build crypt"
+        cd crypt
+        go build
+        cd -
+
+        echo "Build vault"
+        cd vault
+        go build
+        cd -
+
+        echo "Build CLI"
+        cd cli
+        make
+        cd -
+
+        echo "Build server"
+        cd server
+        make
+        cd -
+
+        echo "Build term"
+        cd term
+        make
+        cd -
 
     - name: set environment variables
       uses: allenevans/set-env@v2.0.0
@@ -31,4 +55,28 @@ jobs:
         SKIP_CLIPBOARD_TEST: '1'
 
     - name: Test
-      run: make test
+      run: |
+        echo "Test crypt"
+        cd crypt
+        go test
+        cd -
+
+        echo "Test vault"
+        cd vault
+        go test
+        cd -
+
+        echo "Test CLI"
+        cd cli
+        make test
+        cd -
+
+        echo "Test server"
+        cd server
+        make test
+        cd -
+
+        echo "Test term"
+        cd term
+        make test
+        cd -
