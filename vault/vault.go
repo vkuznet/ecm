@@ -183,7 +183,7 @@ func (v *Vault) EditRecord(rid string) error {
 		if !ok {
 			continue
 		}
-		fmt.Println("key='%s' value='%s", key, val)
+		fmt.Printf("key='%s' value='%s", key, val)
 		if strings.ToLower(key) == "password" {
 			fmt.Println("New password:")
 			nval, err = ReadPassword()
@@ -200,7 +200,7 @@ func (v *Vault) EditRecord(rid string) error {
 			if crypt.InList(key, OrderedKeys) {
 				continue
 			}
-			fmt.Println("key='%s' value='%s", key, val)
+			fmt.Printf("key='%s' value='%s", key, val)
 			nval, err = ReadInput("New value:")
 			if err != nil {
 				log.Fatal(err)
