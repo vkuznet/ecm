@@ -177,15 +177,15 @@ func (v *Vault) EditRecord(rid string) error {
 
 	// provide input for which key we need a change
 	for {
-		save := whiteBoldMessage("save")
 		msg := "\nEnter record key you wish to chagne or"
-		msg += fmt.Sprintf(" or type %s to save the record", save)
+		msg += fmt.Sprintf(" or type %s to save the record", saveMessage("save"))
+		msg += " or Ctrl-C to quit"
 		key, err := ReadInput(msg)
 		if err != nil {
 			log.Fatal(err)
 		}
 		if strings.ToLower(key) == "save" {
-			log.Printf("\nRecord %s is saved", rid)
+			log.Printf("Record %s is saved", rid)
 			break
 		}
 		if val, ok := rec.Map[key]; ok {

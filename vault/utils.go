@@ -161,9 +161,8 @@ func ReadPassword() (string, error) {
 	return password, nil
 }
 
-// helper function to return white message on black bold foreground
-func whiteBoldMessage(msg string) string {
-	white := color.New(color.FgWhite)
-	boldWhite := white.Add(color.Bold)
-	return boldWhite.Sprint(msg)
+// helper function to return black message on white bold foreground
+func saveMessage(msg string) string {
+	c := color.New(color.FgBlack).Add(color.BgWhite).Add(color.Bold)
+	return c.Sprint(msg)
 }
