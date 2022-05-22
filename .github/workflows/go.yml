@@ -44,10 +44,10 @@ jobs:
         make
         cd -
 
-        echo "Build UI"
-        cd ui
-        make
-        cd -
+#         echo "Build UI"
+#         cd ui
+#         make
+#         cd -
 
         echo "Build term"
         cd term
@@ -81,10 +81,10 @@ jobs:
         make test
         cd -
 
-        echo "Test UI"
-        cd ui
-        make test
-        cd -
+#         echo "Test UI"
+#         cd ui
+#         make test
+#         cd -
 
         echo "Test term"
         cd term
