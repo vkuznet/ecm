@@ -79,25 +79,11 @@ func (r *VaultRecord) Keys() []string {
 // WriteRecord writes single record to the vault area
 func (r *VaultRecord) WriteRecord(vdir, secret, cipher string, verbose int) error {
 	var err error
-	tstamp := time.Now().Format(time.RFC3339)
 	if r.ID == "" {
 		log.Fatalf("unable to write record without ID, record %v", r)
 	}
+	// construct new fila name with provided cipher
 	fname := fmt.Sprintf("%s.%s", filepath.Join(vdir, r.ID), cipher)
-	bdir := filepath.Join(vdir, "backups")
-	err = os.MkdirAll(bdir, 0755)
-	if err != nil {
-		log.Fatalf("unable to create %s, error %v", bdir, err)
-	}
-	bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", r.ID, cipher, tstamp))
-	// make backup of our record
-	_, err = backup(fname, bname)
-	if err != nil {
-		if verbose > 0 {
-			log.Println("unable to make backup for record", r.ID, " error ", err)
-		}
-	}
-
 	file, err := os.Create(fname)
 	if err != nil {
 		log.Println("unable to create file name", fname, " error ", err)
@@ -356,7 +342,33 @@ func (v *Vault) Write() error {
 
 // WriteRecord provides write record functionality of vault
 func (v *Vault) WriteRecord(rec VaultRecord) error {
-	err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
+
+	// create backups vault area
+	bdir := filepath.Join(v.Directory, "backups")
+	err := os.MkdirAll(bdir, 0755)
+	if err != nil {
+		log.Fatalf("unable to create %s, error %v", bdir, err)
+	}
+
+	// backup existing record if it exists
+	fname := fmt.Sprintf("%s.%s", filepath.Join(v.Directory, rec.ID), v.Cipher)
+	if _, err := os.Stat(fname); err != nil {
+		// file does not exist
+		return nil
+	}
+	// backup file name with existing cipher
+	tstamp := time.Now().Format(time.RFC3339)
+	bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", rec.ID, v.Cipher, tstamp))
+	// make backup of our record
+	_, err = backup(fname, bname)
+	if err != nil {
+		if v.Verbose > 0 {
+			log.Println("unable to make backup for record", rec.ID, " error ", err)
+		}
+	}
+
+	// write record to the vault area
+	err = rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 	if err != nil {
 		log.Fatalf("unable to write vault record %s, error %v", rec.ID, err)
 		return err
