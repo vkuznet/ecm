@@ -178,11 +178,16 @@ func (v *Vault) EditRecord(rid string) error {
 	TabularPrint([]VaultRecord{rec})
 
 	// provide input for which key we need a change
+	var initMessage bool
 	for {
-		msg := "\nEnter record key you wish to chagne or"
-		msg += fmt.Sprintf(" or type %s to save the record", saveMessage("save"))
-		msg += " or Ctrl-C to quit\n\n"
-		key, err := utils.ReadInput(msg)
+		if !initMessage {
+			msg := "\nEnter record key you wish to change"
+			msg += fmt.Sprintf("\nor type %s to save the record", saveMessage("save"))
+			msg += "\nor Ctrl-C to quit\n"
+			fmt.Println(msg)
+			initMessage = true
+		}
+		key, err := utils.ReadInput("\nRecord key     : ")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -191,10 +196,10 @@ func (v *Vault) EditRecord(rid string) error {
 		}
 		if val, ok := rec.Map[key]; ok {
 			if strings.ToLower(key) == "password" {
-				fmt.Println("\nNew password:")
+				fmt.Println("\nRecord password: ")
 				val, err = utils.ReadPassword()
 			} else {
-				val, err = utils.ReadInput("\nNew value: ")
+				val, err = utils.ReadInput("\nRecord value   : ")
 			}
 			rec.Map[key] = val
 		} else {
