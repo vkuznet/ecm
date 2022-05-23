@@ -17,25 +17,12 @@ import (
 	"log"
 	"strings"
 
+	utils "github.com/vkuznet/ecm/utils"
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-// InList helper function to check item in a list
-func InList(a string, list []string) bool {
-	check := 0
-	for _, b := range list {
-		if b == a {
-			check += 1
-		}
-	}
-	if check != 0 {
-		return true
-	}
-	return false
-}
-
-// helper function to create a hash for given key
-func createHash(key string) string {
+// CreateHash creates a hash for given key
+func CreateHash(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))
 	return hex.EncodeToString(hasher.Sum(nil))
@@ -56,7 +43,7 @@ type CipherAES struct {
 
 // Encrypt implementation for AES cipher
 func (c *CipherAES) Encrypt(data []byte, passphrase string) ([]byte, error) {
-	block, _ := aes.NewCipher([]byte(createHash(passphrase)))
+	block, _ := aes.NewCipher([]byte(CreateHash(passphrase)))
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return []byte{}, err
@@ -71,7 +58,7 @@ func (c *CipherAES) Encrypt(data []byte, passphrase string) ([]byte, error) {
 
 // Decrypt implementation for AES Cipher
 func (c *CipherAES) Decrypt(data []byte, passphrase string) ([]byte, error) {
-	key := []byte(createHash(passphrase))
+	key := []byte(CreateHash(passphrase))
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return []byte{}, err
@@ -101,7 +88,7 @@ const (
 func GenerateKey(passphrase string) (*[KeySize]byte, error) {
 	key := new([KeySize]byte)
 	if passphrase != "" {
-		hash := []byte(createHash(passphrase))
+		hash := []byte(CreateHash(passphrase))
 		for i, v := range hash {
 			if i < KeySize {
 				key[i] = v
@@ -203,4 +190,19 @@ func Decrypt(data []byte, passphrase, cipher string) ([]byte, error) {
 	}
 	msg := fmt.Sprintf("unsupported cipher %s", cipher)
 	return []byte{}, errors.New(msg)
+}
+
+// GetCipher returns either default or given cipher
+func GetCipher(cipher string) string {
+	if cipher == "" {
+		cipher = SupportedCiphers[0]
+	}
+	if !utils.InList(cipher, SupportedCiphers) {
+		log.Fatalf(
+			"given cipher %s is not supported, please use one from the following %v",
+			cipher,
+			SupportedCiphers,
+		)
+	}
+	return strings.ToLower(cipher)
 }
