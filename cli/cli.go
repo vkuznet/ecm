@@ -32,7 +32,7 @@ func secretPlain(verbose int) (string, error) {
 
 // decrypt record
 func decryptFile(dfile, cipher, pcopy string) {
-	password, err := vt.ReadPassword()
+	password, err := utils.ReadPassword()
 	if err != nil {
 		panic(err)
 	}
@@ -111,18 +111,18 @@ func cli(
 	// change master password of the vault and re-encrypt all records
 	if recreate {
 		log.Printf("Supported ciphers: %v", crypt.SupportedCiphers)
-		newCipher, err := vt.ReadInput("Cipher to use:")
+		newCipher, err := utils.ReadInput("Cipher to use:")
 		if err != nil {
 			log.Fatal(err)
 		}
 		if !utils.InList(newCipher, crypt.SupportedCiphers) {
 			log.Fatal("Unsupported cipher")
 		}
-		newPassword, err := vt.ReadPassword()
+		newPassword, err := utils.ReadPassword()
 		if err != nil {
 			log.Fatal(err)
 		}
-		newPassword2, err := vt.ReadPassword()
+		newPassword2, err := utils.ReadPassword()
 		if err != nil {
 			log.Fatal(err)
 		}
