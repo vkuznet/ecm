@@ -5,7 +5,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	crypt "github.com/vkuznet/ecm/crypt"
+	utils "github.com/vkuznet/ecm/utils"
 	vt "github.com/vkuznet/ecm/vault"
 )
 
@@ -72,7 +72,7 @@ func (a *vaultRecords) recordContainer(record vt.Record) *fyne.Container {
 	}
 	// other keys can follow ordered ones
 	for k, v := range record {
-		if !crypt.InList(k, orderedKeys) {
+		if !utils.InList(k, orderedKeys) {
 			items = append(items, a.formItem(k, v))
 		}
 	}

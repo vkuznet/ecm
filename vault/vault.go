@@ -18,6 +18,7 @@ import (
 
 	uuid "github.com/google/uuid"
 	"github.com/vkuznet/ecm/crypt"
+	utils "github.com/vkuznet/ecm/utils"
 )
 
 // recordAttribute performs conversion from one record attribute
@@ -65,7 +66,7 @@ func (r *VaultRecord) Keys() []string {
 	for k := range r.Map {
 		mapKeys = append(mapKeys, k)
 	}
-	sort.Sort(StringList(mapKeys))
+	sort.Sort(utils.StringList(mapKeys))
 	for _, k := range mapKeys {
 		if k == "Name" || k == "Login" || k == "Password" {
 			continue
@@ -180,7 +181,7 @@ func (v *Vault) EditRecord(rid string) error {
 		msg := "\nEnter record key you wish to chagne or"
 		msg += fmt.Sprintf(" or type %s to save the record", saveMessage("save"))
 		msg += " or Ctrl-C to quit"
-		key, err := ReadInput(msg)
+		key, err := utils.ReadInput(msg)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -191,9 +192,9 @@ func (v *Vault) EditRecord(rid string) error {
 		if val, ok := rec.Map[key]; ok {
 			if strings.ToLower(key) == "password" {
 				fmt.Println("\nNew password:")
-				val, err = ReadPassword()
+				val, err = utils.ReadPassword()
 			} else {
-				val, err = ReadInput("\nNew value:")
+				val, err = utils.ReadInput("\nNew value:")
 			}
 			rec.Map[key] = val
 		} else {
@@ -404,7 +405,7 @@ func (v *Vault) WriteRecord(rec VaultRecord) error {
 	tstamp := time.Now().Format(time.RFC3339)
 	bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", rec.ID, v.Cipher, tstamp))
 	// make backup of our record
-	_, err = backup(fname, bname)
+	_, err = utils.Backup(fname, bname)
 	if err != nil {
 		if v.Verbose > 0 {
 			log.Println("unable to make backup for record", rec.ID, " error ", err)
@@ -478,7 +479,7 @@ func (v *Vault) Find(pat string) []VaultRecord {
 	for _, rec := range v.Records {
 		for key, val := range rec.Map {
 			if strings.Contains(key, pat) {
-				if !crypt.InList(rec.ID, ids) {
+				if !utils.InList(rec.ID, ids) {
 					ids = append(ids, rec.ID)
 					out = append(out, rec)
 				}
@@ -489,7 +490,7 @@ func (v *Vault) Find(pat string) []VaultRecord {
 				if v.Verbose > 0 {
 					log.Println("matched record value")
 				}
-				if !crypt.InList(rec.ID, ids) {
+				if !utils.InList(rec.ID, ids) {
 					ids = append(ids, rec.ID)
 					out = append(out, rec)
 				}
@@ -502,7 +503,7 @@ func (v *Vault) Find(pat string) []VaultRecord {
 // Info provides information about the vault
 func (v *Vault) Info() string {
 	tstamp := v.ModificationTime.String()
-	size := SizeFormat(v.Size)
+	size := utils.SizeFormat(v.Size)
 	mode := v.Mode
 	cipher := v.Cipher
 	nrec := len(v.Records)

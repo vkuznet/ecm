@@ -6,11 +6,12 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	utils "github.com/vkuznet/ecm/utils"
 )
 
 // SigningKey returns unique signing key
 func SigningKey() string {
-	return fmt.Sprintf("%d", macAddress())
+	return fmt.Sprintf("%d", utils.MacAddress())
 }
 
 // isAuthorized middleware check incoming HTTP request token

@@ -2,14 +2,12 @@ package main
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
 	"log"
-	"net"
 	"os"
 	"strings"
 	"time"
@@ -24,95 +22,6 @@ import (
 	// imaging library
 	"github.com/disintegration/imaging"
 )
-
-// helper function to determine home area for ECM
-func ecmHome() string {
-	var err error
-	hdir := os.Getenv("ECM_HOME")
-	if hdir == "" {
-		hdir, err = os.UserHomeDir()
-		if err != nil {
-			log.Fatal(err)
-		}
-		hdir = fmt.Sprintf("%s/.ecm", hdir)
-	}
-	return hdir
-}
-
-// InList helper function to check item in a list
-func InList(a string, list []string) bool {
-	check := 0
-	for _, b := range list {
-		if b == a {
-			check += 1
-		}
-	}
-	if check != 0 {
-		return true
-	}
-	return false
-}
-
-// helper function for random string generation
-func randStr(strSize int, randType string) string {
-	var dictionary string
-
-	if randType == "alphanum" {
-		dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-	}
-
-	if randType == "alpha" {
-		dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-	}
-
-	if randType == "number" {
-		dictionary = "0123456789"
-	}
-
-	var bytes = make([]byte, strSize)
-	rand.Read(bytes)
-	for k, v := range bytes {
-		bytes[k] = dictionary[v%byte(len(dictionary))]
-	}
-	return string(bytes)
-}
-
-// getCipher returns either default or given cipher
-func getCipher(cipher string) string {
-	if cipher == "" {
-		cipher = crypt.SupportedCiphers[0]
-	}
-	if !InList(cipher, crypt.SupportedCiphers) {
-		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, crypt.SupportedCiphers)
-	}
-	return strings.ToLower(cipher)
-}
-
-// https://gist.github.com/tsilvers/085c5f39430ced605d970094edf167ba
-func macAddress() uint64 {
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		return uint64(0)
-	}
-	for _, i := range interfaces {
-		if i.Flags&net.FlagUp != 0 && bytes.Compare(i.HardwareAddr, nil) != 0 {
-			// Skip locally administered addresses
-			if i.HardwareAddr[0]&2 == 2 {
-				continue
-			}
-			var mac uint64
-			for j, b := range i.HardwareAddr {
-				if j >= 8 {
-					break
-				}
-				mac <<= 8
-				mac += uint64(b)
-			}
-			return mac
-		}
-	}
-	return uint64(0)
-}
 
 /*
  * 2fa utils

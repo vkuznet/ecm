@@ -22,6 +22,7 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/vkuznet/ecm/crypt"
+	utils "github.com/vkuznet/ecm/utils"
 	vt "github.com/vkuznet/ecm/vault"
 )
 
@@ -94,7 +95,7 @@ func VaultHandler(w http.ResponseWriter, r *http.Request) {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultHandler", http.StatusBadRequest)
 		return
 	}
-	vault := vt.Vault{Cipher: getCipher(""), Secret: "", Directory: vdir}
+	vault := vt.Vault{Cipher: crypt.GetCipher(""), Secret: "", Directory: vdir}
 	files, err := vault.Files()
 	if err != nil {
 		responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
@@ -254,7 +255,7 @@ func VaultDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultDeleteHandler", http.StatusBadRequest)
 		return
 	}
-	vault := vt.Vault{Cipher: getCipher(""), Secret: "", Directory: vdir}
+	vault := vt.Vault{Cipher: crypt.GetCipher(""), Secret: "", Directory: vdir}
 	err = vault.DeleteRecord(rid)
 	if err != nil {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultDeleteHandler", http.StatusBadRequest)
@@ -648,7 +649,7 @@ func QRHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// generate a random string - preferbly 6 or 8 characters
-		randomStr := randStr(6, "alphanum")
+		randomStr := utils.RandomString(6, "alphanum")
 
 		// For Google Authenticator purpose
 		// for more details see

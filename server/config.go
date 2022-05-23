@@ -9,6 +9,7 @@ import (
 	"path"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	utils "github.com/vkuznet/ecm/utils"
 )
 
 // Configuration represents vault configuration structure
@@ -43,7 +44,7 @@ func ParseConfig(configFile string, verbose int) error {
 		if err != nil {
 			log.Fatalf("unable to create ECM area %s for config file, error %v", dir, err)
 		}
-		lfile := fmt.Sprintf("%s/ecm.log", ecmHome())
+		lfile := fmt.Sprintf("%s/ecm.log", utils.EcmHome())
 		config := Configuration{MinPasswordLength: 24, LogFile: lfile}
 		data, err := json.Marshal(config)
 		if err != nil {
@@ -72,7 +73,7 @@ func ParseConfig(configFile string, verbose int) error {
 		Config.TokenExpireInterval = 60
 	}
 	if Config.LogFile == "" {
-		Config.LogFile = fmt.Sprintf("%s/ecm.log", ecmHome())
+		Config.LogFile = fmt.Sprintf("%s/ecm.log", utils.EcmHome())
 	}
 
 	// log time, filename, and line number

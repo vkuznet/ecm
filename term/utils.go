@@ -7,46 +7,17 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/atotto/clipboard"
 	"github.com/vkuznet/ecm/crypt"
+	utils "github.com/vkuznet/ecm/utils"
 	vt "github.com/vkuznet/ecm/vault"
-	// clone of "code.google.com/p/rsc/qr" which no longer available
-	// "github.com/vkuznet/rsc/qr"
-	// imaging library
 )
 
 const (
 	separator = "---\n" // used in ecm data format
 )
-
-// StringList implement sort for []string type
-type StringList []string
-
-// Len provides length of the []int type
-func (s StringList) Len() int { return len(s) }
-
-// Swap implements swap function for []int type
-func (s StringList) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-
-// Less implements less function for []int type
-func (s StringList) Less(i, j int) bool { return s[i] < s[j] }
-
-// helper function to determine home area for ECM
-func ecmHome() string {
-	var err error
-	hdir := os.Getenv("ECM_HOME")
-	if hdir == "" {
-		hdir, err = os.UserHomeDir()
-		if err != nil {
-			log.Fatal(err)
-		}
-		hdir = fmt.Sprintf("%s/.ecm", hdir)
-	}
-	return hdir
-}
 
 // custom split function based on separator delimiter
 func ecmSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -100,52 +71,6 @@ func backup(src, dst string) (int64, error) {
 	return nBytes, err
 }
 
-// InList helper function to check item in a list
-func InList(a string, list []string) bool {
-	check := 0
-	for _, b := range list {
-		if b == a {
-			check += 1
-		}
-	}
-	if check != 0 {
-		return true
-	}
-	return false
-}
-
-// SizeFormat helper function to convert size into human readable form
-func SizeFormat(val interface{}) string {
-	var size float64
-	var err error
-	switch v := val.(type) {
-	case int:
-		size = float64(v)
-	case int32:
-		size = float64(v)
-	case int64:
-		size = float64(v)
-	case float64:
-		size = v
-	case string:
-		size, err = strconv.ParseFloat(v, 64)
-		if err != nil {
-			return fmt.Sprintf("%v", val)
-		}
-	default:
-		return fmt.Sprintf("%v", val)
-	}
-	base := 1000. // CMS convert is to use power of 10
-	xlist := []string{"B", "KB", "MB", "GB", "TB", "PB"}
-	for _, vvv := range xlist {
-		if size < base {
-			return fmt.Sprintf("%v (%3.1f%s)", val, size, vvv)
-		}
-		size = size / base
-	}
-	return fmt.Sprintf("%v (%3.1f%s)", val, size, xlist[len(xlist)])
-}
-
 // helper function to make message about help key
 func helpKey() string {
 	return "\n[green]for help press [red]Ctrl-H[white]"
@@ -172,7 +97,7 @@ func helpKeys() string {
 func fileCipher(fname string) string {
 	arr := strings.Split(fname, ".")
 	cipher := strings.Split(arr[len(arr)-1], "-")[0]
-	if !InList(cipher, crypt.SupportedCiphers) {
+	if !utils.InList(cipher, crypt.SupportedCiphers) {
 		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, crypt.SupportedCiphers)
 	}
 	return cipher
@@ -184,7 +109,7 @@ func decryptInput(fname, password, cipher, write, attr string) {
 	if cipher == "" {
 		cipher = fileCipher(fname)
 	}
-	if !InList(cipher, crypt.SupportedCiphers) {
+	if !utils.InList(cipher, crypt.SupportedCiphers) {
 		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, crypt.SupportedCiphers)
 	}
 	var data []byte
@@ -228,15 +153,4 @@ func decryptInput(fname, password, cipher, write, attr string) {
 			log.Fatal("unable to data to output file", err)
 		}
 	}
-}
-
-// getCipher returns either default or given cipher
-func getCipher(cipher string) string {
-	if cipher == "" {
-		cipher = crypt.SupportedCiphers[0]
-	}
-	if !InList(cipher, crypt.SupportedCiphers) {
-		log.Fatalf("given cipher %s is not supported, please use one from the following %v", cipher, crypt.SupportedCiphers)
-	}
-	return strings.ToLower(cipher)
 }

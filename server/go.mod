@@ -39,12 +39,20 @@ require (
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/vkuznet/ecm/utils v0.0.0-20220523113408-dfed6fbe721d // indirect
 	go.opencensus.io v0.22.5 // indirect
+	golang.org/x/exp/errors v0.0.0-20220518171630-0b5c67f07fdf // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
-	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
+	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	rsc.io/qr v0.2.0 // indirect
 )
+
+replace github.com/vkuznet/ecm/crypt => /Users/vk/Work/Languages/Go/ecm/crypt
+
+replace github.com/vkuznet/ecm/utils => /Users/vk/Work/Languages/Go/ecm/utils
+
+replace github.com/vkuznet/ecm/vault => /Users/vk/Work/Languages/Go/ecm/vault

@@ -1,98 +1,14 @@
 package vault
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"log"
 	"os"
-	"strconv"
 	"strings"
-	"syscall"
 	"text/tabwriter"
 
 	"github.com/fatih/color"
-	"github.com/vkuznet/ecm/crypt"
-	"golang.org/x/term"
+	utils "github.com/vkuznet/ecm/utils"
 )
-
-// StringList implement sort for []string type
-type StringList []string
-
-// Len provides length of the []int type
-func (s StringList) Len() int { return len(s) }
-
-// Swap implements swap function for []int type
-func (s StringList) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-
-// Less implements less function for []int type
-func (s StringList) Less(i, j int) bool { return s[i] < s[j] }
-
-// backup helper function to make a vault backup
-// based on https://github.com/mactsouk/opensource.com/blob/master/cp1.go
-func backup(src, dst string) (int64, error) {
-	sourceFileStat, err := os.Stat(src)
-	if err != nil {
-		log.Printf("file '%s' does not exist, error %v", src, err)
-		return 0, err
-	}
-
-	if !sourceFileStat.Mode().IsRegular() {
-		return 0, fmt.Errorf("%s is not a regular file", src)
-	}
-
-	source, err := os.Open(src)
-	if err != nil {
-		return 0, err
-	}
-	defer source.Close()
-
-	destination, err := os.Create(dst)
-	if err != nil {
-		return 0, err
-	}
-	defer destination.Close()
-
-	err = os.Chmod(dst, 0600)
-	if err != nil {
-		log.Println("unable to change file permission of", dst)
-	}
-
-	nBytes, err := io.Copy(destination, source)
-	return nBytes, err
-}
-
-// SizeFormat helper function to convert size into human readable form
-func SizeFormat(val interface{}) string {
-	var size float64
-	var err error
-	switch v := val.(type) {
-	case int:
-		size = float64(v)
-	case int32:
-		size = float64(v)
-	case int64:
-		size = float64(v)
-	case float64:
-		size = v
-	case string:
-		size, err = strconv.ParseFloat(v, 64)
-		if err != nil {
-			return fmt.Sprintf("%v", val)
-		}
-	default:
-		return fmt.Sprintf("%v", val)
-	}
-	base := 1000. // CMS convert is to use power of 10
-	xlist := []string{"B", "KB", "MB", "GB", "TB", "PB"}
-	for _, vvv := range xlist {
-		if size < base {
-			return fmt.Sprintf("%v (%3.1f%s)", val, size, vvv)
-		}
-		size = size / base
-	}
-	return fmt.Sprintf("%v (%3.1f%s)", val, size, xlist[len(xlist)])
-}
 
 // TabularPrint provide tabular print of reocrds
 // based on http://networkbit.ch/golang-column-print/
@@ -118,7 +34,7 @@ func TabularPrint(records []VaultRecord) {
 			}
 		}
 		for key, val := range rec.Map {
-			if crypt.InList(key, OrderedKeys) {
+			if utils.InList(key, OrderedKeys) {
 				continue
 			}
 			if strings.ToLower(key) == "password" {
@@ -133,32 +49,6 @@ func TabularPrint(records []VaultRecord) {
 		fmt.Fprintf(w, "\n")
 	}
 
-}
-
-// ReadInput read user input from stdout
-// https://gosamples.dev/read-user-input/
-func ReadInput(msg string) (string, error) {
-	fmt.Println(msg)
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	err := scanner.Err()
-	if err != nil {
-		return "", err
-	}
-	return scanner.Text(), nil
-}
-
-// ReadPassword reads input password from stdout
-func ReadPassword() (string, error) {
-	fmt.Print("Enter Password: ")
-	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
-	fmt.Println("")
-	if err != nil {
-		return "", err
-	}
-	password := string(bytePassword)
-	password = strings.Replace(password, "\n", "", -1)
-	return password, nil
 }
 
 // helper function to return black message on white bold foreground

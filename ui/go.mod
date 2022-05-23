@@ -20,12 +20,21 @@ require (
 	github.com/srwiley/oksvg v0.0.0-20200311192757-870daf9aa564 // indirect
 	github.com/srwiley/rasterx v0.0.0-20200120212402-85cb7272f5e9 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/vkuznet/ecm/utils v0.0.0-20220523113408-dfed6fbe721d // indirect
 	github.com/vkuznet/ecm/vault v0.0.0-20220519182015-9b2c954bf1a4 // indirect
 	github.com/yuin/goldmark v1.3.8 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
+	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898 // indirect
+	golang.org/x/exp/errors v0.0.0-20220518171630-0b5c67f07fdf // indirect
 	golang.org/x/image v0.0.0-20200430140353-33d19683fad8 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
+
+replace github.com/vkuznet/ecm/crypt => /Users/vk/Work/Languages/Go/ecm/crypt
+
+replace github.com/vkuznet/ecm/utils => /Users/vk/Work/Languages/Go/ecm/utils
+
+replace github.com/vkuznet/ecm/vault => /Users/vk/Work/Languages/Go/ecm/vault

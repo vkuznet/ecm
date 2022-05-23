@@ -9,6 +9,7 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/vkuznet/ecm/crypt"
+	utils "github.com/vkuznet/ecm/utils"
 	vt "github.com/vkuznet/ecm/vault"
 	"golang.org/x/term"
 )
@@ -114,7 +115,7 @@ func cli(
 		if err != nil {
 			log.Fatal(err)
 		}
-		if !InList(newCipher, crypt.SupportedCiphers) {
+		if !utils.InList(newCipher, crypt.SupportedCiphers) {
 			log.Fatal("Unsupported cipher")
 		}
 		newPassword, err := vt.ReadPassword()
