@@ -32,9 +32,9 @@ func BenchmarkAddRecord(b *testing.B) {
 	vault := Vault{Directory: "Test"}
 	// perform benchmark test
 	for n := 0; n < b.N; n++ {
-		idx := vault.AddRecord("record")
-		if idx != n {
-			b.Error("wrong record index")
+		_, err := vault.AddRecord("record")
+		if err != nil {
+			b.Error(err)
 		}
 	}
 }
