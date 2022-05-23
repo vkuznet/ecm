@@ -1,10 +1,10 @@
-## Encrypted Content Manager
+## Encrypted Content Management
 
 [![Build Status](https://github.com/vkuznet/ecm/actions/workflows/go.yml/badge.svg)](https://github.com/vkuznet/ecm/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vkuznet/ecm)](https://goreportcard.com/report/github.com/vkuznet/ecm)
 [![GoDoc](https://godoc.org/github.com/vkuznet/ecm?status.svg)](https://godoc.org/github.com/vkuznet/ecm)
 
-Encrypted Content Manager (ECM) is a generic tool for encrypting any kind of
+Encrypted Content Management (ECM) is a generic toolkit for encrypting any kind of
 digital content (files). It can be viewed as alternative to password managers similar to
 1Password, LastPass, ButterCup, etc. but it is not restricted to secure
 meta-data. Any content can be encrypted with ECM.
