@@ -120,10 +120,10 @@ github.com/vkuznet/ecm/crypt v0.0.0-20220523121443-054f2ecdab02 h1:BTq9SHXTkZ0FF
 github.com/vkuznet/ecm/crypt v0.0.0-20220523121443-054f2ecdab02/go.mod h1:Ss7nxvVtI9Ht1v/vcxYZmSaRMWCyfq3sWx+WwqG4gFA=
 github.com/vkuznet/ecm/kvdb v0.0.0-20220522174845-10e1896b2dc1 h1:tiIIcIKT+wjia8jmWHpDhVqRxXdL/BqymjboOiA/AZI=
 github.com/vkuznet/ecm/kvdb v0.0.0-20220522174845-10e1896b2dc1/go.mod h1:RuPRs3gxetfsIOP5r0QDbT/lrVD3+WFQhk7llJe8dWg=
-github.com/vkuznet/ecm/utils v0.0.0-20220523121443-054f2ecdab02 h1:qv6Ghmfid9imNhkkgnhmE66aV4uRBek62yZ6bf5iymc=
-github.com/vkuznet/ecm/utils v0.0.0-20220523121443-054f2ecdab02/go.mod h1:5U5SwPZ9VwfgoKmnPfRp3ECxcb1MX8WLO51fy1QtY+s=
-github.com/vkuznet/ecm/vault v0.0.0-20220523121443-054f2ecdab02 h1:8jiqjT+U7JYIm7mKn8D4DUgBDkFchkVwh0BeLgW2zdg=
-github.com/vkuznet/ecm/vault v0.0.0-20220523121443-054f2ecdab02/go.mod h1:q61Q/q5r47Bx9R56NY+g+z4Tc26Si1A4ScwW3CEx0Rw=
+github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626 h1:ZEI2J8oWuE021CdJETV9wPmKpzP+BUdcJRubS4xw4tM=
+github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626/go.mod h1:5U5SwPZ9VwfgoKmnPfRp3ECxcb1MX8WLO51fy1QtY+s=
+github.com/vkuznet/ecm/vault v0.0.0-20220523143223-2c14ae9ad11b h1:TbzgQr1XXLq/HCDyihRLSLNO2HM5JSzXllv8nJ0oPSs=
+github.com/vkuznet/ecm/vault v0.0.0-20220523143223-2c14ae9ad11b/go.mod h1:Y2AR6MN8aSarjAhFDb1X7Wuu8b32QsLyTivYknXvOsw=
 github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868 h1:kOyoL9dkgDzi/5qVBsTlzCEOmCGnJYYl+u7aBzMR6c4=
 github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868/go.mod h1:wy8w8lLvz/ZauEqQh0fjv/vkZZlLbdDfSDewsy5jWvA=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=

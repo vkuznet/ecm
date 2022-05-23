@@ -14,8 +14,8 @@ require (
 	github.com/ulule/limiter/v3 v3.10.0
 	github.com/vkuznet/ecm/crypt v0.0.0-20220523121443-054f2ecdab02
 	github.com/vkuznet/ecm/kvdb v0.0.0-20220522174845-10e1896b2dc1
-	github.com/vkuznet/ecm/utils v0.0.0-20220523121443-054f2ecdab02
-	github.com/vkuznet/ecm/vault v0.0.0-20220523121443-054f2ecdab02
+	github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626
+	github.com/vkuznet/ecm/vault v0.0.0-20220523143223-2c14ae9ad11b
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
 	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898
 	rsc.io/qr v0.2.0
