@@ -154,11 +154,12 @@ type Vault struct {
 	Start            time.Time     // vault expire
 }
 
-// AddRecord vault record and return its index
-func (v *Vault) AddRecord(kind string) int {
+// AddRecord vault record
+func (v *Vault) AddRecord(kind string) (*VaultRecord, error) {
 	rec := NewVaultRecord(kind)
 	v.Records = append(v.Records, *rec)
-	return len(v.Records) - 1
+	err := v.WriteRecord(*rec)
+	return rec, err
 }
 
 // EditRecord edits given vault record
@@ -186,7 +187,6 @@ func (v *Vault) EditRecord(rid string) error {
 			log.Fatal(err)
 		}
 		if strings.ToLower(key) == "save" {
-			log.Printf("Record %s is saved", rid)
 			break
 		}
 		if val, ok := rec.Map[key]; ok {
@@ -202,6 +202,9 @@ func (v *Vault) EditRecord(rid string) error {
 		}
 	}
 	err := v.WriteRecord(rec)
+	if err == nil {
+		log.Printf("Record %s is saved", rec.ID)
+	}
 	return err
 }
 
@@ -398,17 +401,15 @@ func (v *Vault) WriteRecord(rec VaultRecord) error {
 	// backup existing record if it exists
 	fname := fmt.Sprintf("%s.%s", filepath.Join(v.Directory, rec.ID), v.Cipher)
 	if _, err := os.Stat(fname); err != nil {
-		// file does not exist
-		return nil
-	}
-	// backup file name with existing cipher
-	tstamp := time.Now().Format(time.RFC3339)
-	bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", rec.ID, v.Cipher, tstamp))
-	// make backup of our record
-	_, err = utils.Backup(fname, bname)
-	if err != nil {
-		if v.Verbose > 0 {
-			log.Println("unable to make backup for record", rec.ID, " error ", err)
+		// backup file name with existing cipher
+		tstamp := time.Now().Format(time.RFC3339)
+		bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", rec.ID, v.Cipher, tstamp))
+		// make backup of our record
+		_, err = utils.Backup(fname, bname)
+		if err != nil {
+			if v.Verbose > 0 {
+				log.Println("unable to make backup for record", rec.ID, " error ", err)
+			}
 		}
 	}
 
