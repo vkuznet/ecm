@@ -48,7 +48,7 @@ func decryptFile(dfile, cipher, pcopy string) {
 //gocyclo:ignore
 func cli(
 	vault *vt.Vault,
-	efile, dfile, pat, rid, edit, pcopy, export, vimport string,
+	efile, dfile, add, pat, rid, edit, pcopy, export, vimport string,
 	recreate, info bool,
 	verbose int,
 ) {
@@ -82,6 +82,18 @@ func cli(
 		os.Exit(0)
 	}
 
+	// add given record
+	if add != "" {
+		rec, err := vault.AddRecord(add)
+		if err != nil {
+			log.Fatalf("unable to create new vault record, error '%s'", err)
+		}
+		err = vault.EditRecord(rec.ID)
+		if err != nil {
+			log.Fatalf("unable to edit vault record, error '%s'", err)
+		}
+		os.Exit(0)
+	}
 	// edit given record
 	if edit != "" {
 		err := vault.EditRecord(edit)

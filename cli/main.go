@@ -47,6 +47,8 @@ func main() {
 	flag.BoolVar(&version, "version", false, "show version")
 	var edit string
 	flag.StringVar(&edit, "edit", "", "edit record with given ID")
+	var add string
+	flag.StringVar(&add, "add", "", "add new record (login|card|note|json|file)")
 	var rid string
 	flag.StringVar(&rid, "rid", "", "show record with given ID and copy its password to clipboard")
 	var lockInterval int
@@ -87,6 +89,7 @@ func main() {
 		&vault,
 		efile,
 		dfile,
+		add,
 		pat,
 		rid,
 		edit,
