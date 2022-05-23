@@ -1,10 +1,14 @@
 all: build
 
-build: build_utils build_crypt build_vault build_cli build_server build_term build_wasm build_ui
+build: build_utils build_kvdb build_crypt build_vault build_cli build_server build_term build_wasm build_ui
 
 build_utils:
 	echo "Building utils package ..."
 	cd utils; go mod tidy; go build; go test .; cd -
+
+build_kvdb:
+	echo "Building kvdb package ..."
+	cd kvdb; go mod tidy; go build; go test .; cd -
 
 build_crypt:
 	echo "Building crypt package ..."
