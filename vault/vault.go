@@ -180,7 +180,7 @@ func (v *Vault) EditRecord(rid string) error {
 	for {
 		msg := "\nEnter record key you wish to chagne or"
 		msg += fmt.Sprintf(" or type %s to save the record", saveMessage("save"))
-		msg += " or Ctrl-C to quit"
+		msg += " or Ctrl-C to quit\n\n"
 		key, err := utils.ReadInput(msg)
 		if err != nil {
 			log.Fatal(err)
@@ -194,7 +194,7 @@ func (v *Vault) EditRecord(rid string) error {
 				fmt.Println("\nNew password:")
 				val, err = utils.ReadPassword()
 			} else {
-				val, err = utils.ReadInput("\nNew value:")
+				val, err = utils.ReadInput("\nNew value: ")
 			}
 			rec.Map[key] = val
 		} else {
