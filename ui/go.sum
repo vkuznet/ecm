@@ -59,10 +59,10 @@ github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/urfave/cli/v2 v2.3.0/go.mod h1:LJmUH05zAU44vOAcrfzZQKsZbVcdbOG8rtL3/XcUArI=
 github.com/vkuznet/ecm/crypt v0.0.0-20220523121443-054f2ecdab02 h1:BTq9SHXTkZ0FFy+ZzhtTtI3f96XfldkA/ZxU3/txKsM=
 github.com/vkuznet/ecm/crypt v0.0.0-20220523121443-054f2ecdab02/go.mod h1:Ss7nxvVtI9Ht1v/vcxYZmSaRMWCyfq3sWx+WwqG4gFA=
-github.com/vkuznet/ecm/utils v0.0.0-20220523121443-054f2ecdab02 h1:qv6Ghmfid9imNhkkgnhmE66aV4uRBek62yZ6bf5iymc=
-github.com/vkuznet/ecm/utils v0.0.0-20220523121443-054f2ecdab02/go.mod h1:5U5SwPZ9VwfgoKmnPfRp3ECxcb1MX8WLO51fy1QtY+s=
-github.com/vkuznet/ecm/vault v0.0.0-20220523121443-054f2ecdab02 h1:8jiqjT+U7JYIm7mKn8D4DUgBDkFchkVwh0BeLgW2zdg=
-github.com/vkuznet/ecm/vault v0.0.0-20220523121443-054f2ecdab02/go.mod h1:q61Q/q5r47Bx9R56NY+g+z4Tc26Si1A4ScwW3CEx0Rw=
+github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626 h1:ZEI2J8oWuE021CdJETV9wPmKpzP+BUdcJRubS4xw4tM=
+github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626/go.mod h1:5U5SwPZ9VwfgoKmnPfRp3ECxcb1MX8WLO51fy1QtY+s=
+github.com/vkuznet/ecm/vault v0.0.0-20220523143223-2c14ae9ad11b h1:TbzgQr1XXLq/HCDyihRLSLNO2HM5JSzXllv8nJ0oPSs=
+github.com/vkuznet/ecm/vault v0.0.0-20220523143223-2c14ae9ad11b/go.mod h1:Y2AR6MN8aSarjAhFDb1X7Wuu8b32QsLyTivYknXvOsw=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.3.8 h1:Nw158Q8QN+CPgTmVRByhVwapp8Mm1e2blinhmx4wx5E=
 github.com/yuin/goldmark v1.3.8/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
