@@ -1,5 +1,5 @@
-github.com/vkuznet/ecm/utils v0.0.0-20220523120311-bf9c4c3ac9ac h1:ns6W64UNS4BLz64j+jJqw+ZLDUIPVs4NJ8KIt4E8IYU=
-github.com/vkuznet/ecm/utils v0.0.0-20220523120311-bf9c4c3ac9ac/go.mod h1:5U5SwPZ9VwfgoKmnPfRp3ECxcb1MX8WLO51fy1QtY+s=
+github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626 h1:ZEI2J8oWuE021CdJETV9wPmKpzP+BUdcJRubS4xw4tM=
+github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626/go.mod h1:5U5SwPZ9VwfgoKmnPfRp3ECxcb1MX8WLO51fy1QtY+s=
 golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898 h1:SLP7Q4Di66FONjDJbCYrCRrh97focO6sLogHO7/g8F0=
 golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/exp/errors v0.0.0-20220518171630-0b5c67f07fdf h1:Dp3+8dJ8wEMsWBAnC5IFcLBPuCdR2zdh+nsyjKmUfsc=
