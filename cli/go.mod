@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/vkuznet/ecm/crypt v0.0.0-20220523121443-054f2ecdab02
-	github.com/vkuznet/ecm/utils v0.0.0-20220523121443-054f2ecdab02
-	github.com/vkuznet/ecm/vault v0.0.0-20220523121443-054f2ecdab02
+	github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626
+	github.com/vkuznet/ecm/vault v0.0.0-20220523141020-0c51f9c89626
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171
 )
 
