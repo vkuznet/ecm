@@ -49,7 +49,7 @@ func EcmHome() string {
 func Backup(src, dst string) (int64, error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
-		log.Printf("file '%s' does not exist, error %v", src, err)
+		//         log.Printf("file '%s' does not exist, error %v", src, err)
 		return 0, err
 	}
 
