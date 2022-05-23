@@ -49,6 +49,11 @@ jobs:
         make
         cd -
 
+        echo "Build wasm"
+        cd wasm
+        make
+        cd -
+
     - name: set environment variables
       uses: allenevans/set-env@v2.0.0
       with:
