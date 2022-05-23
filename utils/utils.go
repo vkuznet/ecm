@@ -124,8 +124,8 @@ func SizeFormat(val interface{}) string {
 	return fmt.Sprintf("%v (%3.1f%s)", val, size, xlist[len(xlist)])
 }
 
-// RandStr generates random string
-func RandStr(strSize int, randType string) string {
+// RandomString generates random string
+func RandomString(strSize int, randType string) string {
 	var dictionary string
 
 	if randType == "alphanum" {
