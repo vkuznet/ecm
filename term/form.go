@@ -291,7 +291,17 @@ func gridView(app *tview.Application, pages *tview.Pages, textView *tview.TextVi
 		key := event.Key()
 		switch key {
 		case tcell.KeyCtrlA:
-			idx := vault.AddRecord("login")
+			rec, err := vault.AddRecord("login")
+			if err != nil {
+				log.Println("error while adding new record", err)
+			}
+			var idx int
+			for i, r := range vault.Records {
+				if r.ID == rec.ID {
+					idx = i
+					break
+				}
+			}
 			list = listForm(list, vault.Records)
 			list.SetCurrentItem(idx)
 			app.SetFocus(form)
