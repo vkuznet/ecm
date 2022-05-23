@@ -6,7 +6,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/google/uuid v1.3.0
 	github.com/vkuznet/ecm/crypt v0.0.0-20220119151129-1d6a1f7f7ccd
-	github.com/vkuznet/ecm/utils v0.0.0-20220523120311-bf9c4c3ac9ac
+	github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626
 )
 
 require (
