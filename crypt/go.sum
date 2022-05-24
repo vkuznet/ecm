@@ -1,10 +1,10 @@
-github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626 h1:ZEI2J8oWuE021CdJETV9wPmKpzP+BUdcJRubS4xw4tM=
-github.com/vkuznet/ecm/utils v0.0.0-20220523141020-0c51f9c89626/go.mod h1:5U5SwPZ9VwfgoKmnPfRp3ECxcb1MX8WLO51fy1QtY+s=
+github.com/vkuznet/ecm/utils v0.0.0-20220524114141-5e230e2ed56b h1:FAQFnQqQJ6dn+HfrrABECsldphbntxGkZrZQAraa2ok=
+github.com/vkuznet/ecm/utils v0.0.0-20220524114141-5e230e2ed56b/go.mod h1:5U5SwPZ9VwfgoKmnPfRp3ECxcb1MX8WLO51fy1QtY+s=
 golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898 h1:SLP7Q4Di66FONjDJbCYrCRrh97focO6sLogHO7/g8F0=
 golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/exp/errors v0.0.0-20220518171630-0b5c67f07fdf h1:Dp3+8dJ8wEMsWBAnC5IFcLBPuCdR2zdh+nsyjKmUfsc=
 golang.org/x/exp/errors v0.0.0-20220518171630-0b5c67f07fdf/go.mod h1:YgqsNsAu4fTvlab/7uiYK9LJrCIzKg/NiZUIH1/ayqo=
-golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 h1:SrN+KX8Art/Sf4HNj6Zcz06G7VEz+7w9tdXTPOZ7+l4=
-golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a h1:dGzPydgVsqGcTRVwiLJ1jVbufYwmzD3LfVPLKsKg+0k=
+golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 h1:EH1Deb8WZJ0xc0WK//leUHXcX9aLE5SymusoTmMZye8=
 golang.org/x/term v0.0.0-20220411215600-e5f449aeb171/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=

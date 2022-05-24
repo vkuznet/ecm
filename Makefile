@@ -2,6 +2,17 @@ all: build
 
 build: build_utils build_kvdb build_crypt build_vault build_cli build_server build_term build_wasm build_ui
 
+update:
+	cd utils; go get -u; cd -
+	cd kvdb; go get -u; cd -
+	cd crypt; go get -u; cd -
+	cd vault; go get -u; cd -
+	cd cli; go get -u; cd -
+	cd server; go get -u; cd -
+	cd term; go get -u; cd -
+	cd wasm; go get -u; cd -
+	cd ui; go get -u; cd -
+
 build_utils:
 	echo "Building utils package ..."
 	cd utils; go mod tidy; go build; go test .; cd -
