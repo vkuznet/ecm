@@ -1,12 +1,30 @@
 package vault
 
 import (
+	"log"
+	"os"
 	"testing"
+	"time"
 )
+
+func tempDir() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	vdir, err := os.MkdirTemp(cwd, "test")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return vdir
+}
 
 // TestVaultAddRecord function
 func TestVaultAddRecord(t *testing.T) {
-	vault := Vault{Directory: "Test"}
+	vdir := tempDir()
+	defer os.RemoveAll(vdir)
+
+	vault := Vault{Directory: vdir, Cipher: "aes", Start: time.Now()}
 	vault.AddRecord("record")
 	if len(vault.Records) != 1 {
 		t.Errorf("fail to add record to the vault")
@@ -29,10 +47,20 @@ func TestVaultAddRecord(t *testing.T) {
 
 // BenchmarkAddRecord provides benchmark test of vault AddRecord functionality
 func BenchmarkAddRecord(b *testing.B) {
-	vault := Vault{Directory: "Test"}
+	vdir := tempDir()
+	defer os.RemoveAll(vdir)
+
+	// create new vault in temporary directory
+	vault := Vault{Directory: vdir, Cipher: "aes", Start: time.Now()}
+	err := vault.Create("TestVault")
+	if err != nil {
+		b.Fatal(err)
+	}
+
 	// perform benchmark test
 	for n := 0; n < b.N; n++ {
-		_, err := vault.AddRecord("record")
+		// add vault login record
+		_, err := vault.AddRecord("login")
 		if err != nil {
 			b.Error(err)
 		}
@@ -41,6 +69,9 @@ func BenchmarkAddRecord(b *testing.B) {
 
 // TestVaultDeleteRecord function
 func TestVaultDeleteRecord(t *testing.T) {
+	vdir := tempDir()
+	defer os.RemoveAll(vdir)
+
 	var records []VaultRecord
 	rid := "123"
 	rec := VaultRecord{ID: rid}
@@ -48,7 +79,9 @@ func TestVaultDeleteRecord(t *testing.T) {
 	rid = "567"
 	rec = VaultRecord{ID: rid}
 	records = append(records, rec)
-	vault := Vault{Directory: "Test", Records: records}
+
+	vault := Vault{Directory: vdir, Records: records, Cipher: "aes", Start: time.Now()}
+
 	err := vault.DeleteRecord(rid)
 	if err != nil {
 		t.Error(err.Error())
@@ -66,16 +99,22 @@ func TestVaultDeleteRecord(t *testing.T) {
 
 // BenchmarkDeleteRecord provides benchmark test of vault DeleteRecord functionality
 func BenchmarkDeleteRecord(b *testing.B) {
+	vdir := tempDir()
+	defer os.RemoveAll(vdir)
+
 	var records []VaultRecord
 	rid := "123"
 	rec := VaultRecord{ID: rid}
 	records = append(records, rec)
+
+	vault := Vault{Directory: vdir, Records: records, Cipher: "aes", Start: time.Now()}
+
 	// perform benchmark test
 	for n := 0; n < b.N; n++ {
 		rid = "567"
 		rec = VaultRecord{ID: rid}
 		records = append(records, rec)
-		vault := Vault{Directory: "Test", Records: records}
+		vault.Records = records
 		err := vault.DeleteRecord(rid)
 		if err != nil {
 			b.Error(err.Error())
