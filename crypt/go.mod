@@ -3,7 +3,7 @@ module github.com/vkuznet/ecm/crypt
 go 1.18
 
 require (
-	github.com/vkuznet/ecm/utils v0.0.0-20220524114141-5e230e2ed56b
+	github.com/vkuznet/ecm/utils v0.0.0-20220524174539-538ae49c57b2
 	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898
 )
 
