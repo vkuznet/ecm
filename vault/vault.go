@@ -435,10 +435,11 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 	// check first if file exsist
 	if _, err := os.Stat(fname); os.IsNotExist(err) {
 		log.Printf("vault record %s does not exists, will create one", fname)
-		_, err := os.Create(fname)
+		file, err := os.Create(fname)
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer file.Close()
 		return rec, err
 	}
 
