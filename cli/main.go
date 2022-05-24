@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -24,7 +25,7 @@ func ecmInfo() string {
 
 func main() {
 	var vname string
-	flag.StringVar(&vname, "vault", "", "vault name")
+	flag.StringVar(&vname, "vault", "", "vault directory name")
 	var cipher string
 	flag.StringVar(&cipher, "cipher", "", "cipher to use (aes, nacl)")
 	var dfile string
@@ -73,8 +74,16 @@ func main() {
 
 	// initialize our vault
 	vault := vt.Vault{Cipher: crypt.GetCipher(cipher), Verbose: verbose, Start: time.Now()}
-
-	// create vault if necessary
+	if vname == "" {
+		// by default vault is located at $HOME/.ecm
+		udir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		vname = filepath.Join(udir, ".ecm/Primary")
+	}
+	vault.Directory = vname
+	// create vault if necessary and read its records
 	err := vault.Create(vname)
 	if err != nil {
 		log.Fatalf("unable to create vault, error %v", err)
