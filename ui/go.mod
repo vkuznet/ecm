@@ -4,9 +4,9 @@ go 1.18
 
 require (
 	fyne.io/fyne/v2 v2.1.4
-	github.com/vkuznet/ecm/crypt v0.0.0-20220524114141-5e230e2ed56b
-	github.com/vkuznet/ecm/utils v0.0.0-20220524114141-5e230e2ed56b
-	github.com/vkuznet/ecm/vault v0.0.0-20220524114141-5e230e2ed56b
+	github.com/vkuznet/ecm/crypt v0.0.0-20220524135214-828cd7ef3239
+	github.com/vkuznet/ecm/utils v0.0.0-20220524174539-538ae49c57b2
+	github.com/vkuznet/ecm/vault v0.0.0-20220524135214-828cd7ef3239
 )
 
 require (
