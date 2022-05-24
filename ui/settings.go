@@ -2,11 +2,13 @@ package main
 
 import (
 	"image/color"
+	"log"
 
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
 	theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
+	crypt "github.com/vkuznet/ecm/crypt"
 )
 
 func newBoldLabel(text string) *widget.Label {
@@ -26,9 +28,10 @@ type Settings struct {
 	app            fyne.App
 	theme          *widget.Select
 	verifyRadio    *widget.RadioGroup
-	passwordLength *widget.Entry
-	storagePath    *widget.Entry
+	vaultCipher    *widget.Select
+	vaultDirectory *widget.Entry
 	syncURL        *widget.Entry
+	fontSize       *widget.Select
 }
 
 func newSettings(a fyne.App, w fyne.Window) *Settings {
@@ -46,8 +49,8 @@ func (r *Settings) onVerifyChanged(selected string) {
 func (r *Settings) onSyncURLChanged(v string) {
 	r.preferences.SetString("SyncURL", v)
 }
-func (r *Settings) onStoragePathChanged(v string) {
-	r.preferences.SetString("StoragePath", v)
+func (r *Settings) onFontSizeChanged(v string) {
+	r.preferences.SetString("FontSize", v)
 }
 func (r *Settings) onPasswordLengthChanged(v string) {
 	r.preferences.SetString("PasswordLength", v)
@@ -63,18 +66,43 @@ func (r *Settings) onThemeChanged(v string) {
 		r.app.Settings().SetTheme(theme.LightTheme())
 		fontColor = color.Black
 	}
-	//     canvas.Refresh(r.app)
+}
+func (r *Settings) onVaultCipherChanged(v string) {
+	_vault.Cipher = v
+	r.app.Preferences().SetString("VaultCipher", v)
+}
+func (r *Settings) onVaultDirectoryChanged(v string) {
+	_vault.Directory = v
+	_vault.Records = nil
+	err := _vault.Read()
+	if err != nil {
+		// TODO: redirect to ErrWindow
+		log.Println("fail to read vault record", err)
+	}
+	r.app.Preferences().SetString("VaultDirectory", v)
 }
 
 func (r *Settings) buildUI() *container.Scroll {
+
+	pref := r.app.Preferences()
+	fontSize := pref.String("FontSize")
+	vaultCipher := pref.String("VaultCipher")
+	vaultDirectory := pref.String("VaultDirectory")
 
 	// set initial values of internal data
 	onOffOptions := []string{"On", "Off"}
 	r.verifyRadio = &widget.RadioGroup{
 		Options: onOffOptions, Horizontal: true, Required: true, OnChanged: r.onVerifyChanged}
-	r.passwordLength = &widget.Entry{PlaceHolder: "length", OnChanged: r.onPasswordLengthChanged}
 	r.syncURL = &widget.Entry{PlaceHolder: "hostname", OnChanged: r.onSyncURLChanged}
-	r.storagePath = &widget.Entry{PlaceHolder: "~/Dropbox", OnChanged: r.onStoragePathChanged}
+	r.vaultDirectory = &widget.Entry{Text: vaultDirectory, OnSubmitted: r.onVaultDirectoryChanged}
+
+	r.vaultCipher = widget.NewSelect(crypt.SupportedCiphers, r.onVaultCipherChanged)
+	r.vaultCipher.SetSelected(vaultCipher)
+
+	fontSizes := []string{"Tiny", "Small", "Large", "Normal", "Huge"}
+	r.fontSize = widget.NewSelect(fontSizes, r.onFontSizeChanged)
+	r.fontSize.SetSelected(fontSize)
+
 	themeNames := []string{"dark", "light"}
 	r.theme = widget.NewSelect(themeNames, r.onThemeChanged)
 	r.theme.SetSelected("dark")
@@ -88,14 +116,15 @@ func (r *Settings) buildUI() *container.Scroll {
 	uiContainer := container.NewVBox(
 		container.NewGridWithColumns(2,
 			newBoldLabel("Theme"), r.theme,
+			newBoldLabel("Font size"), r.fontSize,
 		),
 	)
 
 	vaultContainer := container.NewVBox(
 		container.NewGridWithColumns(2,
 			newBoldLabel("Verify before accepting"), r.verifyRadio,
-			newBoldLabel("Password Length"), r.passwordLength,
-			newBoldLabel("StoragePath"), r.storagePath,
+			newBoldLabel("Vault cipher"), r.vaultCipher,
+			newBoldLabel("Vault directory"), r.vaultDirectory,
 		),
 		&widget.Accordion{Items: []*widget.AccordionItem{
 			{Title: "Advanced", Detail: container.NewGridWithColumns(2,
