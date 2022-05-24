@@ -292,8 +292,10 @@ func (v *Vault) Update(rec VaultRecord) error {
 func (v *Vault) Create(vname string) error {
 	// setup defaults
 	if vname == "" {
-		vname = "Primary"
+		return errors.New("please provide full path to the vault")
+		//         vname = "Primary"
 	}
+	v.Directory = vname
 
 	var vaultDir string
 	// construct proper full path
@@ -322,8 +324,9 @@ func (v *Vault) Create(vname string) error {
 	}
 
 	// procceed with vault
-	vaultDir = filepath.Join(v.Directory, vname)
-	v.Directory = vaultDir
+	vaultDir = v.Directory
+	//     vaultDir = filepath.Join(v.Directory, vname)
+	//     v.Directory = vaultDir
 	_, err = os.Stat(vaultDir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(vaultDir, 0755)
