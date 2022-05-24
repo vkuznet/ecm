@@ -7,9 +7,9 @@ require (
 	github.com/gdamore/tcell/v2 v2.5.1
 	github.com/google/uuid v1.3.0
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
-	github.com/vkuznet/ecm/crypt v0.0.0-20220524114141-5e230e2ed56b
-	github.com/vkuznet/ecm/utils v0.0.0-20220524114141-5e230e2ed56b
-	github.com/vkuznet/ecm/vault v0.0.0-20220524114141-5e230e2ed56b
+	github.com/vkuznet/ecm/crypt v0.0.0-20220524174539-538ae49c57b2
+	github.com/vkuznet/ecm/utils v0.0.0-20220524174539-538ae49c57b2
+	github.com/vkuznet/ecm/vault v0.0.0-20220524174539-538ae49c57b2
 )
 
 require (
