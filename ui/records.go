@@ -19,8 +19,29 @@ func newVaultRecords(a fyne.App, w fyne.Window) *vaultRecords {
 	return &vaultRecords{app: a, window: w}
 }
 
+// helper function to build recordsList
+func (a *vaultRecords) buildRecordsList(records []vt.VaultRecord) *widget.Accordion {
+	entries := widget.NewAccordion()
+	for _, rec := range records {
+		entries.Append(widget.NewAccordionItem(rec.ID, a.recordContainer(rec)))
+	}
+	return entries
+}
+
 func (a *vaultRecords) buildUI() *container.Scroll {
+
+	// build initial set of accordion records
+	accRecords := a.buildRecordsList(_vault.Records)
+
+	// setup search entry
 	search := widget.NewEntry()
+	search.OnSubmitted = func(v string) {
+		accRecords.Items = nil
+		for _, rec := range _vault.Find(v) {
+			accRecords.Append(widget.NewAccordionItem(rec.ID, a.recordContainer(rec)))
+		}
+		accRecords.Refresh()
+	}
 	search.PlaceHolder = "search keyword"
 	label := ""
 	formItem := widget.NewFormItem(label, search)
@@ -29,15 +50,10 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 		Items: []*widget.FormItem{formItem},
 	}
 
-	// list of entries
-	entries := widget.NewAccordion()
-	for _, rec := range _vault.Records {
-		entries.Append(widget.NewAccordionItem(rec.ID, a.recordContainer(rec)))
-	}
-
+	// return final container with search and accordion records
 	return container.NewScroll(container.NewVBox(
 		form,
-		entries,
+		container.NewVBox(accRecords),
 	))
 }
 
