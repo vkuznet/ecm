@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -34,10 +32,14 @@ func AppWindow(app fyne.App, w fyne.Window) {
 func LoginWindow(app fyne.App, w fyne.Window) {
 	// get vault records
 	if _vault == nil {
-		cipher := "aes" // or use crypt.SupportedCiphers and getCipher
-		verbose := 1
-		vdir := fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME"))
-		_vault = &vt.Vault{Directory: vdir, Cipher: cipher, Verbose: verbose, Start: time.Now()}
+		//         cipher := "aes" // or use crypt.SupportedCiphers and getCipher
+		//         verbose := 1
+		//         vdir := fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME"))
+		//         log.Println("vault directory", vdir)
+		pref := app.Preferences()
+		cipher := pref.String("VaultCipher")
+		vdir := pref.String("VaultDirectory")
+		_vault = &vt.Vault{Directory: vdir, Cipher: cipher, Start: time.Now()}
 	}
 
 	password := widget.NewPasswordEntry()
