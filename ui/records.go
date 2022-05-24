@@ -36,6 +36,8 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 	// setup search entry
 	search := widget.NewEntry()
 	search.OnSubmitted = func(v string) {
+		// reset items of accordion
+		// see https://yourbasic.org/golang/clear-slice/
 		accRecords.Items = nil
 		for _, rec := range _vault.Find(v) {
 			accRecords.Append(widget.NewAccordionItem(rec.ID, a.recordContainer(rec)))
