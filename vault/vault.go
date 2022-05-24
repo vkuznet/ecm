@@ -90,6 +90,8 @@ func (r *VaultRecord) WriteRecord(vdir, secret, cipher string, verbose int) erro
 		log.Println("unable to create file name", fname, " error ", err)
 		return err
 	}
+	defer file.Close()
+
 	w := bufio.NewWriter(file)
 	// marshall single record
 	data, err := json.Marshal(r)
