@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -10,6 +11,7 @@ import (
 	layout "fyne.io/fyne/v2/layout"
 	widget "fyne.io/fyne/v2/widget"
 	vt "github.com/vkuznet/ecm/vault"
+	"golang.org/x/exp/errors"
 )
 
 // define our vault
@@ -44,8 +46,13 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 
 	password := widget.NewPasswordEntry()
 	password.OnSubmitted = func(p string) {
-		log.Println("password", p)
 		_vault.Secret = p
+		if _, err := os.Stat(_vault.Directory); errors.Is(err, os.ErrNotExist) {
+			err := _vault.Create(_vault.Directory)
+			if err != nil {
+				log.Println("unable to create vault directory", _vault.Directory, "error: ", err)
+			}
+		}
 		err := _vault.Read()
 		if err != nil {
 			ErrWindow(app, w, err)
