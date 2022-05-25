@@ -42,7 +42,7 @@ func appSettings(app fyne.App) {
 
 	// make changes depending on application kind
 	if appKind == "desktop" {
-		windowSize = fyne.NewSize(700, 600)
+		windowSize = fyne.NewSize(900, 600)
 		inputSize = fyne.NewSize(300, 50)
 	} else {
 		vdir = app.Storage().RootURI().Path()
