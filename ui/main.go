@@ -45,11 +45,13 @@ func appSettings(app fyne.App) {
 		windowSize = fyne.NewSize(700, 600)
 		inputSize = fyne.NewSize(300, 50)
 	} else {
-		vdir = "/sdcard"
+		//         vdir = "/data/app/ecm-ui"
+		vdir = app.Storage().RootURI().Name()
 		windowSize = fyne.NewSize(100, 400)
 		inputSize = fyne.NewSize(50, 50)
 	}
 	pref.SetString("VaultCipher", cipher)
 	pref.SetString("VaultDirectory", vdir)
 	pref.SetString("FontSize", fontSize)
+
 }
