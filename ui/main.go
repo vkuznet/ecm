@@ -45,8 +45,7 @@ func appSettings(app fyne.App) {
 		windowSize = fyne.NewSize(700, 600)
 		inputSize = fyne.NewSize(300, 50)
 	} else {
-		//         vdir = "/data/app/ecm-ui"
-		vdir = app.Storage().RootURI().Name()
+		vdir = app.Storage().RootURI().Path()
 		windowSize = fyne.NewSize(100, 400)
 		inputSize = fyne.NewSize(50, 50)
 	}
