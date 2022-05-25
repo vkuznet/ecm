@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	fyne "fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
 	theme "fyne.io/fyne/v2/theme"
@@ -19,11 +21,20 @@ func newVaultRecords(a fyne.App, w fyne.Window) *vaultRecords {
 	return &vaultRecords{app: a, window: w}
 }
 
+// helper function to get vault record name or ID
+func recordName(rec vt.VaultRecord) string {
+	name := rec.ID
+	if v, ok := rec.Map["Name"]; ok {
+		name = fmt.Sprintf("%s/ID:%s", v, rec.ID)
+	}
+	return name
+}
+
 // helper function to build recordsList
 func (a *vaultRecords) buildRecordsList(records []vt.VaultRecord) *widget.Accordion {
 	entries := widget.NewAccordion()
 	for _, rec := range records {
-		entries.Append(widget.NewAccordionItem(rec.ID, a.recordContainer(rec)))
+		entries.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
 	}
 	return entries
 }
@@ -40,7 +51,7 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 		// see https://yourbasic.org/golang/clear-slice/
 		accRecords.Items = nil
 		for _, rec := range _vault.Find(v) {
-			accRecords.Append(widget.NewAccordionItem(rec.ID, a.recordContainer(rec)))
+			accRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
 		}
 		accRecords.Refresh()
 	}
