@@ -1,13 +1,17 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
 	binding "fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/storage"
 	theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
+	crypt "github.com/vkuznet/ecm/crypt"
 	vt "github.com/vkuznet/ecm/vault"
 )
 
@@ -93,12 +97,51 @@ func (r *Record) LoginForm() {
 	if val, err := r.URL.Get(); err == nil {
 		rec.Map["URL"] = val
 	}
-	log.Println("New vault record", rec.String())
-	err := _vault.Update(*rec)
-	if err != nil {
-		log.Println("ERROR", "unable to write vault record")
+	if appKind == "desktop" {
+		log.Println("New vault record", rec.String())
+		err := _vault.Update(*rec)
+		if err != nil {
+			log.Println("ERROR", "unable to write vault record")
+		}
+	} else {
+		//         vdir := r.app.Storage().RootURI().Name()
+		//         err := rec.WriteRecord(vdir, _vault.Secret, _vault.Cipher, 0)
+		//         if err != nil {
+		//             log.Fatal("fail to write record", err)
+		//         }
+		// storage settings
+		fname := fmt.Sprintf("%s.%s", rec.ID, _vault.Cipher)
+		// _vault.Directory = r.app.Storage().RootURI().Name()
+		// see appSettings
+		uri, err := storage.Child(r.app.Storage().RootURI(), fname)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("### uri", uri)
+		_, err = storage.CanWrite(uri)
+		if err != nil {
+			log.Fatal(err)
+		}
+		writer, err := storage.Writer(uri)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer writer.Close()
+		data, err := json.Marshal(rec)
+		if err != nil {
+			log.Fatal(err)
+		}
+		edata, err := crypt.Encrypt(data, _vault.Secret, _vault.Cipher)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = writer.Write(edata)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_vault.Records = append(_vault.Records, *rec)
 	}
-	//     r.ResetBindings()
+
 	r.window.SetContent(Create(r.app, r.window))
 }
 func (r *Record) JSONForm() {
