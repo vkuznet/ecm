@@ -124,10 +124,10 @@ func (r *Settings) buildUI() *container.Scroll {
 		container.NewGridWithColumns(2,
 			newBoldLabel("Verify before accepting"), r.verifyRadio,
 			newBoldLabel("Vault cipher"), r.vaultCipher,
-			newBoldLabel("Vault directory"), r.vaultDirectory,
 		),
 		&widget.Accordion{Items: []*widget.AccordionItem{
 			{Title: "Advanced", Detail: container.NewGridWithColumns(2,
+				newBoldLabel("Vault directory"), r.vaultDirectory,
 				newBoldLabel("Sync URL"), r.syncURL,
 			)},
 		}},
