@@ -688,7 +688,11 @@ func (v *Vault) Sync(storage storage.Storage) error {
 		vaultRecordIds = append(vaultRecordIds, rec.ID)
 	}
 	// get list of storage record ids
-	storageRecordIds := storage.Records()
+	storageRecordIds, err := storage.Records()
+	if err != nil {
+		log.Println("unable to get storage records, error: ", err)
+		return err
+	}
 
 	// push missing records to storage
 	for _, rec := range v.Records {
