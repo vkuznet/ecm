@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -18,6 +17,7 @@ import (
 
 	uuid "github.com/google/uuid"
 	"github.com/vkuznet/ecm/crypt"
+	storage "github.com/vkuznet/ecm/storage"
 	utils "github.com/vkuznet/ecm/utils"
 )
 
@@ -251,7 +251,7 @@ func remove(s []VaultRecord, i int) []VaultRecord {
 
 // EncryptFile provides ability to encrypt given file name and place into the vault
 func (v *Vault) EncryptFile(efile string) {
-	data, err := ioutil.ReadFile(efile)
+	data, err := os.ReadFile(efile)
 	if err != nil {
 		log.Fatalf("unable to read file %s, error %v", efile, err)
 	}
@@ -339,7 +339,7 @@ func (v *Vault) Create(vname string) error {
 
 // Files returns list of vault files
 func (v *Vault) Files() ([]string, error) {
-	files, err := ioutil.ReadDir(v.Directory)
+	files, err := os.ReadDir(v.Directory)
 	if err != nil {
 		return []string{}, err
 	}
@@ -354,7 +354,7 @@ func (v *Vault) Files() ([]string, error) {
 
 // Read reads vault records
 func (v *Vault) Read() error {
-	files, err := ioutil.ReadDir(v.Directory)
+	files, err := os.ReadDir(v.Directory)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -462,7 +462,7 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 	defer file.Close()
 
 	// read data from the record file
-	data, err := ioutil.ReadFile(fname)
+	data, err := os.ReadFile(fname)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -679,4 +679,69 @@ func (v *Vault) Export(fname string) error {
 	}
 	err = os.WriteFile(fname, data, 0755)
 	return err
+}
+
+func (v *Vault) Sync(storage storage.Storage) error {
+	// get list of vault record ids
+	var vaultRecordIds []string
+	for _, rec := range v.Records {
+		vaultRecordIds = append(vaultRecordIds, rec.ID)
+	}
+	// get list of storage record ids
+	storageRecordIds := storage.Records()
+
+	// push missing records to storage
+	for _, rec := range v.Records {
+		if utils.InList(rec.ID, storageRecordIds) {
+			continue
+		}
+		data, err := json.Marshal(rec)
+		if err != nil {
+			log.Println("unable to marshal vault record, error: ", err)
+			return err
+		}
+		edata, err := crypt.Encrypt(data, v.Secret, v.Cipher)
+		if err != nil {
+			log.Println("unable to encrypt vault record, error: ", err)
+			return err
+		}
+		fname := fmt.Sprintf("%s.%s", rec.ID, v.Cipher)
+		err = storage.Write(fname, edata)
+		if err != nil {
+			log.Println("unable to write encrypted vault record, error: ", err)
+			return err
+		}
+	}
+	// pull missing records from storage
+	for _, rid := range storageRecordIds {
+		if utils.InList(rid, vaultRecordIds) {
+			continue
+		}
+		// read encrypted data from storage
+		edata, err := storage.Read(rid)
+		if err != nil {
+			log.Printf("unable to read %s from storage, error: %v", rid, err)
+			return err
+		}
+		// decrypt the data using our vault
+		data, err := crypt.Decrypt(edata, v.Secret, v.Cipher)
+		if err != nil {
+			log.Printf("unable to decrypt data, error %v", err)
+			return err
+		}
+
+		var rec VaultRecord
+		err = json.Unmarshal(data, &rec)
+		if err != nil {
+			log.Println("unable to unmarshal the data, error: ", err)
+			return err
+		}
+		v.Records = append(v.Records, rec)
+		err = v.WriteRecord(rec)
+		if err != nil {
+			log.Println("unable to write record to vault, error: ", err)
+			return err
+		}
+	}
+	return nil
 }
