@@ -23,8 +23,12 @@ type FileStorage struct {
 	Path string
 }
 
+func NewFileStorage(path string) *FileStorage {
+	return &FileStorage{Path: path}
+}
+
 // Read implements Storage.Read method
-func (f FileStorage) Read(rid string) ([]byte, error) {
+func (f *FileStorage) Read(rid string) ([]byte, error) {
 	files, err := ioutil.ReadDir(f.Path)
 	if err != nil {
 		return []byte{}, err
@@ -45,7 +49,7 @@ func (f FileStorage) Read(rid string) ([]byte, error) {
 }
 
 // Write implements Storage.Write method
-func (f FileStorage) Write(fname string, rec []byte) error {
+func (f *FileStorage) Write(fname string, rec []byte) error {
 	fileName := filepath.Join(f.Path, fname)
 	file, err := os.Create(fileName)
 	if err != nil {
@@ -58,7 +62,7 @@ func (f FileStorage) Write(fname string, rec []byte) error {
 }
 
 // Records implement Storage Records method
-func (f FileStorage) Records() ([]string, error) {
+func (f *FileStorage) Records() ([]string, error) {
 	var records []string
 	files, err := ioutil.ReadDir(f.Path)
 	if err != nil {
