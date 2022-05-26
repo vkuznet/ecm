@@ -681,14 +681,15 @@ func (v *Vault) Export(fname string) error {
 	return err
 }
 
-func (v *Vault) Sync(storage storage.Storage) error {
+// Sync implements sync procedure to given storage interace
+func (v *Vault) Sync(dst storage.Storage) error {
 	// get list of vault record ids
 	var vaultRecordIds []string
 	for _, rec := range v.Records {
 		vaultRecordIds = append(vaultRecordIds, rec.ID)
 	}
 	// get list of storage record ids
-	storageRecordIds, err := storage.Records()
+	storageRecordIds, err := dst.Records()
 	if err != nil {
 		log.Println("unable to get storage records, error: ", err)
 		return err
@@ -710,7 +711,7 @@ func (v *Vault) Sync(storage storage.Storage) error {
 			return err
 		}
 		fname := fmt.Sprintf("%s.%s", rec.ID, v.Cipher)
-		err = storage.Write(fname, edata)
+		err = dst.Write(fname, edata)
 		if err != nil {
 			log.Println("unable to write encrypted vault record, error: ", err)
 			return err
@@ -722,7 +723,7 @@ func (v *Vault) Sync(storage storage.Storage) error {
 			continue
 		}
 		// read encrypted data from storage
-		edata, err := storage.Read(rid)
+		edata, err := dst.Read(rid)
 		if err != nil {
 			log.Printf("unable to read %s from storage, error: %v", rid, err)
 			return err
