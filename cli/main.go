@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	crypt "github.com/vkuznet/ecm/crypt"
@@ -52,12 +54,10 @@ func main() {
 	flag.StringVar(&add, "add", "", "add new record (login|card|note|json|file)")
 	var rid string
 	flag.StringVar(&rid, "rid", "", "show record with given ID and copy its password to clipboard")
-	var lockInterval int
-	flag.IntVar(&lockInterval, "lock", 60, "lock interval in seconds")
+	var gen string
+	flag.StringVar(&gen, "gen", "", "generate password with given length:attributes (attributes can be 'numbers', symbols' or their combinations), e.g. 16:numbers+symbols will provide password of length 16 with numbers and symbols in it")
 	var verbose int
 	flag.IntVar(&verbose, "verbose", 0, "verbose level")
-	//     var serverConfig string
-	//     flag.StringVar(&serverConfig, "serverConfig", "", "start HTTP server with provided configuration")
 	var examples bool
 	flag.BoolVar(&examples, "examples", false, "show examples")
 	flag.Parse()
@@ -65,6 +65,25 @@ func main() {
 		fmt.Println(ecmInfo())
 		os.Exit(0)
 
+	}
+
+	// generate password if asked
+	if gen != "" {
+		arr := strings.Split(gen, ":")
+		i, e := strconv.Atoi(arr[0])
+		if e != nil {
+			log.Fatal(e)
+		}
+		var numbers, symbols bool
+		if strings.Contains(gen, "numbers") {
+			numbers = true
+		}
+		if strings.Contains(gen, "symbols") {
+			symbols = true
+		}
+		p := crypt.CreatePassword(i, numbers, symbols)
+		fmt.Println("New password: ", p)
+		os.Exit(0)
 	}
 
 	// use file name in a log
