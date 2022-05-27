@@ -30,14 +30,21 @@ func AppWindow(app fyne.App, w fyne.Window) {
 	w.SetMaster()
 }
 
+func checkVault() {
+	if appKind == "desktop" {
+		if _, err := os.Stat(_vault.Directory); errors.Is(err, os.ErrNotExist) {
+			err := _vault.Create(_vault.Directory)
+			if err != nil {
+				log.Println("unable to create vault directory", _vault.Directory, "error: ", err)
+			}
+		}
+	}
+}
+
 // LoginWindow represents login window
 func LoginWindow(app fyne.App, w fyne.Window) {
 	// get vault records
 	if _vault == nil {
-		//         cipher := "aes" // or use crypt.SupportedCiphers and getCipher
-		//         verbose := 1
-		//         vdir := fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME"))
-		//         log.Println("vault directory", vdir)
 		pref := app.Preferences()
 		cipher := pref.String("VaultCipher")
 		vdir := pref.String("VaultDirectory")
@@ -47,12 +54,7 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	password := widget.NewPasswordEntry()
 	password.OnSubmitted = func(p string) {
 		_vault.Secret = p
-		if _, err := os.Stat(_vault.Directory); errors.Is(err, os.ErrNotExist) {
-			err := _vault.Create(_vault.Directory)
-			if err != nil {
-				log.Println("unable to create vault directory", _vault.Directory, "error: ", err)
-			}
-		}
+		checkVault()
 		err := _vault.Read()
 		if err != nil {
 			ErrWindow(app, w, err)
@@ -67,7 +69,9 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	form := &widget.Form{
 		Items: []*widget.FormItem{formItem},
 		OnSubmit: func() {
-			var err error
+			_vault.Secret = password.Text
+			checkVault()
+			err := _vault.Read()
 			if err != nil {
 				ErrWindow(app, w, err)
 			} else {
