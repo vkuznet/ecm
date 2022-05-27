@@ -373,9 +373,10 @@ func (v *Vault) Read() error {
 		}
 		rec, err := v.ReadRecord(fname)
 		if err != nil {
-			log.Fatal("unable to read vault record ", fname, " error ", err)
+			log.Println("unable to read vault record ", fname, " error ", err)
+		} else {
+			v.Records = append(v.Records, rec)
 		}
-		v.Records = append(v.Records, rec)
 	}
 
 	// get vault file info
