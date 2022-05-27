@@ -17,7 +17,7 @@ type vaultRecords struct {
 	records map[string]Entry
 }
 
-func newVaultRecords(a fyne.App, w fyne.Window) *vaultRecords {
+func newUIVaultRecords(a fyne.App, w fyne.Window) *vaultRecords {
 	return &vaultRecords{app: a, window: w}
 }
 

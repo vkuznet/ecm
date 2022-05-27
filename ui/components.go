@@ -100,13 +100,12 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 
 // Create will stitch together all ui components
 func Create(app fyne.App, window fyne.Window) *container.AppTabs {
-	uiRecords := newVaultRecords(app, window)
+	uiRecords := newUIVaultRecords(app, window)
 	return &container.AppTabs{Items: []*container.TabItem{
-		//         newVaultRecords(app, window).tabItem(),
 		uiRecords.tabItem(),
-		newRecord(app, window).tabItem(),
-		newPassword(app, window).tabItem(),
-		newSyncUI(app, window, uiRecords).tabItem(),
-		newSettings(app, window).tabItem(),
+		newUIRecord(app, window).tabItem(),
+		newUIPassword(app, window).tabItem(),
+		newUISync(app, window, uiRecords).tabItem(),
+		newUISettings(app, window).tabItem(),
 	}}
 }

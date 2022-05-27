@@ -21,7 +21,7 @@ type SyncUI struct {
 	vaultRecords *vaultRecords
 }
 
-func newSyncUI(a fyne.App, w fyne.Window, v *vaultRecords) *SyncUI {
+func newUISync(a fyne.App, w fyne.Window, v *vaultRecords) *SyncUI {
 	return &SyncUI{
 		app:         a,
 		window:      w,
@@ -47,6 +47,7 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	r.syncButton = &widget.Button{
 		Text: "Sync",
 		Icon: theme.DownloadIcon(),
+		//         Icon: resourceWebSvg,
 		OnTapped: func() {
 			// perform sync from dropbox to vault
 			dir := r.app.Storage().RootURI().Path()

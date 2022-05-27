@@ -46,7 +46,7 @@ func appSettings(app fyne.App) {
 		inputSize = fyne.NewSize(300, 50)
 	} else {
 		vdir = app.Storage().RootURI().Path()
-		windowSize = fyne.NewSize(100, 400)
+		windowSize = fyne.NewSize(300, 600)
 		inputSize = fyne.NewSize(50, 50)
 	}
 	pref.SetString("VaultCipher", cipher)

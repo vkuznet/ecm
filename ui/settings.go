@@ -34,7 +34,7 @@ type Settings struct {
 	fontSize       *widget.Select
 }
 
-func newSettings(a fyne.App, w fyne.Window) *Settings {
+func newUISettings(a fyne.App, w fyne.Window) *Settings {
 	return &Settings{app: a, window: w, preferences: a.Preferences()}
 }
 func (r *Settings) getPreferences() {

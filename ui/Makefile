@@ -2,6 +2,7 @@
 # VERSION=`git rev-parse --short HEAD`
 # flags=-ldflags="-s -w -X main.gitVersion=${VERSION} -X main.gitTag=${GITTAG} -extldflags -static"
 flags=-ldflags="-s -w -X main.appKind=desktop"
+# flags=-ldflags="-s -w"
 
 all: build
 

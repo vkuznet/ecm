@@ -19,7 +19,7 @@ type Password struct {
 	app    fyne.App
 }
 
-func newPassword(a fyne.App, w fyne.Window) *Password {
+func newUIPassword(a fyne.App, w fyne.Window) *Password {
 	return &Password{app: a, window: w}
 }
 func (r *Password) GeneratePassword() {

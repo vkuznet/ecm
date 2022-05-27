@@ -116,7 +116,7 @@ func newUploadRecord() *UploadRecord {
 	}
 }
 
-func newRecord(a fyne.App, w fyne.Window) *Record {
+func newUIRecord(a fyne.App, w fyne.Window) *Record {
 	return &Record{
 		app:          a,
 		window:       w,
