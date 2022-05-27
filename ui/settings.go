@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"log"
 
 	"fyne.io/fyne/v2"
@@ -58,13 +57,10 @@ func (r *Settings) onPasswordLengthChanged(v string) {
 func (r *Settings) onThemeChanged(v string) {
 	if v == "dark" {
 		r.app.Settings().SetTheme(theme.DarkTheme())
-		fontColor = color.White
 	} else if v == "ligth" {
 		r.app.Settings().SetTheme(theme.LightTheme())
-		fontColor = color.Black
 	} else {
 		r.app.Settings().SetTheme(theme.LightTheme())
-		fontColor = color.Black
 	}
 }
 func (r *Settings) onVaultCipherChanged(v string) {
@@ -105,7 +101,8 @@ func (r *Settings) buildUI() *container.Scroll {
 
 	themeNames := []string{"dark", "light"}
 	r.theme = widget.NewSelect(themeNames, r.onThemeChanged)
-	r.theme.SetSelected("dark")
+	//     r.theme.SetSelected("dark")
+	r.theme.SetSelected("light")
 
 	// TODO: add selection of font sizes
 

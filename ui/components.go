@@ -28,6 +28,8 @@ func AppWindow(app fyne.App, w fyne.Window) {
 	w.SetContent(Create(app, w))
 	w.Resize(windowSize)
 	w.SetMaster()
+	// custom theme
+	app.Settings().SetTheme(&grayTheme{})
 }
 
 func checkVault() {
@@ -43,6 +45,9 @@ func checkVault() {
 
 // LoginWindow represents login window
 func LoginWindow(app fyne.App, w fyne.Window) {
+	// custom theme
+	app.Settings().SetTheme(&grayTheme{})
+
 	// get vault records
 	if _vault == nil {
 		pref := app.Preferences()
@@ -79,7 +84,7 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 			}
 		},
 	}
-	text := canvas.NewText("Encrypted Content", fontColor)
+	text := &canvas.Text{Text: "Encrypted Content"}
 	text.Alignment = fyne.TextAlignCenter
 	spacer := &layout.Spacer{}
 

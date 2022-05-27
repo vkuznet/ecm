@@ -1,32 +1,41 @@
 package main
 
-/*
-type myTheme struct{}
+import (
+	"image/color"
 
-var _ fyne.Theme = (*myTheme)(nil)
+	fyne "fyne.io/fyne/v2"
+	theme "fyne.io/fyne/v2/theme"
+)
 
-func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
+// see more:
+// https://github.com/andydotxyz/beebui/blob/master/theme.go
+
+type grayTheme struct{}
+
+var _ fyne.Theme = (*grayTheme)(nil)
+
+func (m grayTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
 	if name == theme.ColorNameBackground {
 		if variant == theme.VariantLight {
-			return color.White
+			//                 return color.White
+			// if we coose light schema, we'll use gray color
+			return &color.NRGBA{0xd6, 0xd6, 0xd6, 0xff}
 		}
 		return color.Black
 	}
-
 	return theme.DefaultTheme().Color(name, variant)
 }
-func (m myTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
+func (m grayTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
 	if name == theme.IconNameHome {
-		fyne.NewStaticResource("myHome", homeBytes)
+		//         fyne.NewStaticResource("myHome", homeBytes)
 	}
-
 	return theme.DefaultTheme().Icon(name)
 }
-func (m myTheme) Font(style fyne.TextStyle) fyne.Resource {
-	return theme.DefaultTheme().Font(style)
+func (m grayTheme) Font(style fyne.TextStyle) fyne.Resource {
+	return theme.DefaultTextMonospaceFont()
+	//     return theme.DefaultTheme().Font(style)
 }
 
-func (m myTheme) Size(name fyne.ThemeSizeName) float32 {
+func (m grayTheme) Size(name fyne.ThemeSizeName) float32 {
 	return theme.DefaultTheme().Size(name)
 }
-*/

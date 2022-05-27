@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"log"
 	"os"
 
@@ -13,7 +12,6 @@ import (
 
 // various sizes of our application
 var windowSize, inputSize fyne.Size
-var fontColor color.Color
 var appKind string
 
 func main() {
@@ -38,7 +36,6 @@ func appSettings(app fyne.App) {
 	cipher := "aes"
 	vdir := fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME"))
 	fontSize := "Normal"
-	fontColor = color.White
 
 	// make changes depending on application kind
 	if appKind == "desktop" {
@@ -49,11 +46,12 @@ func appSettings(app fyne.App) {
 		windowSize = fyne.NewSize(300, 600)
 		inputSize = fyne.NewSize(50, 50)
 	}
+
+	// save preferences
 	pref.SetString("VaultCipher", cipher)
 	pref.SetString("VaultDirectory", vdir)
 	pref.SetString("FontSize", fontSize)
 
 	// write ecmconfig
 	WriteSyncConfig(app)
-
 }
