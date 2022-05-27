@@ -39,10 +39,24 @@ func (a *vaultRecords) buildRecordsList(records []vt.VaultRecord) *widget.Accord
 	return entries
 }
 
+// global variable to keep accordion records
+// we will refresh it dyring sync process
+var uiRecords *widget.Accordion
+
+// Refresh refresh records in UI
+func (a *vaultRecords) Refresh() {
+	uiRecords.Items = nil
+	for _, rec := range _vault.Records {
+		uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
+	}
+	uiRecords.Refresh()
+}
+
 func (a *vaultRecords) buildUI() *container.Scroll {
 
 	// build initial set of accordion records
 	accRecords := a.buildRecordsList(_vault.Records)
+	uiRecords = accRecords
 
 	// setup search entry
 	search := widget.NewEntry()
