@@ -4,9 +4,10 @@ go 1.18
 
 require (
 	github.com/atotto/clipboard v0.1.4
-	github.com/vkuznet/ecm/crypt v0.0.0-20220526123526-607c04961592
-	github.com/vkuznet/ecm/utils v0.0.0-20220526131341-8caf46eef476
-	github.com/vkuznet/ecm/vault v0.0.0-20220526123526-607c04961592
+	github.com/vkuznet/ecm/crypt v0.0.0-20220526174252-7d536866905c
+	github.com/vkuznet/ecm/storage v0.0.0-20220526174252-7d536866905c
+	github.com/vkuznet/ecm/utils v0.0.0-20220526174252-7d536866905c
+	github.com/vkuznet/ecm/vault v0.0.0-20220526174252-7d536866905c
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467
 )
 
@@ -25,3 +26,5 @@ require (
 // replace github.com/vkuznet/ecm/crypt => /Users/vk/Work/Languages/Go/ecm/crypt
 
 // replace github.com/vkuznet/ecm/vault => /Users/vk/Work/Languages/Go/ecm/vault
+
+// replace github.com/vkuznet/ecm/storage => /Users/vk/Work/Languages/Go/ecm/storage
