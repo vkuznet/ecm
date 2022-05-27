@@ -367,6 +367,10 @@ func (v *Vault) Read() error {
 			log.Fatalf("File '%s' and Vault cipher '%s' do not match\n", file.Name(), v.Cipher)
 		}
 		fname := filepath.Join(v.Directory, file.Name())
+		// skip file which does not have vault cipher
+		if !strings.HasSuffix(fname, v.Cipher) {
+			continue
+		}
 		rec, err := v.ReadRecord(fname)
 		if err != nil {
 			log.Fatal("unable to read vault record", fname, " error ", err)
