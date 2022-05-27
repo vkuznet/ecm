@@ -9,6 +9,7 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/vkuznet/ecm/crypt"
+	storage "github.com/vkuznet/ecm/storage"
 	utils "github.com/vkuznet/ecm/utils"
 	vt "github.com/vkuznet/ecm/vault"
 	"golang.org/x/term"
@@ -48,7 +49,7 @@ func decryptFile(dfile, cipher, pcopy string) {
 //gocyclo:ignore
 func cli(
 	vault *vt.Vault,
-	efile, dfile, add, pat, rid, edit, pcopy, export, vimport string,
+	efile, dfile, add, pat, rid, edit, pcopy, export, vimport, sync string,
 	recreate, info bool,
 	verbose int,
 ) {
@@ -79,6 +80,31 @@ func cli(
 	// show vault info
 	if info {
 		fmt.Println(vault.Info())
+		os.Exit(0)
+	}
+
+	// sync vault
+	if sync != "" {
+		if strings.HasPrefix(sync, "file://") {
+			path := strings.Replace(sync, "file://", "", -1)
+			dst := storage.NewFileStorage(path)
+			err = vault.Sync(dst)
+		} else if strings.HasPrefix(sync, "googledrive://") {
+			path := strings.Replace(sync, "googledrive://", "", -1)
+			dst := storage.NewGoogleDriveStorage(path)
+			err = vault.Sync(dst)
+		} else if strings.HasPrefix(sync, "dropbox://") {
+			path := strings.Replace(sync, "dropbox://", "", -1)
+			dst := storage.NewDropboxStorage(path)
+			err = vault.Sync(dst)
+		} else if strings.HasPrefix(sync, "ssh://") {
+			path := strings.Replace(sync, "ssh://", "", -1)
+			dst := storage.NewSSHStorage(path)
+			err = vault.Sync(dst)
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
 		os.Exit(0)
 	}
 
