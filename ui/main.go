@@ -53,4 +53,7 @@ func appSettings(app fyne.App) {
 	pref.SetString("VaultDirectory", vdir)
 	pref.SetString("FontSize", fontSize)
 
+	// write ecmconfig
+	WriteSyncConfig(app)
+
 }
