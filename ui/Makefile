@@ -38,8 +38,8 @@ build_iphone:
 
 build_android:
 	# see additional instructions for Android: https://developer.android.com/studio/publish/app-signing
-	export ANDROID_HOME=/Users/vk/Library/Android/sdk
-	export ANDROID_NDK_HOME=/Users/vk/Library/Android/sdk/ndk/23.1.7779620
+	ANDROID_HOME=/Users/vk/Library/Android/sdk \
+	ANDROID_NDK_HOME=/Users/vk/Library/Android/sdk/ndk/23.1.7779620 \
 	fyne release -os android -appID com.example.myapp -appVersion 1.0 -appBuild 1 -keyStore /Users/vk/AndroidKeystore
 
 install:
