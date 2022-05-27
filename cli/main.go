@@ -55,7 +55,9 @@ func main() {
 	var rid string
 	flag.StringVar(&rid, "rid", "", "show record with given ID and copy its password to clipboard")
 	var gen string
-	flag.StringVar(&gen, "gen", "", "generate password with given length:attributes (attributes can be 'numbers', symbols' or their combinations), e.g. 16:numbers+symbols will provide password of length 16 with numbers and symbols in it")
+	flag.StringVar(&gen, "gen", "", "generate password with given length:attributes. Attributes can be 'n' (numbers), s' (symbols) or their combinations), e.g. 16:ns will provide password of length 16 with numbers and symbols in it")
+	var sync string
+	flag.StringVar(&sync, "sync", "", "sync vault to provided URI, e.g. file:///path, dropbox:///path, googledrive:///path, ssh:///path")
 	var verbose int
 	flag.IntVar(&verbose, "verbose", 0, "verbose level")
 	var examples bool
@@ -75,10 +77,10 @@ func main() {
 			log.Fatal(e)
 		}
 		var numbers, symbols bool
-		if strings.Contains(gen, "numbers") {
+		if strings.Contains(gen, "n") {
 			numbers = true
 		}
-		if strings.Contains(gen, "symbols") {
+		if strings.Contains(gen, "s") {
 			symbols = true
 		}
 		p := crypt.CreatePassword(i, numbers, symbols)
@@ -124,6 +126,7 @@ func main() {
 		pcopy,
 		export,
 		vimport,
+		sync,
 		recreate,
 		info,
 		verbose,
