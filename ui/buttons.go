@@ -36,3 +36,13 @@ func copyButton(w fyne.Window, label, txt string, icon fyne.Resource) *widget.Bu
 		},
 	}
 }
+
+// helper function to wrap button into color container
+func colorButtonContainer(btn *widget.Button, nrgba color.NRGBA) *fyne.Container {
+	btn_color := canvas.NewRectangle(nrgba)
+	return container.New(
+		layout.NewMaxLayout(),
+		btn_color,
+		btn,
+	)
+}
