@@ -101,8 +101,8 @@ func (r *Settings) buildUI() *container.Scroll {
 
 	themeNames := []string{"dark", "light"}
 	r.theme = widget.NewSelect(themeNames, r.onThemeChanged)
-	//     r.theme.SetSelected("dark")
-	r.theme.SetSelected("light")
+	r.theme.SetSelected("dark")
+	//     r.theme.SetSelected("light")
 
 	// TODO: add selection of font sizes
 
