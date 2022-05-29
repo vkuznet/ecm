@@ -45,35 +45,61 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 			objects = append(objects, a.singleRow(k, v))
 		}
 	}
-	entry := widget.NewEntry()
-	objects = append(objects, copyButton(a.window, entry, "Update", theme.MenuIcon()))
+	// TODO: need a button with OnTapped acition
+	btn := copyButton(a.window, "Update", "", theme.MenuIcon())
+	objects = append(objects, btn)
 	return container.NewVBox(objects...)
 }
 
 // helper function to create single row container
 func (a *vaultRecords) singleRow(key, val string) *fyne.Container {
-	entryKey := widget.NewLabel(key)
+	label := widget.NewLabel(key)
+	//     label := widget.NewLabelWithStyle(key, fyne.TextAlignLeading, fyne.TextStyle{})
+	entry := widget.NewEntry()
+	entry.Text = val
 	if key == "Password" || key == "password" {
-		rec := widget.NewPasswordEntry()
-		rec.Text = val
-		rec.Refresh()
-		entryVal := container.NewVBox(
-			container.NewGridWithColumns(2,
-				rec, copyButton(a.window, rec, "Copy", theme.ContentCopyIcon()),
-			),
-		)
-		return container.NewVBox(
-			entryKey,
-			entryVal,
-		)
+		entry = widget.NewPasswordEntry()
+		entry.Text = val
+		entry.Refresh()
 	}
-	entryVal := widget.NewEntry()
-	entryVal.Text = val
-	return container.NewVBox(
-		entryKey,
-		entryVal,
+	btn := container.NewVBox(
+		copyButton(a.window, "", val, theme.ContentCopyIcon()),
 	)
+
+	labelSize := fyne.NewSize(100, 40)
+	entrySize := fyne.NewSize(200, 40)
+	buttonSize := fyne.NewSize(40, 40)
+
+	label.Resize(labelSize)
+	labelContainer := container.NewGridWrap(labelSize, label)
+	entryContainer := container.NewGridWrap(entrySize, entry)
+	//     button := copyButton(a.window, "", val, theme.ContentCopyIcon())
+	buttonContainer := container.NewGridWrap(buttonSize, btn)
+	return container.NewHBox(
+		labelContainer, entryContainer, buttonContainer,
+	)
+
+	//     return container.NewVBox(
+	//         container.NewAdaptiveGrid(3,
+	//             labelContainer, entryContainer, buttonContainer,
+	//         ),
+	//     )
+
+	//     size := fyne.NewSize(100, 35)
+	//     return container.NewGridWrap(
+	//         size,
+	//         label, entry, btn,
+	//     )
+	//     return container.NewVBox(
+	//         container.NewGridWithColumns(3,
+	//             label, entry, btn,
+	//         ),
+	//     )
 }
+
+// func NewGridWithColumns(cols int, objects ...fyne.CanvasObject) *fyne.Container {
+//     return fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(cols), objects...)
+// }
 
 // helper function to build recordsList
 func (a *vaultRecords) buildRecordsList(records []vt.VaultRecord) *widget.Accordion {
@@ -117,16 +143,20 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 		accRecords.Refresh()
 	}
 	search.PlaceHolder = "search keyword"
-	label := ""
-	formItem := widget.NewFormItem(label, search)
+	searchContainer := container.NewVBox(
+		search,
+	)
 
-	form := &widget.Form{
-		Items: []*widget.FormItem{formItem},
-	}
+	//     label := ""
+	//     formItem := widget.NewFormItem(label, search)
+	//     form := &widget.Form{
+	//         Items: []*widget.FormItem{formItem},
+	//     }
 
 	// return final container with search and accordion records
 	return container.NewScroll(container.NewVBox(
-		form,
+		//         form,
+		searchContainer,
 		container.NewVBox(accRecords),
 	))
 }
@@ -140,7 +170,7 @@ func (a *vaultRecords) formItem(vrec vt.VaultRecord, key, val string) *widget.Fo
 		rec.Refresh()
 		recContainer := container.NewVBox(
 			container.NewGridWithColumns(2,
-				rec, copyButton(a.window, rec, key, theme.ContentCopyIcon()),
+				rec, copyButton(a.window, key, val, theme.ContentCopyIcon()),
 			),
 		)
 		return widget.NewFormItem(key, recContainer)
