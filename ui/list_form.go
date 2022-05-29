@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	fyne "fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
@@ -25,16 +26,61 @@ func newUIVaultRecords(a fyne.App, w fyne.Window) *vaultRecords {
 func recordName(rec vt.VaultRecord) string {
 	name := rec.ID
 	if v, ok := rec.Map["Name"]; ok {
-		name = fmt.Sprintf("%s/ID:%s", v, rec.ID)
+		hash := strings.Split(rec.ID, "-")
+		name = fmt.Sprintf("%s : %s", v, hash[0])
 	}
 	return name
+}
+
+// helper function to provide row container
+func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
+	var objects []fyne.CanvasObject
+	for _, k := range vt.OrderedKeys {
+		if v, ok := rec.Map[k]; ok {
+			objects = append(objects, a.singleRow(k, v))
+		}
+	}
+	for k, v := range rec.Map {
+		if !utils.InList(k, vt.OrderedKeys) {
+			objects = append(objects, a.singleRow(k, v))
+		}
+	}
+	entry := widget.NewEntry()
+	objects = append(objects, copyButton(a.window, entry, "Update", theme.MenuIcon()))
+	return container.NewVBox(objects...)
+}
+
+// helper function to create single row container
+func (a *vaultRecords) singleRow(key, val string) *fyne.Container {
+	entryKey := widget.NewLabel(key)
+	if key == "Password" || key == "password" {
+		rec := widget.NewPasswordEntry()
+		rec.Text = val
+		rec.Refresh()
+		entryVal := container.NewVBox(
+			container.NewGridWithColumns(2,
+				rec, copyButton(a.window, rec, "Copy", theme.ContentCopyIcon()),
+			),
+		)
+		return container.NewVBox(
+			entryKey,
+			entryVal,
+		)
+	}
+	entryVal := widget.NewEntry()
+	entryVal.Text = val
+	return container.NewVBox(
+		entryKey,
+		entryVal,
+	)
 }
 
 // helper function to build recordsList
 func (a *vaultRecords) buildRecordsList(records []vt.VaultRecord) *widget.Accordion {
 	entries := widget.NewAccordion()
 	for _, rec := range records {
-		entries.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
+		//         entries.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
+		entries.Append(widget.NewAccordionItem(recordName(rec), a.rowContainer(rec)))
 	}
 	return entries
 }
@@ -47,7 +93,8 @@ var uiRecords *widget.Accordion
 func (a *vaultRecords) Refresh() {
 	uiRecords.Items = nil
 	for _, rec := range _vault.Records {
-		uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
+		//         uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
+		uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.rowContainer(rec)))
 	}
 	uiRecords.Refresh()
 }
@@ -89,13 +136,11 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 func (a *vaultRecords) formItem(vrec vt.VaultRecord, key, val string) *widget.FormItem {
 	if key == "Password" || key == "password" {
 		rec := widget.NewPasswordEntry()
-		//         rec := widget.NewEntryWithData(val)
-		//         rec.Password = true
 		rec.Text = val
 		rec.Refresh()
 		recContainer := container.NewVBox(
 			container.NewGridWithColumns(2,
-				rec, a.copyIcon(rec),
+				rec, copyButton(a.window, rec, key, theme.ContentCopyIcon()),
 			),
 		)
 		return widget.NewFormItem(key, recContainer)
@@ -137,9 +182,9 @@ func (a *vaultRecords) recordContainer(record vt.VaultRecord) *fyne.Container {
 }
 
 // helper function to create appropriate copy icon
-func (a *vaultRecords) copyIcon(entry *widget.Entry) *widget.Button {
+func (a *vaultRecords) copyIcon(entry *widget.Entry, txt string) *widget.Button {
 	icon := &widget.Button{
-		Text: "Copy",
+		Text: txt,
 		Icon: theme.ContentCopyIcon(),
 		OnTapped: func() {
 			text := entry.Text
