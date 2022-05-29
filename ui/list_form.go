@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"strings"
 
 	fyne "fyne.io/fyne/v2"
@@ -46,15 +47,21 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 		}
 	}
 	// TODO: need a button with OnTapped acition
+	//     btn := copyButton(a.window, "Update", "", theme.MenuIcon())
+	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
 	btn := copyButton(a.window, "Update", "", theme.MenuIcon())
-	objects = append(objects, btn)
+	btnContainer := colorButtonContainer(btn, btnColor)
+	//     btnSize := fyne.NewSize(340, 40) // match width/height of singleRow
+	//     btnContainer := container.NewGridWrap(btnSize, btn)
+	//     objects = append(objects, btnContainer)
+
+	objects = append(objects, btnContainer)
 	return container.NewVBox(objects...)
 }
 
 // helper function to create single row container
 func (a *vaultRecords) singleRow(key, val string) *fyne.Container {
 	label := widget.NewLabel(key)
-	//     label := widget.NewLabelWithStyle(key, fyne.TextAlignLeading, fyne.TextStyle{})
 	entry := widget.NewEntry()
 	entry.Text = val
 	if key == "Password" || key == "password" {
@@ -66,35 +73,18 @@ func (a *vaultRecords) singleRow(key, val string) *fyne.Container {
 		copyButton(a.window, "", val, theme.ContentCopyIcon()),
 	)
 
+	// specify explicitly size of our elements in a container
 	labelSize := fyne.NewSize(100, 40)
 	entrySize := fyne.NewSize(200, 40)
 	buttonSize := fyne.NewSize(40, 40)
 
-	label.Resize(labelSize)
+	//     label.Resize(labelSize)
 	labelContainer := container.NewGridWrap(labelSize, label)
 	entryContainer := container.NewGridWrap(entrySize, entry)
-	//     button := copyButton(a.window, "", val, theme.ContentCopyIcon())
 	buttonContainer := container.NewGridWrap(buttonSize, btn)
 	return container.NewHBox(
 		labelContainer, entryContainer, buttonContainer,
 	)
-
-	//     return container.NewVBox(
-	//         container.NewAdaptiveGrid(3,
-	//             labelContainer, entryContainer, buttonContainer,
-	//         ),
-	//     )
-
-	//     size := fyne.NewSize(100, 35)
-	//     return container.NewGridWrap(
-	//         size,
-	//         label, entry, btn,
-	//     )
-	//     return container.NewVBox(
-	//         container.NewGridWithColumns(3,
-	//             label, entry, btn,
-	//         ),
-	//     )
 }
 
 // func NewGridWithColumns(cols int, objects ...fyne.CanvasObject) *fyne.Container {
@@ -125,6 +115,26 @@ func (a *vaultRecords) Refresh() {
 	uiRecords.Refresh()
 }
 
+// helper function to create appropriate copy button with custom text and icon
+func (a *vaultRecords) searchButton(entry *widget.Entry) *widget.Button {
+	return &widget.Button{
+		Text: "",
+		Icon: theme.SearchIcon(),
+		OnTapped: func() {
+			key := entry.Text
+			// reset items of accordion
+			// see https://yourbasic.org/golang/clear-slice/
+			uiRecords.Items = nil
+			for _, rec := range _vault.Find(key) {
+				//                 uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
+				uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.rowContainer(rec)))
+			}
+			uiRecords.Refresh()
+		},
+	}
+}
+
+// helper function to build list form UI
 func (a *vaultRecords) buildUI() *container.Scroll {
 
 	// build initial set of accordion records
@@ -138,13 +148,25 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 		// see https://yourbasic.org/golang/clear-slice/
 		accRecords.Items = nil
 		for _, rec := range _vault.Find(v) {
-			accRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
+			//             accRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
+			accRecords.Append(widget.NewAccordionItem(recordName(rec), a.rowContainer(rec)))
 		}
 		accRecords.Refresh()
 	}
 	search.PlaceHolder = "search keyword"
-	searchContainer := container.NewVBox(
-		search,
+
+	searchSize := fyne.NewSize(340, 40) // match width/height of singleRow
+	searchContainer := container.NewGridWrap(searchSize, search)
+
+	// TODO: assign OnTapped action to perform search across records see OnSubmitted function
+	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
+	//     btnLabel := ""
+	//     btnValue := ""
+	//     btn := copyButton(a.window, btnLabel, btnText, theme.SearchIcon())
+	btn := a.searchButton(search)
+	btnContainer := colorButtonContainer(btn, btnColor)
+	searchRowContainer := container.NewHBox(
+		searchContainer, btnContainer,
 	)
 
 	//     label := ""
@@ -155,8 +177,7 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 
 	// return final container with search and accordion records
 	return container.NewScroll(container.NewVBox(
-		//         form,
-		searchContainer,
+		container.NewVBox(searchRowContainer),
 		container.NewVBox(accRecords),
 	))
 }
