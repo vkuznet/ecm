@@ -29,7 +29,7 @@ func AppWindow(app fyne.App, w fyne.Window) {
 	w.Resize(windowSize)
 	w.SetMaster()
 	// custom theme
-	app.Settings().SetTheme(&grayTheme{})
+	//     app.Settings().SetTheme(&grayTheme{})
 }
 
 func checkVault() {
@@ -46,7 +46,7 @@ func checkVault() {
 // LoginWindow represents login window
 func LoginWindow(app fyne.App, w fyne.Window) {
 	// custom theme
-	app.Settings().SetTheme(&grayTheme{})
+	//     app.Settings().SetTheme(&grayTheme{})
 
 	// get vault records
 	if _vault == nil {
