@@ -26,12 +26,12 @@ func entryButton(bname string) *fyne.Container {
 }
 
 // helper function to create appropriate copy button with custom text and icon
-func copyButton(w fyne.Window, entry *widget.Entry, txt string, icon fyne.Resource) *widget.Button {
+func copyButton(w fyne.Window, label, txt string, icon fyne.Resource) *widget.Button {
 	return &widget.Button{
-		Text: txt,
+		Text: label,
 		Icon: icon,
 		OnTapped: func() {
-			text := entry.Text
+			text := txt
 			w.Clipboard().SetContent(text)
 		},
 	}
