@@ -10,6 +10,9 @@ import (
 	widget "fyne.io/fyne/v2/widget"
 )
 
+// for more help see
+// https://blogvali.com/category/fyne-golang-gui/
+
 // helper function to make custom entry button
 func entryButton(bname string) *fyne.Container {
 	btn := widget.NewButton(bname, nil)
