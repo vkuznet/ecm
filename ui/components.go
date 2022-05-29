@@ -1,14 +1,15 @@
 package main
 
 import (
+	"image/color"
 	"log"
 	"os"
 	"time"
 
 	"fyne.io/fyne/v2"
-	canvas "fyne.io/fyne/v2/canvas"
 	container "fyne.io/fyne/v2/container"
 	layout "fyne.io/fyne/v2/layout"
+	theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
 	vt "github.com/vkuznet/ecm/vault"
 	"golang.org/x/exp/errors"
@@ -43,6 +44,24 @@ func checkVault() {
 	}
 }
 
+// helper function to create appropriate login button with custom text and icon
+func loginButton(app fyne.App, w fyne.Window, entry *widget.Entry) *widget.Button {
+	return &widget.Button{
+		Text: "",
+		Icon: theme.LoginIcon(),
+		OnTapped: func() {
+			_vault.Secret = entry.Text
+			checkVault()
+			err := _vault.Read()
+			if err != nil {
+				ErrWindow(app, w, err)
+			} else {
+				AppWindow(app, w)
+			}
+		},
+	}
+}
+
 // LoginWindow represents login window
 func LoginWindow(app fyne.App, w fyne.Window) {
 	// custom theme
@@ -67,34 +86,54 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 			AppWindow(app, w)
 		}
 	}
-	password.Resize(inputSize)
-	label := ""
-	formItem := widget.NewFormItem(label, password)
+	password.PlaceHolder = "Enter Master Password"
+	//     password.Resize(inputSize)
 
-	form := &widget.Form{
-		Items: []*widget.FormItem{formItem},
-		OnSubmit: func() {
-			_vault.Secret = password.Text
-			checkVault()
-			err := _vault.Read()
-			if err != nil {
-				ErrWindow(app, w, err)
-			} else {
-				AppWindow(app, w)
-			}
-		},
-	}
-	text := &canvas.Text{Text: "Encrypted Content"}
-	text.Alignment = fyne.TextAlignCenter
+	loginContainer := container.NewGridWrap(rowSize, password)
+
+	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
+	btn := loginButton(app, w, password)
+	btnContainer := colorButtonContainer(btn, btnColor)
+	loginRowContainer := container.NewHBox(
+		loginContainer, btnContainer,
+	)
 	spacer := &layout.Spacer{}
-
-	// set final container
-	content := container.NewVBox(
+	contentContainer := container.NewVBox(
 		spacer,
-		text,
-		form,
+		loginRowContainer,
 		spacer,
 	)
+	content := container.NewCenter(contentContainer)
+
+	/*
+		label := ""
+		formItem := widget.NewFormItem(label, password)
+
+		form := &widget.Form{
+			Items: []*widget.FormItem{formItem},
+			OnSubmit: func() {
+				_vault.Secret = password.Text
+				checkVault()
+				err := _vault.Read()
+				if err != nil {
+					ErrWindow(app, w, err)
+				} else {
+					AppWindow(app, w)
+				}
+			},
+		}
+		text := &canvas.Text{Text: "Encrypted Content"}
+		text.Alignment = fyne.TextAlignCenter
+		spacer := &layout.Spacer{}
+
+		// set final container
+		content := container.NewVBox(
+			spacer,
+			text,
+			form,
+			spacer,
+		)
+	*/
 
 	// set window settings
 	w.SetContent(content)

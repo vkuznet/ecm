@@ -51,9 +51,6 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
 	btn := copyButton(a.window, "Update", "", theme.MenuIcon())
 	btnContainer := colorButtonContainer(btn, btnColor)
-	//     btnSize := fyne.NewSize(340, 40) // match width/height of singleRow
-	//     btnContainer := container.NewGridWrap(btnSize, btn)
-	//     objects = append(objects, btnContainer)
 
 	objects = append(objects, btnContainer)
 	return container.NewVBox(objects...)
@@ -154,26 +151,15 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 		accRecords.Refresh()
 	}
 	search.PlaceHolder = "search keyword"
-
-	searchSize := fyne.NewSize(340, 40) // match width/height of singleRow
-	searchContainer := container.NewGridWrap(searchSize, search)
+	searchContainer := container.NewGridWrap(rowSize, search)
 
 	// TODO: assign OnTapped action to perform search across records see OnSubmitted function
 	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
-	//     btnLabel := ""
-	//     btnValue := ""
-	//     btn := copyButton(a.window, btnLabel, btnText, theme.SearchIcon())
 	btn := a.searchButton(search)
 	btnContainer := colorButtonContainer(btn, btnColor)
 	searchRowContainer := container.NewHBox(
 		searchContainer, btnContainer,
 	)
-
-	//     label := ""
-	//     formItem := widget.NewFormItem(label, search)
-	//     form := &widget.Form{
-	//         Items: []*widget.FormItem{formItem},
-	//     }
 
 	// return final container with search and accordion records
 	return container.NewScroll(container.NewVBox(

@@ -11,7 +11,7 @@ import (
 )
 
 // various sizes of our application
-var windowSize, inputSize fyne.Size
+var windowSize, inputSize, rowSize fyne.Size
 var appKind string
 
 func main() {
@@ -36,6 +36,9 @@ func appSettings(app fyne.App) {
 	cipher := "aes"
 	vdir := fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME"))
 	fontSize := "Normal"
+
+	// rowSize represents main row size used in our UI containers
+	rowSize = fyne.NewSize(340, 40)
 
 	// make changes depending on application kind
 	if appKind == "desktop" {
