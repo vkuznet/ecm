@@ -1,4 +1,4 @@
-module github.com/vkuznet/ecm-ui
+module github.com/vkuznet/ecm
 
 go 1.18
 
