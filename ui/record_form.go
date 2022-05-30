@@ -348,5 +348,5 @@ func (r *Record) buildUI() *container.Scroll {
 	))
 }
 func (r *Record) tabItem() *container.TabItem {
-	return &container.TabItem{Text: "", Icon: theme.ContentAddIcon(), Content: r.buildUI()}
+	return &container.TabItem{Text: "New", Icon: theme.ContentAddIcon(), Content: r.buildUI()}
 }
