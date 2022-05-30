@@ -141,5 +141,5 @@ func (r *Settings) buildUI() *container.Scroll {
 	))
 }
 func (r *Settings) tabItem() *container.TabItem {
-	return &container.TabItem{Text: "", Icon: theme.SettingsIcon(), Content: r.buildUI()}
+	return &container.TabItem{Text: "Settings", Icon: theme.SettingsIcon(), Content: r.buildUI()}
 }
