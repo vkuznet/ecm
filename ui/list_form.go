@@ -234,5 +234,6 @@ func (a *vaultRecords) copyIcon(entry *widget.Entry, txt string) *widget.Button 
 }
 
 func (a *vaultRecords) tabItem() *container.TabItem {
-	return &container.TabItem{Text: "Records", Icon: theme.ListIcon(), Content: a.buildUI()}
+	//     return &container.TabItem{Text: "Records", Icon: theme.ListIcon(), Content: a.buildUI()}
+	return &container.TabItem{Text: "Records", Icon: listImage.Resource, Content: a.buildUI()}
 }
