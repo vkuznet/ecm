@@ -28,7 +28,7 @@ func checkVault() {
 
 // helper function to create appropriate login button with custom text and icon
 func loginButton(app fyne.App, w fyne.Window, entry *widget.Entry) *widget.Button {
-	return &widget.Button{
+	btn := &widget.Button{
 		Text: "",
 		//         Icon: theme.LoginIcon(),
 		Icon: lockImage.Resource,
@@ -43,6 +43,7 @@ func loginButton(app fyne.App, w fyne.Window, entry *widget.Entry) *widget.Butto
 			}
 		},
 	}
+	return btn
 }
 
 // helper function to create appropriate button with custom icon
