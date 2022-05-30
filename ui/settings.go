@@ -55,6 +55,9 @@ func (r *Settings) onPasswordLengthChanged(v string) {
 	r.preferences.SetString("PasswordLength", v)
 }
 func (r *Settings) onThemeChanged(v string) {
+	// update global theme name
+	appTheme = v
+	// update app setttings
 	if v == "dark" {
 		r.app.Settings().SetTheme(theme.DarkTheme())
 	} else if v == "ligth" {
@@ -62,6 +65,8 @@ func (r *Settings) onThemeChanged(v string) {
 	} else {
 		r.app.Settings().SetTheme(theme.LightTheme())
 	}
+	// update custom image pointers
+	setCustomImages()
 }
 func (r *Settings) onVaultCipherChanged(v string) {
 	_vault.Cipher = v
@@ -101,7 +106,7 @@ func (r *Settings) buildUI() *container.Scroll {
 
 	themeNames := []string{"dark", "light"}
 	r.theme = widget.NewSelect(themeNames, r.onThemeChanged)
-	r.theme.SetSelected("dark")
+	r.theme.SetSelected(appTheme)
 	//     r.theme.SetSelected("light")
 
 	// TODO: add selection of font sizes
