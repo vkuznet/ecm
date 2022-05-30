@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"log"
 
 	"fyne.io/fyne/v2"
@@ -70,8 +71,13 @@ func (r *SyncUI) buildUI() *container.Scroll {
 			r.vaultRecords.Refresh()
 		},
 	}
+
+	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
+	btnContainer := colorButtonContainer(r.syncButton, btnColor)
+
 	box := container.NewVBox(
-		container.NewGridWithColumns(2, r.dropbox, r.syncButton),
+		//         container.NewGridWithColumns(2, r.dropbox, r.syncButton),
+		container.NewGridWithColumns(2, r.dropbox, btnContainer),
 		&widget.Label{},
 	)
 
