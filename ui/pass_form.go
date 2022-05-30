@@ -8,7 +8,7 @@ import (
 	container "fyne.io/fyne/v2/container"
 	binding "fyne.io/fyne/v2/data/binding"
 	//     layout "fyne.io/fyne/v2/layout"
-	theme "fyne.io/fyne/v2/theme"
+	//     theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
 	crypt "github.com/vkuznet/ecm/crypt"
 )
@@ -28,26 +28,19 @@ func (r *Password) CharactersChange(v string) {
 }
 func (r *Password) buildUI() *fyne.Container {
 	// widgets
-	//     spacer := &layout.Spacer{}
 	genPassword := &widget.Entry{PlaceHolder: "generated password"}
-	icon := &widget.Button{
-		Text: "Copy",
-		Icon: theme.ContentCopyIcon(),
-		OnTapped: func() {
-			text := genPassword.Text
-			r.window.Clipboard().SetContent(text)
-		},
-	}
 	length := binding.NewInt()
 	length.Set(16)
 	strLength := binding.IntToString(length)
 	size := widget.NewEntryWithData(strLength)
 	names := []string{"letters", "letters+digits", "letters+digits+symbols"}
 	characters := widget.NewSelect(names, r.CharactersChange)
+	characters.SetSelected("letters+digits+symbols")
 
 	// form widget
 	passForm := &widget.Form{
 		Items: []*widget.FormItem{
+			widget.NewFormItem("New password", genPassword),
 			widget.NewFormItem("Characters", characters),
 			widget.NewFormItem("Size", size),
 		},
@@ -66,23 +59,16 @@ func (r *Password) buildUI() *fyne.Container {
 			}
 			genPassword.Text = crypt.CreatePassword(val, hasNumbers, hasSymbols)
 			genPassword.Refresh()
+			r.window.Clipboard().SetContent(genPassword.Text)
 		},
 	}
-
-	// password container
-	passContainer := container.NewVBox(
-		container.NewGridWithColumns(2,
-			genPassword, icon,
-		),
-	)
 
 	// final container
 	return container.NewVBox(
 		passForm,
-		//         spacer,
-		passContainer,
 	)
 }
 func (r *Password) tabItem() *container.TabItem {
-	return &container.TabItem{Text: "", Icon: theme.VisibilityIcon(), Content: r.buildUI()}
+	//     return &container.TabItem{Text: "Password", Icon: theme.VisibilityIcon(), Content: r.buildUI()}
+	return &container.TabItem{Text: "Password", Icon: passImage.Resource, Content: r.buildUI()}
 }
