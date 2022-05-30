@@ -66,6 +66,8 @@ func (a *vaultRecords) singleRow(key, val string) *fyne.Container {
 		entry.Text = val
 		entry.Refresh()
 	}
+	// by default keep it disabled
+	entry.Disable()
 	btn := container.NewVBox(
 		copyButton(a.window, "", val, theme.ContentCopyIcon()),
 	)
