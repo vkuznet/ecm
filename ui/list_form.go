@@ -151,7 +151,7 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 		accRecords.Refresh()
 	}
 	search.PlaceHolder = "search keyword"
-	searchContainer := container.NewGridWrap(rowSize, search)
+	searchContainer := container.NewGridWrap(inputSize, search)
 
 	// TODO: assign OnTapped action to perform search across records see OnSubmitted function
 	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
