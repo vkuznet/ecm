@@ -11,7 +11,7 @@ import (
 // various sizes of our application
 var windowSize, inputSize, rowSize fyne.Size
 var appKind, appTheme string
-var gitImage, docImage, webImage, lockImage, syncImage, passImage *canvas.Image
+var gitImage, docImage, webImage, lockImage, syncImage, passImage, listImage *canvas.Image
 
 // helper function to set application preferences/settings
 func appSettings(app fyne.App) {
@@ -64,6 +64,7 @@ func setCustomImages() {
 		lockImage = canvas.NewImageFromResource(resourceLockBlackSvg)
 		syncImage = canvas.NewImageFromResource(resourceSyncBlackSvg)
 		passImage = canvas.NewImageFromResource(resourcePassBlackSvg)
+		listImage = canvas.NewImageFromResource(resourceListBlackSvg)
 	} else {
 		gitImage = canvas.NewImageFromResource(resourceGithubWhiteSvg)
 		webImage = canvas.NewImageFromResource(resourceWebWhiteSvg)
@@ -71,9 +72,10 @@ func setCustomImages() {
 		lockImage = canvas.NewImageFromResource(resourceLockWhiteSvg)
 		syncImage = canvas.NewImageFromResource(resourceSyncWhiteSvg)
 		passImage = canvas.NewImageFromResource(resourcePassWhiteSvg)
+		listImage = canvas.NewImageFromResource(resourceListWhiteSvg)
 	}
-	gitImage.SetMinSize(fyne.NewSize(40, 40))
-	webImage.SetMinSize(fyne.NewSize(35, 35))
-	docImage.SetMinSize(fyne.NewSize(40, 40))
-	lockImage.SetMinSize(fyne.NewSize(40, 40))
+	//     gitImage.SetMinSize(fyne.NewSize(100, 100))
+	//     webImage.SetMinSize(fyne.NewSize(100, 100))
+	//     docImage.SetMinSize(fyne.NewSize(100, 100))
+	//     lockImage.SetMinSize(fyne.NewSize(100, 100))
 }
