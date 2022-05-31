@@ -4,18 +4,28 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/vkuznet/ecm)](https://goreportcard.com/report/github.com/vkuznet/ecm)
 [![GoDoc](https://godoc.org/github.com/vkuznet/ecm?status.svg)](https://godoc.org/github.com/vkuznet/ecm)
 
-Encrypted Content Management (ECM) is a generic toolkit for encrypting any kind of
-digital content (files). It can be viewed as alternative to password managers similar to
-1Password, LastPass, ButterCup, etc. but it is not restricted to secure
-meta-data. Any content can be encrypted with ECM.
+Encrypted Content Management (ECM) is a generic toolkit for encrypting any kind
+of digital content (files, passwords, notes, etc.). It can be viewed as
+alternative to password managers similar to 1Password, LastPass, ButterCup,
+etc. but it is not restricted to secure only the meta-data. Any content can be
+encrypted with ECM.
 
-Since majority of password management tools are designed to work with your
-browsers and lack of CLI and web server support we decided to create a more
-flexible version of password manager tool which will be suitable in different
-environments, i.e. work in a terminal (CLI version), work as a HTTP service,
-support multiple architectures, etc.
+ECM fills the gap of provide CLI, Web server, browser extension and UI
+based on GoLang crypto library. It depends on [rclone](https://rclone.org/)
+library to provide sync capabilities to various cloud providers (such as
+Dropbox, PCloud, etc.) as well as syncing to specific hosts (via sftp
+protocol). All components of ECM toolkit are written in Go, and therefore
+are portable across different architectures and hardwares. The CLI interface
+allows to work with ECM from a terminal, and therefore portable across
+hosts. The web server (and wasm extention) provides fully featured
+web server with 2fa authentication. Finally, thanks to [fyne.io](https://fyne.io/)
+library the UI provides consistent interface among platform and mobile devices.
 
-The current list of requirements is the following:
+### Architectore
+Below you can find current architecture of ECM toolkit:
+![ECM architecture](doc/images/ecm-architecture.png)
+
+The ECM toolkit has the following list of requirements:
 - OS and architecture agnostic
 - support different environments, work as CLI tool, provide HTTP service, etc.
 - support multiple cipher's implementation (currently supports AES and NaCl)
@@ -24,7 +34,8 @@ The current list of requirements is the following:
 - support multiple vaults
 - support multiple storage systems, e.g. local FS, various cloud platforms,
 remote storage, storage on remote nodes, etc.
-- easy customization including themes, record attributes, etc.
+- easy customization including vaults location, transfer, synchronisaions,
+and record attributes, etc.
 
 This work is in progress and can only be viewed as pre-alpha release.
 
