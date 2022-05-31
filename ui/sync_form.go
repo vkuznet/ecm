@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"log"
 
 	"fyne.io/fyne/v2"
@@ -16,8 +15,6 @@ type SyncUI struct {
 	preferences  fyne.Preferences
 	window       fyne.Window
 	app          fyne.App
-	dropbox      *widget.Entry
-	syncButton   *widget.Button
 	vaultRecords *vaultRecords
 }
 
@@ -32,29 +29,29 @@ func newUISync(a fyne.App, w fyne.Window, v *vaultRecords) *SyncUI {
 func (r *SyncUI) onDropboxPathChanged(v string) {
 	r.preferences.SetString("dropbox", v)
 }
+func (r *SyncUI) onPCloudPathChanged(v string) {
+	r.preferences.SetString("pcloud", v)
+}
+func (r *SyncUI) onSftpPathChanged(v string) {
+	r.preferences.SetString("sftp", v)
+}
 
-// helper function to build UI
-func (r *SyncUI) buildUI() *container.Scroll {
-
-	// sync form container
-	dpath := "dropbox:ECM"
-	r.dropbox = &widget.Entry{Text: dpath, OnSubmitted: r.onDropboxPathChanged}
-
+// helper function to provide sync button to given destination
+func (r *SyncUI) syncButton(dst string) *widget.Button {
 	// get vault dir from preferences
 	pref := r.app.Preferences()
 	vdir := pref.String("VaultDirectory")
 
-	r.syncButton = &widget.Button{
+	btn := &widget.Button{
 		Text: "Sync",
-		//         Icon: theme.DownloadIcon(),
 		Icon: syncImage.Resource,
 		OnTapped: func() {
 			// perform sync from dropbox to vault
 			dir := r.app.Storage().RootURI().Path()
 			fconf := fmt.Sprintf("%s/ecmsync.conf", dir)
 			log.Println("config", fconf)
-			log.Printf("sync from %s to %s", dpath, vdir)
-			err := ecmsync.EcmSync(fconf, dpath, vdir)
+			log.Printf("sync from %s to %s", dst, vdir)
+			err := ecmsync.EcmSync(fconf, dst, vdir)
 			if err != nil {
 				log.Println("unable to sync", err)
 			}
@@ -70,13 +67,46 @@ func (r *SyncUI) buildUI() *container.Scroll {
 			r.vaultRecords.Refresh()
 		},
 	}
+	return btn
+}
 
-	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
-	btnContainer := colorButtonContainer(r.syncButton, btnColor)
+// helper function to build UI
+func (r *SyncUI) buildUI() *container.Scroll {
+
+	// sync form container
+	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
+	pcloud := &widget.Entry{Text: "pcloud:ECM", OnSubmitted: r.onPCloudPathChanged}
+	sftp := &widget.Entry{Text: "sftp:ECM", OnSubmitted: r.onSftpPathChanged}
+	dstDir := _vault.Directory
+	if appKind != "desktop" {
+		dstDir = "mobile storage"
+	}
+	dst := &widget.Entry{Text: dstDir}
+	dst.Disable()
+
+	// button to sync
+	btnTo := &widget.Button{
+		Text: "",
+		Icon: rightArrowImage.Resource,
+	}
+	//     btnTo := canvas.NewImageFromResource(rightArrowImage.Resource)
+	btnToContainer := colorButtonContainer(btnTo, btnColor)
+
+	dropboxButtonContainer := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
+	rowDropbox := container.NewHBox(dropbox, btnToContainer, dst, dropboxButtonContainer)
+	pcloudButtonContainer := colorButtonContainer(r.syncButton(pcloud.Text), btnColor)
+	rowPCloud := container.NewHBox(pcloud, btnToContainer, dst, pcloudButtonContainer)
+	sftpButtonContainer := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
+	rowSftp := container.NewHBox(sftp, btnToContainer, dst, sftpButtonContainer)
 
 	box := container.NewVBox(
-		//         container.NewGridWithColumns(2, r.dropbox, r.syncButton),
-		container.NewGridWithColumns(2, r.dropbox, btnContainer),
+		//         container.NewGridWithColumns(2, dropbox, r.syncButton),
+		widget.NewLabel("Dropbox"),
+		rowDropbox,
+		widget.NewLabel("Pcloud"),
+		rowPCloud,
+		widget.NewLabel("Sftp"),
+		rowSftp,
 		&widget.Label{},
 	)
 
