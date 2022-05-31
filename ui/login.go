@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"log"
 	"net/url"
 	"os"
@@ -86,7 +85,6 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 
 	loginContainer := container.NewGridWrap(inputSize, password)
 
-	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
 	btn := loginButton(app, w, password)
 	btnContainer := colorButtonContainer(btn, btnColor)
 	loginRowContainer := container.NewHBox(
