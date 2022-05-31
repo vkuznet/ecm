@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"os"
 
 	fyne "fyne.io/fyne/v2"
@@ -12,6 +13,8 @@ import (
 var windowSize, inputSize, rowSize fyne.Size
 var appKind, appTheme string
 var gitImage, docImage, webImage, lockImage, syncImage, passImage, listImage *canvas.Image
+var rightArrowImage, leftArrowImage *canvas.Image
+var btnColor color.NRGBA
 
 // helper function to set application preferences/settings
 func appSettings(app fyne.App) {
@@ -26,6 +29,9 @@ func appSettings(app fyne.App) {
 	if appTheme == "" {
 		appTheme = "dark"
 	}
+
+	// color for our buttons
+	btnColor = color.NRGBA{0x79, 0x79, 0x79, 0xff}
 
 	// rowSize represents main row size used in our UI containers
 	rowSize = fyne.NewSize(340, 40)
@@ -65,6 +71,8 @@ func setCustomImages() {
 		syncImage = canvas.NewImageFromResource(resourceSyncBlackSvg)
 		passImage = canvas.NewImageFromResource(resourcePassBlackSvg)
 		listImage = canvas.NewImageFromResource(resourceListBlackSvg)
+		leftArrowImage = canvas.NewImageFromResource(resourceLeftArrowBlackSvg)
+		rightArrowImage = canvas.NewImageFromResource(resourceRightArrowBlackSvg)
 	} else {
 		gitImage = canvas.NewImageFromResource(resourceGithubWhiteSvg)
 		webImage = canvas.NewImageFromResource(resourceWebWhiteSvg)
@@ -73,9 +81,13 @@ func setCustomImages() {
 		syncImage = canvas.NewImageFromResource(resourceSyncWhiteSvg)
 		passImage = canvas.NewImageFromResource(resourcePassWhiteSvg)
 		listImage = canvas.NewImageFromResource(resourceListWhiteSvg)
+		leftArrowImage = canvas.NewImageFromResource(resourceLeftArrowWhiteSvg)
+		rightArrowImage = canvas.NewImageFromResource(resourceRightArrowWhiteSvg)
 	}
 	//     gitImage.SetMinSize(fyne.NewSize(100, 100))
 	//     webImage.SetMinSize(fyne.NewSize(100, 100))
 	//     docImage.SetMinSize(fyne.NewSize(100, 100))
 	//     lockImage.SetMinSize(fyne.NewSize(100, 100))
+	rightArrowImage.SetMinSize(fyne.NewSize(50, 50))
+	leftArrowImage.SetMinSize(fyne.NewSize(50, 50))
 }
