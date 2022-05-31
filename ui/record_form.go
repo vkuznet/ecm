@@ -52,10 +52,10 @@ type SyncRecord struct {
 }
 
 // UploadRecord represents sycn UI record
-type UploadRecord struct {
-	Name binding.String
-	File binding.String
-}
+// type UploadRecord struct {
+//     Name binding.String
+//     File binding.String
+// }
 
 // Record represents new UI Record
 type Record struct {
@@ -63,12 +63,12 @@ type Record struct {
 	app    fyne.App
 
 	// binding records
-	LoginRecord  *LoginRecord
-	JSONRecord   *JSONRecord
-	NoteRecord   *NoteRecord
-	CardRecord   *CardRecord
-	SyncRecord   *SyncRecord
-	UploadRecord *UploadRecord
+	LoginRecord *LoginRecord
+	JSONRecord  *JSONRecord
+	NoteRecord  *NoteRecord
+	CardRecord  *CardRecord
+	SyncRecord  *SyncRecord
+	//     UploadRecord *UploadRecord
 }
 
 func newLoginRecord() *LoginRecord {
@@ -110,22 +110,23 @@ func newSyncRecord() *SyncRecord {
 		ToURI:   binding.NewString(),
 	}
 }
-func newUploadRecord() *UploadRecord {
-	return &UploadRecord{
-		File: binding.NewString(),
-	}
-}
+
+// func newUploadRecord() *UploadRecord {
+//     return &UploadRecord{
+//         File: binding.NewString(),
+//     }
+// }
 
 func newUIRecord(a fyne.App, w fyne.Window) *Record {
 	return &Record{
-		app:          a,
-		window:       w,
-		LoginRecord:  newLoginRecord(),
-		JSONRecord:   newJSONRecord(),
-		NoteRecord:   newNoteRecord(),
-		CardRecord:   newCardRecord(),
-		SyncRecord:   newSyncRecord(),
-		UploadRecord: newUploadRecord(),
+		app:         a,
+		window:      w,
+		LoginRecord: newLoginRecord(),
+		JSONRecord:  newJSONRecord(),
+		NoteRecord:  newNoteRecord(),
+		CardRecord:  newCardRecord(),
+		SyncRecord:  newSyncRecord(),
+		//         UploadRecord: newUploadRecord(),
 	}
 }
 
@@ -213,11 +214,11 @@ func (r *Record) SyncForm() {
 	// TODO: implement sync action
 	log.Println("sync is not implemented", fromURI, toURI)
 }
-func (r *Record) UploadForm() {
-	fname, _ := r.UploadRecord.File.Get()
-	// TODO: implement file upload
-	log.Println("file upload not implemented", fname)
-}
+
+// func (r *Record) UploadForm() {
+//     fname, _ := r.UploadRecord.File.Get()
+//     log.Println("file upload not implemented", fname)
+// }
 
 func (r *Record) buildUI() *container.Scroll {
 
@@ -326,15 +327,15 @@ func (r *Record) buildUI() *container.Scroll {
 
 	// TODO: change file to be drop area or select from file system
 	// upload form container
-//     fileEntryFile := widget.NewEntryWithData(r.UploadRecord.File)
-//     fileEntryFile.PlaceHolder = "file name"
-//     fileForm := &widget.Form{
-//         Items: []*widget.FormItem{
-//             widget.NewFormItem("File", fileEntryFile),
-//         },
-//         OnSubmit: r.UploadForm,
-//     }
-//     fileContainer := container.NewVBox(fileForm)
+	//     fileEntryFile := widget.NewEntryWithData(r.UploadRecord.File)
+	//     fileEntryFile.PlaceHolder = "file name"
+	//     fileForm := &widget.Form{
+	//         Items: []*widget.FormItem{
+	//             widget.NewFormItem("File", fileEntryFile),
+	//         },
+	//         OnSubmit: r.UploadForm,
+	//     }
+	//     fileContainer := container.NewVBox(fileForm)
 
 	return container.NewScroll(container.NewVBox(
 		&widget.Accordion{Items: []*widget.AccordionItem{
@@ -342,7 +343,7 @@ func (r *Record) buildUI() *container.Scroll {
 			{Title: "JSON Record", Detail: jsonContainer},
 			{Title: "Note Record", Detail: noteContainer},
 			{Title: "Card Record", Detail: cardContainer},
-//             {Title: "File upload", Detail: fileContainer},
+			//             {Title: "File upload", Detail: fileContainer},
 			{Title: "Sync", Detail: syncContainer},
 		}},
 	))
