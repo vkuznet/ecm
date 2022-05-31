@@ -38,3 +38,13 @@ func Create(app fyne.App, window fyne.Window) *container.AppTabs {
 		newUISettings(app, window).tabItem(),
 	}}
 }
+
+// helper function to refresh all app widgets/canvases
+func appRefresh(app fyne.App, window fyne.Window) {
+	// update custom image pointers
+	setCustomImages()
+	// refresh all widgets
+	content := window.Content()
+	canvas := window.Canvas()
+	canvas.Refresh(content)
+}
