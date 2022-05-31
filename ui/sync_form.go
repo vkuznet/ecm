@@ -77,36 +77,25 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
 	pcloud := &widget.Entry{Text: "pcloud:ECM", OnSubmitted: r.onPCloudPathChanged}
 	sftp := &widget.Entry{Text: "sftp:ECM", OnSubmitted: r.onSftpPathChanged}
-	dstDir := _vault.Directory
-	if appKind != "desktop" {
-		dstDir = "mobile storage"
-	}
-	dst := &widget.Entry{Text: dstDir}
-	dst.Disable()
 
-	// button to sync
-	btnTo := &widget.Button{
-		Text: "",
-		Icon: rightArrowImage.Resource,
-	}
-	//     btnTo := canvas.NewImageFromResource(rightArrowImage.Resource)
-	btnToContainer := colorButtonContainer(btnTo, btnColor)
+	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
+	pcloudSync := colorButtonContainer(r.syncButton(pcloud.Text), btnColor)
+	sftpSync := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
 
-	dropboxButtonContainer := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
-	rowDropbox := container.NewHBox(dropbox, btnToContainer, dst, dropboxButtonContainer)
-	pcloudButtonContainer := colorButtonContainer(r.syncButton(pcloud.Text), btnColor)
-	rowPCloud := container.NewHBox(pcloud, btnToContainer, dst, pcloudButtonContainer)
-	sftpButtonContainer := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
-	rowSftp := container.NewHBox(sftp, btnToContainer, dst, sftpButtonContainer)
+	dropboxLabel := widget.NewLabel("Dropbox to vault")
+	dropboxLabel.TextStyle.Bold = true
+	pcloudLabel := widget.NewLabel("PCloud to vault")
+	pcloudLabel.TextStyle.Bold = true
+	sftpLabel := widget.NewLabel("Sftp to vault")
+	sftpLabel.TextStyle.Bold = true
 
 	box := container.NewVBox(
-		//         container.NewGridWithColumns(2, dropbox, r.syncButton),
-		widget.NewLabel("Dropbox"),
-		rowDropbox,
-		widget.NewLabel("Pcloud"),
-		rowPCloud,
-		widget.NewLabel("Sftp"),
-		rowSftp,
+		dropboxLabel,
+		container.NewGridWithColumns(2, dropbox, dropboxSync),
+		pcloudLabel,
+		container.NewGridWithColumns(2, pcloud, pcloudSync),
+		sftpLabel,
+		container.NewGridWithColumns(2, sftp, sftpSync),
 		&widget.Label{},
 	)
 
