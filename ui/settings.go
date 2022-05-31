@@ -65,8 +65,7 @@ func (r *Settings) onThemeChanged(v string) {
 	} else {
 		r.app.Settings().SetTheme(theme.LightTheme())
 	}
-	// update custom image pointers
-	setCustomImages()
+	appRefresh(r.app, r.window)
 }
 func (r *Settings) onVaultCipherChanged(v string) {
 	_vault.Cipher = v
