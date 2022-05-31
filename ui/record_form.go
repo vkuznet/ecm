@@ -326,15 +326,15 @@ func (r *Record) buildUI() *container.Scroll {
 
 	// TODO: change file to be drop area or select from file system
 	// upload form container
-	fileEntryFile := widget.NewEntryWithData(r.UploadRecord.File)
-	fileEntryFile.PlaceHolder = "file name"
-	fileForm := &widget.Form{
-		Items: []*widget.FormItem{
-			widget.NewFormItem("File", fileEntryFile),
-		},
-		OnSubmit: r.UploadForm,
-	}
-	fileContainer := container.NewVBox(fileForm)
+//     fileEntryFile := widget.NewEntryWithData(r.UploadRecord.File)
+//     fileEntryFile.PlaceHolder = "file name"
+//     fileForm := &widget.Form{
+//         Items: []*widget.FormItem{
+//             widget.NewFormItem("File", fileEntryFile),
+//         },
+//         OnSubmit: r.UploadForm,
+//     }
+//     fileContainer := container.NewVBox(fileForm)
 
 	return container.NewScroll(container.NewVBox(
 		&widget.Accordion{Items: []*widget.AccordionItem{
@@ -342,7 +342,7 @@ func (r *Record) buildUI() *container.Scroll {
 			{Title: "JSON Record", Detail: jsonContainer},
 			{Title: "Note Record", Detail: noteContainer},
 			{Title: "Card Record", Detail: cardContainer},
-			{Title: "File upload", Detail: fileContainer},
+//             {Title: "File upload", Detail: fileContainer},
 			{Title: "Sync", Detail: syncContainer},
 		}},
 	))
