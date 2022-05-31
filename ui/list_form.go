@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"strings"
 
 	fyne "fyne.io/fyne/v2"
@@ -48,7 +47,6 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 	}
 	// TODO: need a button with OnTapped acition
 	//     btn := copyButton(a.window, "Update", "", theme.MenuIcon())
-	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
 	btn := copyButton(a.window, "Update", "", theme.MenuIcon())
 	btnContainer := colorButtonContainer(btn, btnColor)
 
@@ -156,7 +154,6 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 	searchContainer := container.NewGridWrap(inputSize, search)
 
 	// TODO: assign OnTapped action to perform search across records see OnSubmitted function
-	btnColor := color.NRGBA{0x79, 0x79, 0x79, 0xff}
 	btn := a.searchButton(search)
 	btnContainer := colorButtonContainer(btn, btnColor)
 	searchRowContainer := container.NewHBox(
