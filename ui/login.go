@@ -9,10 +9,14 @@ import (
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
 	layout "fyne.io/fyne/v2/layout"
+	theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
 	vt "github.com/vkuznet/ecm/vault"
 	"golang.org/x/exp/errors"
 )
+
+// main container represents main view of the app
+var passwordEntry *widget.Entry
 
 func checkVault() {
 	if appKind == "desktop" {
@@ -69,8 +73,8 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 		_vault = &vt.Vault{Directory: vdir, Cipher: cipher, Start: time.Now()}
 	}
 
-	password := widget.NewPasswordEntry()
-	password.OnSubmitted = func(p string) {
+	passwordEntry = widget.NewPasswordEntry()
+	passwordEntry.OnSubmitted = func(p string) {
 		_vault.Secret = p
 		checkVault()
 		err := _vault.Read()
@@ -80,12 +84,11 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 			AppWindow(app, w)
 		}
 	}
-	password.PlaceHolder = "Enter Master Password"
-	//     password.Resize(inputSize)
+	passwordEntry.PlaceHolder = "Enter Master Password"
 
-	loginContainer := container.NewGridWrap(inputSize, password)
+	loginContainer := container.NewGridWrap(inputSize, passwordEntry)
 
-	btn := loginButton(app, w, password)
+	btn := loginButton(app, w, passwordEntry)
 	btnContainer := colorButtonContainer(btn, btnColor)
 	loginRowContainer := container.NewHBox(
 		loginContainer, btnContainer,
@@ -98,7 +101,6 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	contentContainer := container.NewVBox(
 		spacer,
 		loginRowContainer,
-		//         container.NewHBox(spacer, webImage, gitImage, docImage, spacer),
 		container.NewHBox(spacer, webImg, gitImg, docImg, spacer),
 		spacer,
 	)
@@ -109,8 +111,29 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	// set window settings
 	w.SetContent(content)
 	w.Resize(windowSize)
-	w.Canvas().Focus(password)
+	w.Canvas().Focus(passwordEntry)
 	w.SetMaster()
+}
+
+// logout continer
+func logoutTabItem(app fyne.App, w fyne.Window) *container.TabItem {
+	logout := logoutContainer(app, w)
+	return &container.TabItem{Text: "Logout", Icon: theme.LogoutIcon(), Content: logout}
+}
+func logoutContainer(app fyne.App, w fyne.Window) *fyne.Container {
+	btn := &widget.Button{
+		Text: "Logout",
+		Icon: theme.LogoutIcon(),
+		OnTapped: func() {
+			_vault.Secret = ""
+			_vault.Records = nil
+			passwordEntry.Text = ""
+			appTabs = nil
+			LoginWindow(app, w)
+		},
+	}
+	content := container.NewCenter(colorButtonContainer(btn, redColor))
+	return content
 }
 
 // helper function to open given URL link
