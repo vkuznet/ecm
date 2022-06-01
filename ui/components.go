@@ -27,16 +27,21 @@ func AppWindow(app fyne.App, w fyne.Window) {
 	//     app.Settings().SetTheme(&grayTheme{})
 }
 
+// global app tabs which keeps all app tabs
+var appTabs *container.AppTabs
+
 // Create will stitch together all ui components
 func Create(app fyne.App, window fyne.Window) *container.AppTabs {
 	uiRecords := newUIVaultRecords(app, window)
-	return &container.AppTabs{Items: []*container.TabItem{
+	appTabs = &container.AppTabs{Items: []*container.TabItem{
 		uiRecords.tabItem(),
 		newUIRecord(app, window).tabItem(),
 		newUIPassword(app, window).tabItem(),
 		newUISync(app, window, uiRecords).tabItem(),
 		newUISettings(app, window).tabItem(),
+		logoutTabItem(app, window),
 	}}
+	return appTabs
 }
 
 // helper function to refresh all app widgets/canvases
