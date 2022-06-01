@@ -35,26 +35,61 @@ func recordName(rec vt.VaultRecord) string {
 // helper function to provide row container
 func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 	var objects []fyne.CanvasObject
+	var entries []*widget.Entry
+	var keys []string
 	for _, k := range vt.OrderedKeys {
 		if v, ok := rec.Map[k]; ok {
-			objects = append(objects, a.singleRow(k, v))
+			keys = append(keys, k)
+			entry, container := a.singleRow(k, v)
+			entries = append(entries, entry)
+			objects = append(objects, container)
 		}
 	}
 	for k, v := range rec.Map {
 		if !utils.InList(k, vt.OrderedKeys) {
-			objects = append(objects, a.singleRow(k, v))
+			keys = append(keys, k)
+			entry, container := a.singleRow(k, v)
+			entries = append(entries, entry)
+			objects = append(objects, container)
 		}
 	}
-	// TODO: need a button with OnTapped acition
-	//     btn := copyButton(a.window, "Update", "", theme.MenuIcon())
-	btn := copyButton(a.window, "Update", "", theme.MenuIcon())
-	btnContainer := colorButtonContainer(btn, btnColor)
+
+	// update button
+	btnUpdate := copyButton(a.window, "Update", "", theme.MenuIcon())
+	btnUpdate.OnTapped = func() {
+		for i, k := range keys {
+			if _, ok := rec.Map[k]; ok {
+				rec.Map[k] = entries[i].Text
+			}
+		}
+		rec.WriteRecord(
+			_vault.Directory,
+			_vault.Secret,
+			_vault.Cipher,
+			_vault.Verbose,
+		)
+		for _, entry := range entries {
+			entry.Disable()
+		}
+	}
+
+	// edit button
+	btnEdit := copyButton(a.window, "edit", "", theme.DocumentIcon())
+	btnEdit.OnTapped = func() {
+		for _, entry := range entries {
+			entry.Enable()
+		}
+	}
+	btnContainer := container.NewGridWithColumns(2,
+		colorButtonContainer(btnEdit, editColor),
+		colorButtonContainer(btnUpdate, updateColor),
+	)
 	objects = append(objects, btnContainer)
 	return container.NewVBox(objects...)
 }
 
 // helper function to create single row container
-func (a *vaultRecords) singleRow(key, val string) *fyne.Container {
+func (a *vaultRecords) singleRow(key, val string) (*widget.Entry, *fyne.Container) {
 	label := widget.NewLabel(key)
 	entry := widget.NewEntry()
 	entry.Text = val
@@ -79,9 +114,10 @@ func (a *vaultRecords) singleRow(key, val string) *fyne.Container {
 	labelContainer := container.NewGridWrap(labelSize, label)
 	entryContainer := container.NewGridWrap(entrySize, entry)
 	buttonContainer := container.NewGridWrap(buttonSize, btn)
-	return container.NewHBox(
+	finalContainer := container.NewHBox(
 		labelContainer, entryContainer, buttonContainer,
 	)
+	return entry, finalContainer
 }
 
 // func NewGridWithColumns(cols int, objects ...fyne.CanvasObject) *fyne.Container {
