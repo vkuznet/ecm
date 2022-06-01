@@ -32,7 +32,9 @@ func copyButton(w fyne.Window, label, txt string, icon fyne.Resource) *widget.Bu
 		Icon: icon,
 		OnTapped: func() {
 			text := txt
-			w.Clipboard().SetContent(text)
+			if txt != "" {
+				w.Clipboard().SetContent(text)
+			}
 		},
 	}
 }
