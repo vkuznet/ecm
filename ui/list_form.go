@@ -49,7 +49,6 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 	//     btn := copyButton(a.window, "Update", "", theme.MenuIcon())
 	btn := copyButton(a.window, "Update", "", theme.MenuIcon())
 	btnContainer := colorButtonContainer(btn, btnColor)
-
 	objects = append(objects, btnContainer)
 	return container.NewVBox(objects...)
 }
@@ -66,6 +65,7 @@ func (a *vaultRecords) singleRow(key, val string) *fyne.Container {
 	}
 	// by default keep it disabled
 	entry.Disable()
+
 	btn := container.NewVBox(
 		copyButton(a.window, "", val, theme.ContentCopyIcon()),
 	)
