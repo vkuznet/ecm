@@ -6,9 +6,13 @@ import (
 
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
+	binding "fyne.io/fyne/v2/data/binding"
 	widget "fyne.io/fyne/v2/widget"
 	ecmsync "github.com/vkuznet/ecm/sync"
 )
+
+// global variable we'll use to update sync status
+var syncStatus binding.String
 
 // SyncUI represents UI SyncUI
 type SyncUI struct {
@@ -20,9 +24,10 @@ type SyncUI struct {
 
 func newUISync(a fyne.App, w fyne.Window, v *vaultRecords) *SyncUI {
 	return &SyncUI{
-		app:         a,
-		window:      w,
-		preferences: a.Preferences(),
+		app:          a,
+		window:       w,
+		vaultRecords: v,
+		preferences:  a.Preferences(),
 	}
 }
 
@@ -53,7 +58,9 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 			log.Printf("sync from %s to %s", dst, vdir)
 			err := ecmsync.EcmSync(fconf, dst, vdir)
 			if err != nil {
-				log.Println("unable to sync", err)
+				msg := fmt.Sprintf("unable to sync, %v", err)
+				syncStatus.Set(msg)
+				log.Println(msg)
 			}
 			log.Println("records are synced")
 			// reset vault records
@@ -61,10 +68,14 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 			// read again vault records
 			err = _vault.Read()
 			if err != nil {
-				log.Println("unable to read the vault records", err)
+				msg := fmt.Sprintf("unable to read the vault records, %v", err)
+				syncStatus.Set(msg)
+				log.Println(msg)
 			}
 			// refresh ui records
 			r.vaultRecords.Refresh()
+			msg := fmt.Sprintf("%si records are synced successfully", dst)
+			syncStatus.Set(msg)
 		},
 	}
 	return btn
@@ -72,6 +83,11 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 
 // helper function to build UI
 func (r *SyncUI) buildUI() *container.Scroll {
+
+	// create text box which will update text once sync is completed
+	syncStatus = binding.NewString()
+	syncStatus.Set("Sync status will appear here")
+	statusText := widget.NewLabelWithData(syncStatus)
 
 	// sync form container
 	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
@@ -96,7 +112,8 @@ func (r *SyncUI) buildUI() *container.Scroll {
 		container.NewGridWithColumns(2, pcloud, pcloudSync),
 		sftpLabel,
 		container.NewGridWithColumns(2, sftp, sftpSync),
-		&widget.Label{},
+		statusText,
+		//         &widget.Label{},
 	)
 
 	return container.NewScroll(box)
