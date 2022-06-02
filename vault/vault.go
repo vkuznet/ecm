@@ -235,7 +235,7 @@ func (v *Vault) DeleteRecord(rid string) error {
 		}
 	}
 	if idx > -1 {
-		remove(v.Records, idx)
+		v.Records = remove(v.Records, idx)
 	} else {
 		msg := fmt.Sprintf("no record %s found in a vault", rid)
 		return errors.New(msg)

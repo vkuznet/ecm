@@ -81,19 +81,21 @@ func TestVaultDeleteRecord(t *testing.T) {
 	records = append(records, rec)
 
 	vault := Vault{Directory: vdir, Records: records, Cipher: "aes", Start: time.Now()}
+	t.Log("vault records", len(vault.Records))
 
 	err := vault.DeleteRecord(rid)
 	if err != nil {
 		t.Error(err.Error())
 	}
+	t.Log("after deletion vault records", len(vault.Records))
 	found := false
-	for _, rec := range records {
+	for _, rec := range vault.Records {
 		if rec.ID == rid {
 			found = true
 		}
 	}
-	if !found {
-		t.Errorf("did not find record in a vault")
+	if found {
+		t.Errorf("still found record in a vault")
 	}
 }
 
