@@ -14,6 +14,7 @@ func main() {
 	a.Settings().SetTheme(theme.DarkTheme())
 	w := a.NewWindow("ECM")
 
+	setupAppError()
 	appSettings(a)
 	LoginWindow(a, w)
 
