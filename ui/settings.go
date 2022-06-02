@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
 	theme "fyne.io/fyne/v2/theme"
@@ -29,8 +27,7 @@ type Settings struct {
 	verifyRadio    *widget.RadioGroup
 	vaultCipher    *widget.Select
 	vaultDirectory *widget.Entry
-	syncURL        *widget.Entry
-	fontSize       *widget.Select
+	//     fontSize       *widget.Select
 }
 
 func newUISettings(a fyne.App, w fyne.Window) *Settings {
@@ -76,8 +73,7 @@ func (r *Settings) onVaultDirectoryChanged(v string) {
 	_vault.Records = nil
 	err := _vault.Read()
 	if err != nil {
-		// TODO: redirect to ErrWindow
-		log.Println("fail to read vault record", err)
+		errorMessage("fail to read vault record", err)
 	}
 	r.app.Preferences().SetString("VaultDirectory", v)
 }
@@ -85,7 +81,7 @@ func (r *Settings) onVaultDirectoryChanged(v string) {
 func (r *Settings) buildUI() *container.Scroll {
 
 	pref := r.app.Preferences()
-	fontSize := pref.String("FontSize")
+	//     fontSize := pref.String("FontSize")
 	vaultCipher := pref.String("VaultCipher")
 	vaultDirectory := pref.String("VaultDirectory")
 
@@ -93,15 +89,14 @@ func (r *Settings) buildUI() *container.Scroll {
 	onOffOptions := []string{"On", "Off"}
 	r.verifyRadio = &widget.RadioGroup{
 		Options: onOffOptions, Horizontal: true, Required: true, OnChanged: r.onVerifyChanged}
-	r.syncURL = &widget.Entry{PlaceHolder: "hostname", OnChanged: r.onSyncURLChanged}
 	r.vaultDirectory = &widget.Entry{Text: vaultDirectory, OnSubmitted: r.onVaultDirectoryChanged}
 
 	r.vaultCipher = widget.NewSelect(crypt.SupportedCiphers, r.onVaultCipherChanged)
 	r.vaultCipher.SetSelected(vaultCipher)
 
-	fontSizes := []string{"Tiny", "Small", "Large", "Normal", "Huge"}
-	r.fontSize = widget.NewSelect(fontSizes, r.onFontSizeChanged)
-	r.fontSize.SetSelected(fontSize)
+	//     fontSizes := []string{"Tiny", "Small", "Large", "Normal", "Huge"}
+	//     r.fontSize = widget.NewSelect(fontSizes, r.onFontSizeChanged)
+	//     r.fontSize.SetSelected(fontSize)
 
 	themeNames := []string{"dark", "light"}
 	r.theme = widget.NewSelect(themeNames, r.onThemeChanged)
@@ -115,28 +110,26 @@ func (r *Settings) buildUI() *container.Scroll {
 
 	//     uiContainer := appearance.NewSettings().LoadAppearanceScreen(r.window)
 	uiContainer := container.NewVBox(
-		container.NewGridWithColumns(2,
-			newBoldLabel("Theme"), r.theme,
-			newBoldLabel("Font size"), r.fontSize,
-		),
+		newBoldLabel("Theme"),
+		r.theme,
+		//         newBoldLabel("Font size"),
+		//         r.fontSize,
 	)
 
 	vaultContainer := container.NewVBox(
-		container.NewGridWithColumns(2,
-			newBoldLabel("Verify before accepting"), r.verifyRadio,
-			newBoldLabel("Vault cipher"), r.vaultCipher,
-		),
-		&widget.Accordion{Items: []*widget.AccordionItem{
-			{Title: "Advanced", Detail: container.NewGridWithColumns(2,
-				newBoldLabel("Vault directory"), r.vaultDirectory,
-				newBoldLabel("Sync URL"), r.syncURL,
-			)},
-		}},
+		newBoldLabel("Verify before accepting"),
+		r.verifyRadio,
+		newBoldLabel("Vault cipher"),
+		r.vaultCipher,
+		newBoldLabel("Vault directory"),
+		r.vaultDirectory,
 	)
 
 	return container.NewScroll(container.NewVBox(
-		&widget.Card{Title: "Vault Settings", Content: vaultContainer},
-		&widget.Card{Title: "User Interface", Content: uiContainer},
+		newBoldLabel("Vault Settings"),
+		vaultContainer,
+		newBoldLabel("User interface"),
+		uiContainer,
 	))
 }
 func (r *Settings) tabItem() *container.TabItem {
