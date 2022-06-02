@@ -96,7 +96,7 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
 	pcloud := &widget.Entry{Text: "pcloud:ECM", OnSubmitted: r.onPCloudPathChanged}
 	sftp := &widget.Entry{Text: "sftp:ECM", OnSubmitted: r.onSftpPathChanged}
-	sdcard := &widget.Entry{Text: "sdcard:ECM", OnSubmitted: r.onSDCardPathChanged}
+	sdcard := &widget.Entry{Text: "sdcard:/sdcard/ECM", OnSubmitted: r.onSDCardPathChanged}
 
 	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
 	pcloudSync := colorButtonContainer(r.syncButton(pcloud.Text), btnColor)
