@@ -40,6 +40,9 @@ func (r *SyncUI) onPCloudPathChanged(v string) {
 func (r *SyncUI) onSftpPathChanged(v string) {
 	r.preferences.SetString("sftp", v)
 }
+func (r *SyncUI) onSDCardPathChanged(v string) {
+	r.preferences.SetString("sdcard", v)
+}
 
 // helper function to provide sync button to given destination
 func (r *SyncUI) syncButton(dst string) *widget.Button {
@@ -93,10 +96,12 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
 	pcloud := &widget.Entry{Text: "pcloud:ECM", OnSubmitted: r.onPCloudPathChanged}
 	sftp := &widget.Entry{Text: "sftp:ECM", OnSubmitted: r.onSftpPathChanged}
+	sdcard := &widget.Entry{Text: "sdcard:ECM", OnSubmitted: r.onSDCardPathChanged}
 
 	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
 	pcloudSync := colorButtonContainer(r.syncButton(pcloud.Text), btnColor)
 	sftpSync := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
+	sdcardSync := colorButtonContainer(r.syncButton(sdcard.Text), btnColor)
 
 	dropboxLabel := widget.NewLabel("Dropbox to vault")
 	dropboxLabel.TextStyle.Bold = true
@@ -104,6 +109,8 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	pcloudLabel.TextStyle.Bold = true
 	sftpLabel := widget.NewLabel("Sftp to vault")
 	sftpLabel.TextStyle.Bold = true
+	sdcardLabel := widget.NewLabel("sdcard to vault")
+	sdcardLabel.TextStyle.Bold = true
 
 	box := container.NewVBox(
 		dropboxLabel,
@@ -113,12 +120,23 @@ func (r *SyncUI) buildUI() *container.Scroll {
 		sftpLabel,
 		container.NewGridWithColumns(2, sftp, sftpSync),
 		statusText,
-		//         &widget.Label{},
 	)
+	if appKind != "desktop" {
+		box = container.NewVBox(
+			dropboxLabel,
+			container.NewGridWithColumns(2, dropbox, dropboxSync),
+			pcloudLabel,
+			container.NewGridWithColumns(2, pcloud, pcloudSync),
+			sftpLabel,
+			container.NewGridWithColumns(2, sftp, sftpSync),
+			sdcardLabel,
+			container.NewGridWithColumns(2, sdcard, sdcardSync),
+			statusText,
+		)
+	}
 
 	return container.NewScroll(box)
 }
 func (r *SyncUI) tabItem() *container.TabItem {
-	//     return &container.TabItem{Text: "Sync", Icon: theme.DownloadIcon(), Content: r.buildUI()}
 	return &container.TabItem{Text: "Sync", Icon: syncImage.Resource, Content: r.buildUI()}
 }
