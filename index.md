@@ -3,7 +3,7 @@
 ECM stands for Encrypted Content Management and represents a set of tools (CLI, UI, web based) which allows to encrypt your content and manage it safely.
 
 ## The Challenge
-<img align="left" width="300" height="300" src="pages/images/security.png">
+<img align="left" width="250" height="250" src="pages/images/security.png">
 In modern digital world the content matter the most. We should be confident that it is protected, and stored securely. It should be accessible everywhere, at home, on the web, on a road, etc.
 
 > Companies spend millions of dollars on firewalls and secure access devices, and it is money wasted because none of these measures address the weakest link in the security chain: the people who use, administer and operate computer systems
@@ -14,7 +14,7 @@ We believe that our customers should be in full control of tools, technology, an
 
 
 ## Machinery
-<img align="right" width="300" height="300" src="pages/images/technology-icon.png">
+<img align="right" width="250" height="250" src="pages/images/technology-icon.png">
 > Technology trust is a good thing, but control is a better one.
 
 > Stephane Nappo
@@ -25,7 +25,7 @@ ECM provides RESTful APIs to exchange your data within your favorie application.
 
 
 ## Technology
-<img align="left" width="300" height="300" src="pages/images/encryption-icon.png">
+<img align="left" width="250" height="250" src="pages/images/encryption-icon.png">
 We provide secure solutions to all of your digital content, including login records, passwords, notes, files, and media. We rely on industry standards to encrypt our data. Client can choose among the following available ciphers:
 
 - AES cipher: The Advanced Encryption Standard (AES), also known by its original name Rijndael is a specification for the encryption of electronic data established by the U.S. National Institute of Standards and Technology (NIST) in 2001.
