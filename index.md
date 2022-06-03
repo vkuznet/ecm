@@ -2,7 +2,7 @@
 
 ECM stands for Encrypted Content Management and represents a set of tools (CLI, UI, web based) which allows to encrypt your content and manage it safely.
 
-### The Challenge
+## The Challenge
 <img align="left" width="300" height="300" src="pages/images/security.png">
 In modern digital world the content matter the most. We should be confident that it is protected, and stored securely. It should be accessible everywhere, at home, on the web, on a road, etc.
 
@@ -12,7 +12,8 @@ In modern digital world the content matter the most. We should be confident that
 
 We believe that our customers should be in full control of tools, technology, and moreover have clear understanding how the entire process works. Therefore, we outline every single step of ECM workflows and provide full details of its architecture and open-source codebase
 
-### Machinery
+
+## Machinery
 <img align="right" width="300" height="300" src="pages/images/technology-icon.png">
 > Technology trust is a good thing, but control is a better one.
 
@@ -22,10 +23,13 @@ ECM provides tools to encrypt your data in your OS, and safely share it among de
 
 ECM provides RESTful APIs to exchange your data within your favorie application. Please refer to our APIs documentation for more details.
 
-### Technology
-<img align="left" width="300" height="300" src="pages/images/security.png">
+
+## Technology
+<img align="left" width="300" height="300" src="pages/images/encryption-icon.png">
 We provide secure solutions to all of your digital content, including login records, passwords, notes, files, and media. We rely on industry standards to encrypt our data. Client can choose among the following available ciphers:
+
 - AES cipher: The Advanced Encryption Standard (AES), also known by its original name Rijndael is a specification for the encryption of electronic data established by the U.S. National Institute of Standards and Technology (NIST) in 2001.
+
 - NaCl cipher: NaCl (pronounced "salt") is a new easy-to-use high-speed software library for network communication, encryption, decryption, signatures, etc.
 
 Our ECM server relies on LetsEncrypt provider for our server certificates, and we rely on Web Assembly (WASM) technology to enforce the same-origin and permissions security policies of the browser.
