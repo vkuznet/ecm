@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	fyne "fyne.io/fyne/v2"
@@ -10,6 +11,7 @@ import (
 	widget "fyne.io/fyne/v2/widget"
 	utils "github.com/vkuznet/ecm/utils"
 	vt "github.com/vkuznet/ecm/vault"
+	"golang.org/x/exp/errors"
 )
 
 type vaultRecords struct {
@@ -74,15 +76,35 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 	}
 
 	// edit button
-	btnEdit := copyButton(a.window, "edit", "", theme.DocumentIcon())
+	btnEdit := copyButton(a.window, "Edit", "", theme.DocumentIcon())
 	btnEdit.OnTapped = func() {
 		for _, entry := range entries {
 			entry.Enable()
 		}
 	}
-	btnContainer := container.NewGridWithColumns(2,
+	btnRemove := copyButton(a.window, "Remove", "", theme.DeleteIcon())
+	btnRemove.OnTapped = func() {
+		msg := fmt.Sprintf("delete record %s", rec.ID)
+		errorMessage(msg, errors.New("WARNING"))
+		log.Println("initial number of records", len(_vault.Records))
+		for _, r := range _vault.Records {
+			fmt.Println("rec", r.ID)
+		}
+		err := _vault.DeleteRecord(rec.ID)
+		if err != nil {
+			msg := fmt.Sprintf("unable to delete %s", rec.ID)
+			errorMessage(msg, err)
+		}
+		log.Println("new number of records", len(_vault.Records))
+		for _, r := range _vault.Records {
+			fmt.Println("rec", r.ID)
+		}
+		a.Refresh()
+	}
+	btnContainer := container.NewGridWithColumns(3,
 		colorButtonContainer(btnEdit, editColor),
 		colorButtonContainer(btnUpdate, updateColor),
+		colorButtonContainer(btnRemove, redColor),
 	)
 	objects = append(objects, btnContainer)
 	return container.NewVBox(objects...)
@@ -120,15 +142,10 @@ func (a *vaultRecords) singleRow(key, val string) (*widget.Entry, *fyne.Containe
 	return entry, finalContainer
 }
 
-// func NewGridWithColumns(cols int, objects ...fyne.CanvasObject) *fyne.Container {
-//     return fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(cols), objects...)
-// }
-
 // helper function to build recordsList
 func (a *vaultRecords) buildRecordsList(records []vt.VaultRecord) *widget.Accordion {
 	entries := widget.NewAccordion()
 	for _, rec := range records {
-		//         entries.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
 		entries.Append(widget.NewAccordionItem(recordName(rec), a.rowContainer(rec)))
 	}
 	return entries
@@ -142,7 +159,6 @@ var uiRecords *widget.Accordion
 func (a *vaultRecords) Refresh() {
 	uiRecords.Items = nil
 	for _, rec := range _vault.Records {
-		//         uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
 		uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.rowContainer(rec)))
 	}
 	uiRecords.Refresh()
@@ -159,7 +175,6 @@ func (a *vaultRecords) searchButton(entry *widget.Entry) *widget.Button {
 			// see https://yourbasic.org/golang/clear-slice/
 			uiRecords.Items = nil
 			for _, rec := range _vault.Find(key) {
-				//                 uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
 				uiRecords.Append(widget.NewAccordionItem(recordName(rec), a.rowContainer(rec)))
 			}
 			uiRecords.Refresh()
@@ -181,7 +196,6 @@ func (a *vaultRecords) buildUI() *container.Scroll {
 		// see https://yourbasic.org/golang/clear-slice/
 		accRecords.Items = nil
 		for _, rec := range _vault.Find(v) {
-			//             accRecords.Append(widget.NewAccordionItem(recordName(rec), a.recordContainer(rec)))
 			accRecords.Append(widget.NewAccordionItem(recordName(rec), a.rowContainer(rec)))
 		}
 		accRecords.Refresh()
