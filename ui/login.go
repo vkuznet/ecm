@@ -95,7 +95,7 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	)
 	// add image
 	spacer := &layout.Spacer{}
-	webImg := tapButton(&webImage.Resource, "https://github.com/vkuznet/ecm")
+	webImg := tapButton(&webImage.Resource, "https://vkuznet.github.io/ecm/")
 	docImg := tapButton(&docImage.Resource, "https://github.com/vkuznet/ecm")
 	gitImg := tapButton(&gitImage.Resource, "https://github.com/vkuznet/ecm")
 	contentContainer := container.NewVBox(
