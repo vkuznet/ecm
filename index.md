@@ -1,4 +1,6 @@
-ECM stands for Encrypted Content Management and represents a set of tools (CLI, UI, web based) which allows to encrypt your content and manage it safely.
+ECM stands for Encrypted Content Management and represents a set of tools (CLI,
+UI, web server) which allows to encrypt your content and manage it safely
+anywhere (desktop, mobile, web, and different Operating Systems).
 
 ## The Challenge
 <img align="left" width="300" height="300" src="pages/images/security.png" style="padding:20px">
