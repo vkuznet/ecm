@@ -3,6 +3,7 @@
 ECM stands for Encrypted Content Management and represents a set of tools (CLI, UI, web based) which allows to encrypt your content and manage it safely.
 
 ### The Challenge
+![Security-Image](pages/images/security.png)
 In modern digital world the content matter the most. We should be confident that it is protected, and stored securely. It should be accessible everywhere, at home, on the web, on a road, etc.
 
 > Companies spend millions of dollars on firewalls and secure access devices, and it is money wasted because none of these measures address the weakest link in the security chain: the people who use, administer and operate computer systems
