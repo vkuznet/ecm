@@ -50,6 +50,7 @@ func setupAppError() {
 	appError = binding.NewString()
 	appError.Set("ECM error window")
 	appErrorLabel = widget.NewLabelWithData(appError)
+	appErrorLabel.Wrapping = fyne.TextWrapBreak
 }
 
 // errorTabItem continer
