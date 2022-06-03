@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
@@ -40,8 +41,8 @@ func (r *SyncUI) onPCloudPathChanged(v string) {
 func (r *SyncUI) onSftpPathChanged(v string) {
 	r.preferences.SetString("sftp", v)
 }
-func (r *SyncUI) onSDCardPathChanged(v string) {
-	r.preferences.SetString("sdcard", v)
+func (r *SyncUI) onLocalPathChanged(v string) {
+	r.preferences.SetString("local", v)
 }
 
 // helper function to provide sync button to given destination
@@ -91,17 +92,24 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	syncStatus = binding.NewString()
 	syncStatus.Set("Sync status will appear here")
 	statusText := widget.NewLabelWithData(syncStatus)
+	statusText.Wrapping = fyne.TextWrapBreak
 
 	// sync form container
 	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
 	pcloud := &widget.Entry{Text: "pcloud:ECM", OnSubmitted: r.onPCloudPathChanged}
 	sftp := &widget.Entry{Text: "sftp:ECM", OnSubmitted: r.onSftpPathChanged}
-	sdcard := &widget.Entry{Text: "sdcard:/sdcard/ECM", OnSubmitted: r.onSDCardPathChanged}
+	lpath := "local:/sdcard/ECM"
+	if appKind == "desktop" {
+		home := os.Getenv("HOME")
+		lpath = fmt.Sprintf("local:%s/.ecm", home)
+	} else {
+	}
+	local := &widget.Entry{Text: lpath, OnSubmitted: r.onLocalPathChanged}
 
 	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
 	pcloudSync := colorButtonContainer(r.syncButton(pcloud.Text), btnColor)
 	sftpSync := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
-	sdcardSync := colorButtonContainer(r.syncButton(sdcard.Text), btnColor)
+	localSync := colorButtonContainer(r.syncButton(local.Text), btnColor)
 
 	dropboxLabel := widget.NewLabel("Dropbox to vault")
 	dropboxLabel.TextStyle.Bold = true
@@ -109,8 +117,12 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	pcloudLabel.TextStyle.Bold = true
 	sftpLabel := widget.NewLabel("Sftp to vault")
 	sftpLabel.TextStyle.Bold = true
-	sdcardLabel := widget.NewLabel("sdcard to vault")
-	sdcardLabel.TextStyle.Bold = true
+	labelName := "local to vault"
+	if appKind != "desktop" {
+		labelName = "sdcard to vault"
+	}
+	localLabel := widget.NewLabel(labelName)
+	localLabel.TextStyle.Bold = true
 
 	box := container.NewVBox(
 		dropboxLabel,
@@ -119,21 +131,10 @@ func (r *SyncUI) buildUI() *container.Scroll {
 		container.NewGridWithColumns(2, pcloud, pcloudSync),
 		sftpLabel,
 		container.NewGridWithColumns(2, sftp, sftpSync),
+		localLabel,
+		container.NewGridWithColumns(2, local, localSync),
 		statusText,
 	)
-	if appKind != "desktop" {
-		box = container.NewVBox(
-			dropboxLabel,
-			container.NewGridWithColumns(2, dropbox, dropboxSync),
-			pcloudLabel,
-			container.NewGridWithColumns(2, pcloud, pcloudSync),
-			sftpLabel,
-			container.NewGridWithColumns(2, sftp, sftpSync),
-			sdcardLabel,
-			container.NewGridWithColumns(2, sdcard, sdcardSync),
-			statusText,
-		)
-	}
 
 	return container.NewScroll(box)
 }
