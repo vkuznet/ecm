@@ -1,5 +1,10 @@
 ## Welcome to ECM
 
+ECM stands for Encrypted Content Management and represents a set of tools (CLI, UI, web based) which allows to encrypt your content and manage it safely.
+
+
+### Here we keep instructions for the markdown
+
 You can use the [editor on GitHub](https://github.com/vkuznet/ecm/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
