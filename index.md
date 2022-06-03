@@ -1,5 +1,3 @@
-## Welcome to ECM
-
 ECM stands for Encrypted Content Management and represents a set of tools (CLI, UI, web based) which allows to encrypt your content and manage it safely.
 
 ## The Challenge
