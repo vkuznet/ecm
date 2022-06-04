@@ -57,6 +57,12 @@ func appSettings(app fyne.App) {
 	pref.SetString("VaultDirectory", vdir)
 	pref.SetString("FontSize", fontSize)
 	pref.SetString("AppTheme", appTheme)
+	if autoThreshold != nil {
+		thr, err := autoThreshold.Get()
+		if err == nil {
+			pref.SetString("Autologout", thr)
+		}
+	}
 
 	// set images
 	setCustomImages()

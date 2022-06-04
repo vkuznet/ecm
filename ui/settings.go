@@ -11,22 +11,16 @@ import (
 func newBoldLabel(text string) *widget.Label {
 	return &widget.Label{Text: text, TextStyle: fyne.TextStyle{Bold: true}}
 }
-func onOrOff(on bool) string {
-	if on {
-		return "On"
-	}
-	return "Off"
-}
 
 // Settings represents new Settings button
 type Settings struct {
-	preferences    fyne.Preferences
-	window         fyne.Window
-	app            fyne.App
-	theme          *widget.Select
-	verifyRadio    *widget.RadioGroup
-	vaultCipher    *widget.Select
-	vaultDirectory *widget.Entry
+	preferences     fyne.Preferences
+	window          fyne.Window
+	app             fyne.App
+	theme           *widget.Select
+	vaultCipher     *widget.Select
+	vaultDirectory  *widget.Entry
+	vaultAutologout *widget.Entry
 	//     fontSize       *widget.Select
 }
 
@@ -34,13 +28,11 @@ func newUISettings(a fyne.App, w fyne.Window) *Settings {
 	return &Settings{app: a, window: w, preferences: a.Preferences()}
 }
 func (r *Settings) getPreferences() {
-	verify := r.preferences.Bool("Verify")
-	r.verifyRadio.Selected = onOrOff(verify)
 }
 
-func (r *Settings) onVerifyChanged(selected string) {
-	enabled := selected == "On"
-	r.app.Preferences().SetBool("Verify", enabled)
+func (r *Settings) onAutologoutChanged(v string) {
+	autoThreshold.Set(v)
+	r.preferences.SetString("Autologout", v)
 }
 func (r *Settings) onSyncURLChanged(v string) {
 	r.preferences.SetString("SyncURL", v)
@@ -86,10 +78,11 @@ func (r *Settings) buildUI() *container.Scroll {
 	vaultDirectory := pref.String("VaultDirectory")
 
 	// set initial values of internal data
-	onOffOptions := []string{"On", "Off"}
-	r.verifyRadio = &widget.RadioGroup{
-		Options: onOffOptions, Horizontal: true, Required: true, OnChanged: r.onVerifyChanged}
 	r.vaultDirectory = &widget.Entry{Text: vaultDirectory, OnSubmitted: r.onVaultDirectoryChanged}
+
+	// set autologout settings
+	r.vaultAutologout = widget.NewEntryWithData(autoThreshold)
+	r.vaultAutologout.OnSubmitted = r.onAutologoutChanged
 
 	r.vaultCipher = widget.NewSelect(crypt.SupportedCiphers, r.onVaultCipherChanged)
 	r.vaultCipher.SetSelected(vaultCipher)
@@ -117,8 +110,8 @@ func (r *Settings) buildUI() *container.Scroll {
 	)
 
 	vaultContainer := container.NewVBox(
-		newBoldLabel("Verify before accepting"),
-		r.verifyRadio,
+		newBoldLabel("Vault autologout"),
+		r.vaultAutologout,
 		newBoldLabel("Vault cipher"),
 		r.vaultCipher,
 		newBoldLabel("Vault directory"),

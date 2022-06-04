@@ -1,19 +1,27 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
+	binding "fyne.io/fyne/v2/data/binding"
 	layout "fyne.io/fyne/v2/layout"
 	theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
 	vt "github.com/vkuznet/ecm/vault"
 	"golang.org/x/exp/errors"
 )
+
+// foreground time in seconds since epoch
+var foregroundTime int64
+
+// var autoLogoutQuit chan bool
 
 // main container represents main view of the app
 var passwordEntry *widget.Entry
@@ -106,7 +114,15 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	)
 	content := container.NewCenter(contentContainer)
 
-	//     hyperlink := &widget.Hyperlink{Text: version, URL: releaseURL, TextStyle: fyne.TextStyle{Bold: true}
+	// set autologout functions
+	app.Lifecycle().SetOnEnteredForeground(func() {
+		// when our app goes to foreground, i.e. it is a primary visible window
+		foregroundTime = 0
+	})
+	app.Lifecycle().SetOnExitedForeground(func() {
+		// when our app goes to background
+		foregroundTime = time.Now().Unix()
+	})
 
 	// set window settings
 	w.SetContent(content)
@@ -115,11 +131,50 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	w.SetMaster()
 }
 
+// autologout threshold to use
+var autoThreshold binding.String
+
+// helper function to perform logout, should be run as goroutine
+func autoLogout(app fyne.App, w fyne.Window, ctx context.Context) {
+	if autoThreshold == nil {
+		autoThreshold = binding.NewString()
+	}
+	autoThreshold.Set("60") // default autologout value
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			// check if our app is sleeping and auto-logout if necessary
+			now := time.Now().Unix()
+			strThr, err := autoThreshold.Get()
+			if err != nil {
+				log.Println("unable to get autoThreshold valut", err)
+				continue
+			}
+			thr, err := strconv.Atoi(strThr)
+			if err == nil && foregroundTime > 0 && now-foregroundTime > int64(thr) {
+				log.Println("autologin reset")
+				_vault.Secret = ""
+				_vault.Records = nil
+				passwordEntry.Text = ""
+				appTabs = nil
+				foregroundTime = 0
+				LoginWindow(app, w)
+			}
+			time.Sleep(time.Duration(5) * time.Second)
+			//             log.Println("times", now, foregroundTime, now-foregroundTime)
+		}
+	}
+}
+
 // logout continer
 func logoutTabItem(app fyne.App, w fyne.Window) *container.TabItem {
 	logout := logoutContainer(app, w)
 	return &container.TabItem{Text: "Logout", Icon: theme.LogoutIcon(), Content: logout}
 }
+
+// helper function to build logout container
 func logoutContainer(app fyne.App, w fyne.Window) *fyne.Container {
 	btn := &widget.Button{
 		Text: "Logout",
