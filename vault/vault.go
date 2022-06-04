@@ -81,10 +81,12 @@ func (r *VaultRecord) Keys() []string {
 func (r *VaultRecord) WriteRecord(vdir, secret, cipher string, verbose int) error {
 	var err error
 	if r.ID == "" {
-		log.Fatalf("unable to write record without ID, record %v", r)
+		msg := fmt.Sprintf("unable to write record without ID, record %v", r)
+		return errors.New(msg)
 	}
 	// construct new fila name with provided cipher
-	fname := fmt.Sprintf("%s.%s", filepath.Join(vdir, r.ID), cipher)
+	//     fname := fmt.Sprintf("%s.%s", filepath.Join(vdir, r.ID), cipher)
+	fname := fmt.Sprintf("%s", filepath.Join(vdir, r.ID))
 	file, err := os.Create(fname)
 	if err != nil {
 		log.Println("unable to create file name", fname, " error ", err)
@@ -174,7 +176,8 @@ func (v *Vault) EditRecord(rid string) error {
 		}
 	}
 	if rec.ID == "" {
-		log.Fatalf("Unable to find vault record '%s'", rid)
+		msg := fmt.Sprintf("Unable to find vault record '%s'", rid)
+		return errors.New(msg)
 	}
 	// print existing record
 	TabularPrint([]VaultRecord{rec})
@@ -191,7 +194,7 @@ func (v *Vault) EditRecord(rid string) error {
 		}
 		key, err := utils.ReadInput("\nRecord key     : ")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		if strings.ToLower(key) == "save" {
 			break
@@ -218,7 +221,8 @@ func (v *Vault) EditRecord(rid string) error {
 // Delete deletes given vault record file from the vault directory
 func (v *Vault) DeleteRecordFile(rid string) error {
 	// physically delete vault record file
-	fname := fmt.Sprintf("%s.%s", filepath.Join(v.Directory, rid), v.Cipher)
+	//     fname := fmt.Sprintf("%s.%s", filepath.Join(v.Directory, rid), v.Cipher)
+	fname := fmt.Sprintf("%s", filepath.Join(v.Directory, rid))
 	err := os.Remove(fname)
 	if err != nil {
 		return err
@@ -253,7 +257,8 @@ func remove(s []VaultRecord, i int) []VaultRecord {
 func (v *Vault) EncryptFile(efile string) {
 	data, err := os.ReadFile(efile)
 	if err != nil {
-		log.Fatalf("unable to read file %s, error %v", efile, err)
+		log.Printf("unable to read file %s, error %v", efile, err)
+		return
 	}
 	uid := uuid.NewString()
 	attachments := []string{efile}
@@ -302,7 +307,7 @@ func (v *Vault) Create(vname string) error {
 	if v.Directory != "" {
 		abs, err := filepath.Abs(v.Directory)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		v.Directory = abs
 	}
@@ -313,13 +318,13 @@ func (v *Vault) Create(vname string) error {
 	if v.Directory == "" || os.IsNotExist(err) {
 		udir, err := os.UserHomeDir()
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		vdir := filepath.Join(udir, ".ecm")
 		v.Directory = vdir
 		err = os.MkdirAll(vdir, 0755)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
 
@@ -331,7 +336,7 @@ func (v *Vault) Create(vname string) error {
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(vaultDir, 0755)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
 	return nil
@@ -356,18 +361,16 @@ func (v *Vault) Files() ([]string, error) {
 func (v *Vault) Read() error {
 	files, err := os.ReadDir(v.Directory)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	// TODO: we can parallelize the read from vault area via goroutine pool
 	for _, file := range files {
 		fname := filepath.Join(v.Directory, file.Name())
-		// skip file which does not have vault cipher
-		if !strings.HasSuffix(fname, v.Cipher) {
-			continue
-		}
 		rec, err := v.ReadRecord(fname)
 		if err != nil {
-			log.Println("unable to read vault record ", fname, " error ", err)
+			if v.Verbose > 0 {
+				log.Println("unable to read ", fname, " error ", err)
+			}
 		} else {
 			v.Records = append(v.Records, rec)
 		}
@@ -391,7 +394,8 @@ func (v *Vault) Write() error {
 	for _, rec := range v.Records {
 		err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 		if err != nil {
-			log.Fatalf("unable to write vault record %s, error %v", rec.ID, err)
+			log.Printf("unable to write vault record %s, error %v", rec.ID, err)
+			return err
 		}
 	}
 	return nil
@@ -404,15 +408,18 @@ func (v *Vault) WriteRecord(rec VaultRecord) error {
 	bdir := filepath.Join(v.Directory, "backups")
 	err := os.MkdirAll(bdir, 0755)
 	if err != nil {
-		log.Fatalf("unable to create %s, error %v", bdir, err)
+		log.Printf("unable to create %s, error %v", bdir, err)
+		return err
 	}
 
 	// backup existing record if it exists
-	fname := fmt.Sprintf("%s.%s", filepath.Join(v.Directory, rec.ID), v.Cipher)
+	//     fname := fmt.Sprintf("%s.%s", filepath.Join(v.Directory, rec.ID), v.Cipher)
+	fname := fmt.Sprintf("%s", filepath.Join(v.Directory, rec.ID))
 	if _, err := os.Stat(fname); err != nil {
 		// backup file name with existing cipher
 		tstamp := time.Now().Format(time.RFC3339)
-		bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", rec.ID, v.Cipher, tstamp))
+		//         bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", rec.ID, v.Cipher, tstamp))
+		bname := filepath.Join(bdir, fmt.Sprintf("%s-%s", rec.ID, tstamp))
 		// make backup of our record
 		_, err = utils.Backup(fname, bname)
 		if err != nil {
@@ -425,7 +432,7 @@ func (v *Vault) WriteRecord(rec VaultRecord) error {
 	// write record to the vault area
 	err = rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 	if err != nil {
-		log.Fatalf("unable to write vault record %s, error %v", rec.ID, err)
+		log.Printf("unable to write vault record %s, error %v", rec.ID, err)
 		return err
 	}
 	return nil
@@ -438,11 +445,10 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 	if _, err := os.Stat(fname); os.IsNotExist(err) {
 		log.Printf("vault record %s does not exists, will create one", fname)
 		file, err := os.Create(fname)
-		if err != nil {
-			log.Fatal(err)
-		}
 		defer file.Close()
-		return rec, err
+		if err != nil {
+			return rec, err
+		}
 	}
 
 	// always keep file safe
@@ -463,16 +469,21 @@ func (v *Vault) ReadRecord(fname string) (VaultRecord, error) {
 	// read data from the record file
 	data, err := os.ReadFile(fname)
 	if err != nil {
-		log.Fatal(err)
+		return rec, err
 	}
-	if v.Cipher != "" {
-		data, err = crypt.Decrypt(data, v.Secret, v.Cipher)
+	var decryptedErrors []string
+	for _, cipher := range crypt.SupportedCiphers {
+		data, err = crypt.Decrypt(data, v.Secret, cipher)
 		if err != nil {
-			if v.Verbose > 0 {
-				log.Printf("unable to decrypt data, error %v", err)
-			}
-			return rec, err
+			msg := fmt.Sprintf("cipher:%s, error:%s", cipher, err)
+			decryptedErrors = append(decryptedErrors, msg)
+		} else {
+			break // we successfully decrypted the record
 		}
+	}
+	if len(decryptedErrors) == len(crypt.SupportedCiphers) {
+		err := errors.New(strings.Join(decryptedErrors, " "))
+		return rec, err
 	}
 
 	err = json.Unmarshal(data, &rec)
@@ -642,7 +653,8 @@ func (v *Vault) Import(fname, oname string) error {
 			for _, rec := range records {
 				err := rec.WriteRecord(v.Directory, v.Secret, v.Cipher, v.Verbose)
 				if err != nil {
-					log.Fatalf("unable to write vault record %s, error %v", rec.ID, err)
+					log.Printf("unable to write vault record %s, error %v", rec.ID, err)
+					return err
 				}
 			}
 			return nil
