@@ -4,10 +4,10 @@ go 1.18
 
 require (
 	fyne.io/fyne/v2 v2.1.4
-	github.com/vkuznet/ecm/crypt v0.0.0-20220602195102-b767bc9e056b
-	github.com/vkuznet/ecm/sync v0.0.0-20220602195102-b767bc9e056b
-	github.com/vkuznet/ecm/utils v0.0.0-20220602195102-b767bc9e056b
-	github.com/vkuznet/ecm/vault v0.0.0-20220602195102-b767bc9e056b
+	github.com/vkuznet/ecm/crypt v0.0.0-20220604134520-eb93d15f27b9
+	github.com/vkuznet/ecm/sync v0.0.0-20220604134520-eb93d15f27b9
+	github.com/vkuznet/ecm/utils v0.0.0-20220604134520-eb93d15f27b9
+	github.com/vkuznet/ecm/vault v0.0.0-20220604134520-eb93d15f27b9
 	golang.org/x/exp/errors v0.0.0-20220602145555-4a0574d9293f
 )
 
@@ -60,7 +60,7 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220526171715-e11a1bf10d87 // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220604132921-4104f7c463c9 // indirect
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
 	github.com/yuin/goldmark v1.3.8 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
