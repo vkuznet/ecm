@@ -151,7 +151,7 @@ func (c *CipherNaCl) Decrypt(data []byte, passphrase string) ([]byte, error) {
 		return []byte{}, err
 	}
 	if len(data) < (NonceSize + secretbox.Overhead) {
-		log.Println("message length is less than nonce size+overhead")
+		//         log.Println("message length is less than nonce size+overhead")
 		return nil, ErrDecrypt
 	}
 
@@ -159,7 +159,7 @@ func (c *CipherNaCl) Decrypt(data []byte, passphrase string) ([]byte, error) {
 	copy(nonce[:], data[:NonceSize])
 	out, ok := secretbox.Open(nil, data[NonceSize:], &nonce, key)
 	if !ok {
-		log.Println("fail to open secret box")
+		//         log.Println("fail to open secret box")
 		return nil, ErrDecrypt
 	}
 
