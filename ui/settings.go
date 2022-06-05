@@ -65,7 +65,7 @@ func (r *Settings) onVaultDirectoryChanged(v string) {
 	_vault.Records = nil
 	err := _vault.Read()
 	if err != nil {
-		errorMessage("fail to read vault record", err)
+		appLog("ERROR", "fail to read vault record", err)
 	}
 	r.app.Preferences().SetString("VaultDirectory", v)
 }

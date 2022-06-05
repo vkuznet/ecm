@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -20,10 +21,10 @@ var _vault *vt.Vault
 var appTabs *container.AppTabs
 
 // global app error string
-var appError binding.String
+var appLogEntry binding.String
 
 // global label for error widget
-var appErrorLabel *widget.Label
+var appLogLabel *widget.Label
 
 // AppWindow represents application window
 func AppWindow(app fyne.App, w fyne.Window) {
@@ -35,30 +36,54 @@ func AppWindow(app fyne.App, w fyne.Window) {
 }
 
 // helper function to unify error messages
-func errorMessage(msg string, err error) {
+func appLog(level, msg string, err error) {
 	tstamp := time.Now().Format(time.RFC3339)
-	text := fmt.Sprintf("%s %s, error: %v", tstamp, msg, err)
-	log.Println("###", text, "appError", appError)
-	if appError == nil {
-		appError = binding.NewString()
+	text := fmt.Sprintf("%s %s %s %v", tstamp, level, msg, err)
+	if appLogEntry == nil {
+		appLogEntry = binding.NewString()
 	}
-	appError.Set(text)
+	log.Println(text)
+
+	// get previous message and keep log growing to some size
+	var messages []string
+	emsg, err := appLogEntry.Get()
+	if err == nil {
+		for _, m := range strings.Split(emsg, "\n") {
+			messages = append(messages, m)
+		}
+	}
+	messages = append(messages, text)
+	// reverse messages to show last message first
+	rarr := reverse(messages)
+	info := strings.Join(rarr, "\n")
+	if len(rarr) > 10 {
+		info = strings.Join(rarr[0:9], "\n")
+	}
+	appLogEntry.Set(info)
+}
+
+// helper function to reverse array of strings
+func reverse(arr []string) []string {
+	for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
+		arr[i], arr[j] = arr[j], arr[i]
+	}
+	return arr
 }
 
 // helper function to setup app error label
 func setupAppError() {
-	appError = binding.NewString()
-	appError.Set("ECM error window")
-	appErrorLabel = widget.NewLabelWithData(appError)
-	appErrorLabel.Wrapping = fyne.TextWrapBreak
+	appLogEntry = binding.NewString()
+	appLogEntry.Set("ECM error window")
+	appLogLabel = widget.NewLabelWithData(appLogEntry)
+	appLogLabel.Wrapping = fyne.TextWrapBreak
 }
 
-// errorTabItem continer
-func errorTabItem(app fyne.App, w fyne.Window) *container.TabItem {
+// logTabItem continer
+func logTabItem(app fyne.App, w fyne.Window) *container.TabItem {
 	content := container.NewVBox(
-		appErrorLabel,
+		appLogLabel,
 	)
-	return &container.TabItem{Text: "Error", Icon: theme.ErrorIcon(), Content: content}
+	return &container.TabItem{Text: "Log", Icon: theme.InfoIcon(), Content: content}
 }
 
 // Create will stitch together all ui components
@@ -70,7 +95,7 @@ func Create(app fyne.App, window fyne.Window) *container.AppTabs {
 		newUIPassword(app, window).tabItem(),
 		newUISync(app, window, uiRecords).tabItem(),
 		newUISettings(app, window).tabItem(),
-		errorTabItem(app, window),
+		logTabItem(app, window),
 		logoutTabItem(app, window),
 	}}
 	return appTabs

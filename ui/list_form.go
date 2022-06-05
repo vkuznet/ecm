@@ -11,7 +11,6 @@ import (
 	widget "fyne.io/fyne/v2/widget"
 	utils "github.com/vkuznet/ecm/utils"
 	vt "github.com/vkuznet/ecm/vault"
-	"golang.org/x/exp/errors"
 )
 
 type vaultRecords struct {
@@ -85,7 +84,7 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 	btnRemove := copyButton(a.window, "Remove", "", theme.DeleteIcon())
 	btnRemove.OnTapped = func() {
 		msg := fmt.Sprintf("delete record %s", rec.ID)
-		errorMessage(msg, errors.New("WARNING"))
+		appLog("WARNINIG", msg, nil)
 		log.Println("initial number of records", len(_vault.Records))
 		for _, r := range _vault.Records {
 			fmt.Println("rec", r.ID)
@@ -93,7 +92,7 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 		err := _vault.DeleteRecord(rec.ID)
 		if err != nil {
 			msg := fmt.Sprintf("unable to delete %s", rec.ID)
-			errorMessage(msg, err)
+			appLog("ERROR", msg, err)
 		}
 		log.Println("new number of records", len(_vault.Records))
 		for _, r := range _vault.Records {

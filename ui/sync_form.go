@@ -58,13 +58,14 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 			// perform sync from dropbox to vault
 			dir := r.app.Storage().RootURI().Path()
 			fconf := fmt.Sprintf("%s/ecmsync.conf", dir)
-			log.Println("config", fconf)
-			log.Printf("sync from %s to %s", dst, vdir)
+			msg := fmt.Sprintf("config: %s, sync from %s to %s", fconf, dst, vdir)
+			appLog("INFO", msg, nil)
 			err := ecmsync.EcmSync(fconf, dst, vdir)
 			if err != nil {
-				msg := fmt.Sprintf("unable to sync, %v", err)
+				msg := fmt.Sprintf("unable to sync from %s to %s", dst, vdir)
+				appLog("ERROR", msg, err)
 				syncStatus.Set(msg)
-				log.Println(msg)
+				return
 			}
 			log.Println("records are synced")
 			// reset vault records
@@ -73,13 +74,15 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 			err = _vault.Read()
 			if err != nil {
 				msg := fmt.Sprintf("unable to read the vault records, %v", err)
+				appLog("ERROR", msg, err)
 				syncStatus.Set(msg)
-				log.Println(msg)
+				return
 			}
 			// refresh ui records
 			r.vaultRecords.Refresh()
-			msg := fmt.Sprintf("%si records are synced successfully", dst)
+			msg = fmt.Sprintf("%s records are synced successfully", dst)
 			syncStatus.Set(msg)
+			appLog("INFO", msg, nil)
 		},
 	}
 	return btn
@@ -98,7 +101,11 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
 	pcloud := &widget.Entry{Text: "pcloud:ECM", OnSubmitted: r.onPCloudPathChanged}
 	sftp := &widget.Entry{Text: "sftp:ECM", OnSubmitted: r.onSftpPathChanged}
-	lpath := "local:/sdcard/ECM"
+	lpath := os.Getenv("EXTERNAL_STORAGE")
+	if lpath == "" {
+		lpath = "sdcard"
+	}
+	lpath = fmt.Sprintf("local:/%s/ECM", lpath)
 	if appKind == "desktop" {
 		home := os.Getenv("HOME")
 		lpath = fmt.Sprintf("local:%s/.ecm", home)

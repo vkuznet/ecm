@@ -48,7 +48,7 @@ func loginButton(app fyne.App, w fyne.Window, entry *widget.Entry) *widget.Butto
 			checkVault()
 			err := _vault.Read()
 			if err != nil {
-				errorMessage("unable to read vault records", err)
+				appLog("ERROR", "unable to read vault records", err)
 			} else {
 				AppWindow(app, w)
 			}
@@ -87,7 +87,7 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 		checkVault()
 		err := _vault.Read()
 		if err != nil {
-			errorMessage("unable to read vault records", err)
+			appLog("ERROR", "unable to read vault records", err)
 		} else {
 			AppWindow(app, w)
 		}
