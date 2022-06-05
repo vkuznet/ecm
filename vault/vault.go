@@ -638,7 +638,7 @@ func (v *Vault) Import(fname, oname string) error {
 		for _, rec := range jsonRecords {
 			vRecord := NewVaultRecord("login")
 			for key, val := range rec {
-				vRecord.Map[key] = fmt.Sprintf("%svs", val)
+				vRecord.Map[key] = fmt.Sprintf("%s", val)
 			}
 			if v.Verbose > 0 {
 				log.Println("Import VaultRecord\n", vRecord.String())
