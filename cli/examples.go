@@ -31,4 +31,10 @@ func ecmExamples() {
 	fmt.Println("# storage should be configure via rclone")
 	fmt.Println("# configuration file usually located at $HOME/.config/rclone/rclone.conf")
 	fmt.Println("./ecm -sync=dropbox:ECM")
+	fmt.Println("")
+	fmt.Println("# import CSV file and write its content into records.ecm (ECM JSON) file")
+	fmt.Println("./ecm -import file.csv -export ./records.ecm")
+	fmt.Println("")
+	fmt.Println("# import CSV file and write its content to the vault area")
+	fmt.Println("./ecm -import file.csv -export ~/.ecm/Primary")
 }
