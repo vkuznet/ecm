@@ -368,7 +368,7 @@ func (v *Vault) Read() error {
 		fname := filepath.Join(v.Directory, file.Name())
 		rec, err := v.ReadRecord(fname)
 		if err != nil {
-			if v.Verbose > 0 {
+			if v.Verbose > 1 {
 				log.Println("unable to read ", fname, " error ", err)
 			}
 		} else {
@@ -661,7 +661,13 @@ func (v *Vault) Import(fname, oname string) error {
 		}
 
 		// otherwise write records to destination file
-		file, err := os.Open(oname)
+		var err error
+		var file *os.File
+		if _, e := os.Stat(oname); os.IsNotExist(e) {
+			file, err = os.Create(oname)
+		} else {
+			file, err = os.Open(oname)
+		}
 		if err != nil {
 			return err
 		}
