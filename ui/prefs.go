@@ -6,14 +6,15 @@ import (
 	"os"
 
 	fyne "fyne.io/fyne/v2"
-	canvas "fyne.io/fyne/v2/canvas"
+	theme "fyne.io/fyne/v2/theme"
 )
 
 // various sizes of our application
 var windowSize, inputSize, rowSize fyne.Size
 var appKind, appTheme string
-var gitImage, docImage, webImage, lockImage, syncImage, passImage, listImage *canvas.Image
-var rightArrowImage, leftArrowImage *canvas.Image
+
+// var gitImage, docImage, webImage, lockImage, syncImage, passImage, listImage *canvas.Image
+// var rightArrowImage, leftArrowImage *canvas.Image
 var btnColor, editColor, updateColor, redColor color.NRGBA
 
 // helper function to set application preferences/settings
@@ -73,31 +74,13 @@ func appSettings(app fyne.App) {
 
 // helper function to set custom images for our app theme
 func setCustomImages() {
-	if appTheme == "light" {
-		gitImage = canvas.NewImageFromResource(resourceGithubBlackSvg)
-		webImage = canvas.NewImageFromResource(resourceWebBlackSvg)
-		docImage = canvas.NewImageFromResource(resourceDocBlackSvg)
-		lockImage = canvas.NewImageFromResource(resourceLockBlackSvg)
-		syncImage = canvas.NewImageFromResource(resourceSyncBlackSvg)
-		passImage = canvas.NewImageFromResource(resourcePassBlackSvg)
-		listImage = canvas.NewImageFromResource(resourceListBlackSvg)
-		leftArrowImage = canvas.NewImageFromResource(resourceLeftArrowBlackSvg)
-		rightArrowImage = canvas.NewImageFromResource(resourceRightArrowBlackSvg)
-	} else {
-		gitImage = canvas.NewImageFromResource(resourceGithubWhiteSvg)
-		webImage = canvas.NewImageFromResource(resourceWebWhiteSvg)
-		docImage = canvas.NewImageFromResource(resourceDocWhiteSvg)
-		lockImage = canvas.NewImageFromResource(resourceLockWhiteSvg)
-		syncImage = canvas.NewImageFromResource(resourceSyncWhiteSvg)
-		passImage = canvas.NewImageFromResource(resourcePassWhiteSvg)
-		listImage = canvas.NewImageFromResource(resourceListWhiteSvg)
-		leftArrowImage = canvas.NewImageFromResource(resourceLeftArrowWhiteSvg)
-		rightArrowImage = canvas.NewImageFromResource(resourceRightArrowWhiteSvg)
-	}
-	//     gitImage.SetMinSize(fyne.NewSize(100, 100))
-	//     webImage.SetMinSize(fyne.NewSize(100, 100))
-	//     docImage.SetMinSize(fyne.NewSize(100, 100))
-	//     lockImage.SetMinSize(fyne.NewSize(100, 100))
-	rightArrowImage.SetMinSize(fyne.NewSize(50, 50))
-	leftArrowImage.SetMinSize(fyne.NewSize(50, 50))
+	theme.NewThemedResource(resourceGithubSvg)
+	theme.NewThemedResource(resourceWebSvg)
+	theme.NewThemedResource(resourceDocSvg)
+	theme.NewThemedResource(resourceLockSvg)
+	theme.NewThemedResource(resourceSyncSvg)
+	theme.NewThemedResource(resourcePassSvg)
+	theme.NewThemedResource(resourceListSvg)
+	theme.NewThemedResource(resourceLeftArrowSvg)
+	theme.NewThemedResource(resourceRightArrowSvg)
 }

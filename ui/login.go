@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2"
+	canvas "fyne.io/fyne/v2/canvas"
 	container "fyne.io/fyne/v2/container"
 	binding "fyne.io/fyne/v2/data/binding"
 	layout "fyne.io/fyne/v2/layout"
@@ -42,7 +43,7 @@ func loginButton(app fyne.App, w fyne.Window, entry *widget.Entry) *widget.Butto
 	btn := &widget.Button{
 		Text: "",
 		//         Icon: theme.LoginIcon(),
-		Icon: lockImage.Resource,
+		Icon: resourceLockSvg,
 		OnTapped: func() {
 			_vault.Secret = entry.Text
 			checkVault()
@@ -103,6 +104,10 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	)
 	// add image
 	spacer := &layout.Spacer{}
+	gitImage := canvas.NewImageFromResource(resourceGithubSvg)
+	docImage := canvas.NewImageFromResource(resourceDocSvg)
+	webImage := canvas.NewImageFromResource(resourceWebSvg)
+
 	webImg := tapButton(&webImage.Resource, "https://vkuznet.github.io/ecm/")
 	docImg := tapButton(&docImage.Resource, "https://github.com/vkuznet/ecm")
 	gitImg := tapButton(&gitImage.Resource, "https://github.com/vkuznet/ecm")

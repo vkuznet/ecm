@@ -37,4 +37,7 @@ func ecmExamples() {
 	fmt.Println("")
 	fmt.Println("# import CSV file and write its content to the vault area")
 	fmt.Println("./ecm -import file.csv -export ~/.ecm/Primary")
+	fmt.Println("")
+	fmt.Println("# generate random password of 16 characters with numbers and symbols")
+	fmt.Println("./ecm -gen=16:ns")
 }

@@ -8,7 +8,7 @@ import (
 	container "fyne.io/fyne/v2/container"
 	binding "fyne.io/fyne/v2/data/binding"
 	//     layout "fyne.io/fyne/v2/layout"
-	//     theme "fyne.io/fyne/v2/theme"
+	theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
 	crypt "github.com/vkuznet/ecm/crypt"
 )
@@ -70,5 +70,5 @@ func (r *Password) buildUI() *fyne.Container {
 }
 func (r *Password) tabItem() *container.TabItem {
 	//     return &container.TabItem{Text: "Password", Icon: theme.VisibilityIcon(), Content: r.buildUI()}
-	return &container.TabItem{Text: "Password", Icon: passImage.Resource, Content: r.buildUI()}
+	return &container.TabItem{Text: "Password", Icon: theme.GridIcon(), Content: r.buildUI()}
 }

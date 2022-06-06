@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
 	binding "fyne.io/fyne/v2/data/binding"
+	theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
 	ecmsync "github.com/vkuznet/ecm/sync"
 )
@@ -53,7 +54,7 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 
 	btn := &widget.Button{
 		Text: "Sync",
-		Icon: syncImage.Resource,
+		Icon: theme.HistoryIcon(),
 		OnTapped: func() {
 			// perform sync from dropbox to vault
 			dir := r.app.Storage().RootURI().Path()
@@ -146,5 +147,6 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	return container.NewScroll(box)
 }
 func (r *SyncUI) tabItem() *container.TabItem {
-	return &container.TabItem{Text: "Sync", Icon: syncImage.Resource, Content: r.buildUI()}
+	return &container.TabItem{Text: "Sync", Icon: theme.HistoryIcon(), Content: r.buildUI()}
+	//     return &container.TabItem{Text: "Sync", Icon: resourceSyncSvg, Content: r.buildUI()}
 }
