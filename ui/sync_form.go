@@ -11,10 +11,54 @@ import (
 	theme "fyne.io/fyne/v2/theme"
 	widget "fyne.io/fyne/v2/widget"
 	ecmsync "github.com/vkuznet/ecm/sync"
+	"golang.org/x/exp/errors"
 )
 
 // global variable we'll use to update sync status
 var syncStatus binding.String
+
+// helper function to provide sync path configuration and set RCLONE environment
+func syncPath(app fyne.App) string {
+	dir := app.Storage().RootURI().Path()
+	spath := fmt.Sprintf("%s/rclone.conf", dir)
+	sconf := os.Getenv("RCLONE_CONFIG")
+	if sconf != "" {
+		spath = sconf
+	} else {
+		err := os.Setenv("RCLONE_CONFIG", spath)
+		if err != nil {
+			msg := fmt.Sprintf("unable to setup RCLONE_CONFIG path %s", spath)
+			appLog("ERROR", msg, err)
+		}
+	}
+	return spath
+}
+
+// helper function to create sync config for rclone library
+func syncConfig(app fyne.App) {
+	sconf := syncPath(app)
+	if _, err := os.Stat(sconf); errors.Is(err, os.ErrNotExist) {
+		msg := fmt.Sprintf("create %s", sconf)
+		log.Println("INFO: ", msg)
+		err := ecmsync.EcmCreateConfig(sconf)
+		if err != nil {
+			msg := fmt.Sprintf("untable to create %s", sconf)
+			log.Println("ERROR: ", msg, " error: ", err)
+		}
+	}
+}
+
+// helper function to authenticate sync provider
+func authSyncProvider(app fyne.App, provider string) {
+	sconf := syncPath(app)
+	msg := fmt.Sprintf("update %s token", provider)
+	appLog("INFO", msg, nil)
+	err := ecmsync.EcmUpdateConfig(sconf, provider)
+	if err != nil {
+		msg := fmt.Sprintf("untable to update %s", sconf)
+		appLog("ERROR", msg, err)
+	}
+}
 
 // SyncUI represents UI SyncUI
 type SyncUI struct {
@@ -47,6 +91,21 @@ func (r *SyncUI) onLocalPathChanged(v string) {
 }
 
 // helper function to provide sync button to given destination
+func (r *SyncUI) authButton(provider string) *widget.Button {
+	if provider == "noauth" {
+		return &widget.Button{Text: ""}
+	}
+	btn := &widget.Button{
+		Text: "OAuth",
+		Icon: theme.ConfirmIcon(),
+		OnTapped: func() {
+			authSyncProvider(r.app, provider)
+		},
+	}
+	return btn
+}
+
+// helper function to provide sync button to given destination
 func (r *SyncUI) syncButton(dst string) *widget.Button {
 	// get vault dir from preferences
 	pref := r.app.Preferences()
@@ -58,7 +117,11 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 		OnTapped: func() {
 			// perform sync from dropbox to vault
 			dir := r.app.Storage().RootURI().Path()
-			fconf := fmt.Sprintf("%s/ecmsync.conf", dir)
+			fconf := fmt.Sprintf("%s/rclone.conf", dir)
+			sconf := os.Getenv("ECM_SYNC_CONFIG")
+			if sconf != "" {
+				fconf = sconf
+			}
 			msg := fmt.Sprintf("config: %s, sync from %s to %s", fconf, dst, vdir)
 			appLog("INFO", msg, nil)
 			err := ecmsync.EcmSync(fconf, dst, vdir)
@@ -115,9 +178,12 @@ func (r *SyncUI) buildUI() *container.Scroll {
 	local := &widget.Entry{Text: lpath, OnSubmitted: r.onLocalPathChanged}
 
 	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
+	dropboxAuth := colorButtonContainer(r.authButton("dropbox"), authColor)
 	pcloudSync := colorButtonContainer(r.syncButton(pcloud.Text), btnColor)
+	pcloudAuth := colorButtonContainer(r.authButton("pcloud"), authColor)
 	sftpSync := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
 	localSync := colorButtonContainer(r.syncButton(local.Text), btnColor)
+	noAuth := colorButtonContainer(r.authButton("noauth"), grayColor)
 
 	dropboxLabel := widget.NewLabel("Dropbox to vault")
 	dropboxLabel.TextStyle.Bold = true
@@ -134,13 +200,13 @@ func (r *SyncUI) buildUI() *container.Scroll {
 
 	box := container.NewVBox(
 		dropboxLabel,
-		container.NewGridWithColumns(2, dropbox, dropboxSync),
+		container.NewGridWithColumns(3, dropbox, dropboxSync, dropboxAuth),
 		pcloudLabel,
-		container.NewGridWithColumns(2, pcloud, pcloudSync),
+		container.NewGridWithColumns(3, pcloud, pcloudSync, pcloudAuth),
 		sftpLabel,
-		container.NewGridWithColumns(2, sftp, sftpSync),
+		container.NewGridWithColumns(3, sftp, sftpSync, noAuth),
 		localLabel,
-		container.NewGridWithColumns(2, local, localSync),
+		container.NewGridWithColumns(3, local, localSync, noAuth),
 		statusText,
 	)
 
