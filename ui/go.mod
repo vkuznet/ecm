@@ -4,10 +4,10 @@ go 1.18
 
 require (
 	fyne.io/fyne/v2 v2.1.4
-	github.com/vkuznet/ecm/crypt v0.0.0-20220605115945-7955fa41fa49
-	github.com/vkuznet/ecm/sync v0.0.0-20220605115945-7955fa41fa49
-	github.com/vkuznet/ecm/utils v0.0.0-20220605115945-7955fa41fa49
-	github.com/vkuznet/ecm/vault v0.0.0-20220605115945-7955fa41fa49
+	github.com/vkuznet/ecm/crypt v0.0.0-20220607140002-9d595ac51200
+	github.com/vkuznet/ecm/sync v0.0.0-20220607140002-9d595ac51200
+	github.com/vkuznet/ecm/utils v0.0.0-20220607140002-9d595ac51200
+	github.com/vkuznet/ecm/vault v0.0.0-20220607140002-9d595ac51200
 	golang.org/x/exp/errors v0.0.0-20220602145555-4a0574d9293f
 )
 
