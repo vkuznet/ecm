@@ -9,30 +9,34 @@ import (
 )
 
 func main() {
+	// set our logging settings
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	a := app.NewWithID("io.github.vkuznet")
+	// setup fyne app and main window
+	a := app.NewWithID("io.github.vkuznet.ecm")
 	a.Settings().SetTheme(theme.DarkTheme())
 	w := a.NewWindow("ECM")
 
+	// setup sync config
+	syncConfig(a)
+
+	// load custom images
 	setCustomImages()
+
+	// setup app error handler
 	setupAppError()
+
+	// setup app settings
 	appSettings(a)
+
+	// start login window
 	LoginWindow(a, w)
 
-	// start autoLogout goroutine which can be killed gracefully
-	//     done := make(chan os.Signal, 1)
-	//     signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
 	// start autologout loop
-	//     go autoLogout(a, w, done)
 	ctx, cancel := context.WithCancel(context.Background())
 	go autoLogout(a, w, ctx)
 	defer cancel() // when we quit our app cancel() will be called and quite our goroutine
 
 	// start our app
 	w.ShowAndRun()
-
-	//     <-done
-	// here our app will exit since autoLogout goroutine will be gone
 }
