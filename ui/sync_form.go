@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
@@ -16,6 +18,66 @@ import (
 
 // global variable we'll use to update sync status
 var syncStatus binding.String
+
+// helper function to read sync config
+func readSyncConfig(app fyne.App) error {
+	// get our sync config file
+	sconf := syncPath(app)
+
+	// open our config file in rw mode
+	file, err := os.Open(sconf)
+	defer file.Close()
+	if err != nil {
+		return err
+	}
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	appLog("INFO", "sync config", nil)
+	appLog("INFO\n", string(data), nil)
+	return nil
+}
+
+// helper function to update sync config file with token data
+func updateSyncConfig(app fyne.App, provider string, data []byte) error {
+	// get our sync config file
+	sconf := syncPath(app)
+
+	// open our config file in rw mode
+	file, err := os.OpenFile(sconf, os.O_RDWR, 0644)
+	defer file.Close()
+	if err != nil {
+		return err
+	}
+	sdata, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	// process our data
+	var out []string
+	lines := strings.Split(string(sdata), "\n")
+	match := fmt.Sprintf("[%s]", provider)
+	for _, line := range lines {
+		if line == match {
+			out = append(out, line)
+			// write our token data afterwards
+			out = append(out, string(data))
+		} else {
+			out = append(out, line)
+		}
+	}
+
+	// inject token info into appropriate section of config file
+	content := strings.Join(out, "\n")
+	_, err = file.WriteAt([]byte(content), 0)
+	if err != nil {
+		return err
+	}
+	appLog("INFO", "wrote new sync config", nil)
+	appLog("INFO\n", content, nil)
+	return nil
+}
 
 // helper function to provide sync path configuration and set RCLONE environment
 func syncPath(app fyne.App) string {
@@ -99,7 +161,11 @@ func (r *SyncUI) authButton(provider string) *widget.Button {
 		Text: "OAuth",
 		Icon: theme.ConfirmIcon(),
 		OnTapped: func() {
-			authSyncProvider(r.app, provider)
+			if appKind == "desktop" {
+				authSyncProvider(r.app, provider)
+			} else {
+				authDropbox()
+			}
 		},
 	}
 	return btn
@@ -153,7 +219,7 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 }
 
 // helper function to build UI
-func (r *SyncUI) buildUI() *container.Scroll {
+func (r *SyncUI) buildUI() *fyne.Container {
 
 	// create text box which will update text once sync is completed
 	syncStatus = binding.NewString()
@@ -209,10 +275,8 @@ func (r *SyncUI) buildUI() *container.Scroll {
 		container.NewGridWithColumns(3, local, localSync, noAuth),
 		statusText,
 	)
-
-	return container.NewScroll(box)
+	return box
 }
 func (r *SyncUI) tabItem() *container.TabItem {
 	return &container.TabItem{Text: "Sync", Icon: theme.HistoryIcon(), Content: r.buildUI()}
-	//     return &container.TabItem{Text: "Sync", Icon: resourceSyncSvg, Content: r.buildUI()}
 }
