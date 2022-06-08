@@ -129,6 +129,12 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 		foregroundTime = time.Now().Unix()
 	})
 
+	// read sync config and dump it to the log
+	err := readSyncConfig(app)
+	if err != nil {
+		appLog("ERROR", "unable to read sync config", err)
+	}
+
 	// set window settings
 	w.SetContent(content)
 	w.Resize(windowSize)
