@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -10,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	fyne "fyne.io/fyne/v2"
 )
 
 // Auth interface declares how to access cloud providers
@@ -91,16 +92,22 @@ func authDropbox() {
 }
 
 // authServer provides internal web server which handles access token HTTP requests
-func authServer(ctx context.Context) {
+func authServer(app fyne.App, ctx context.Context) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()
 		code := query.Get("code")
 		if dropboxClient != nil && code != "" {
 			data, err := dropboxClient.GetToken(code)
-			log.Println("###", string(data), err)
-			var token DropboxToken
-			err = json.Unmarshal(data, &token)
-			log.Printf("final token: %+v", token)
+			appLog("INFO", string(data), err)
+			if err == nil {
+				updateSyncConfig(app, "dropbox", data)
+				//                 var token DropboxToken
+				//                 err = json.Unmarshal(data, &token)
+			}
+			msg := "Your ECM confiugration is updated with Dropbox credentials"
+			appLog("INFO", msg, nil)
+			msg += "<p>Please return to ECM app</p>"
+			w.Write([]byte(msg))
 		}
 	})
 	http.ListenAndServe(":5151", nil)
