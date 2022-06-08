@@ -37,6 +37,13 @@ func main() {
 	go autoLogout(a, w, ctx)
 	defer cancel() // when we quit our app cancel() will be called and quite our goroutine
 
+	// start internal web server on non-desktop app
+	if appKind != "desktop" {
+		ctx, cancel := context.WithCancel(context.Background())
+		go authServer(a, ctx)
+		defer cancel() // when we quit our app cancel() will be called and quite our goroutine
+	}
+
 	// start our app
 	w.ShowAndRun()
 }
