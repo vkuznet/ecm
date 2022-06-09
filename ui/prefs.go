@@ -15,7 +15,7 @@ var appKind, appTheme string
 
 // var gitImage, docImage, webImage, lockImage, syncImage, passImage, listImage *canvas.Image
 // var rightArrowImage, leftArrowImage *canvas.Image
-var btnColor, editColor, updateColor, redColor, authColor, grayColor color.NRGBA
+var btnColor, greenColor, blueColor, redColor, authColor, grayColor color.NRGBA
 
 // helper function to set application preferences/settings
 func appSettings(app fyne.App) {
@@ -35,8 +35,8 @@ func appSettings(app fyne.App) {
 	redColor = color.NRGBA{0xff, 0x26, 0x00, 0xff}
 	authColor = color.NRGBA{0x94, 0x17, 0x51, 0xff}
 	btnColor = color.NRGBA{0x79, 0x79, 0x79, 0xff}
-	editColor = color.NRGBA{0x00, 0x8f, 0x00, 0xff}
-	updateColor = color.NRGBA{0x04, 0x33, 0xff, 0xff}
+	greenColor = color.NRGBA{0x00, 0x8f, 0x00, 0xff}
+	blueColor = color.NRGBA{0x04, 0x33, 0xff, 0xff}
 	grayColor = color.NRGBA{0xc0, 0xc0, 0xc0, 0xff}
 
 	// rowSize represents main row size used in our UI containers
