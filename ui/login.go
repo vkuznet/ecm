@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -130,9 +131,15 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	})
 
 	// read sync config and dump it to the log
-	err := readSyncConfig(app)
-	if err != nil {
-		appLog("ERROR", "unable to read sync config", err)
+	if appKind != "desktop" {
+		sconf := syncPath(app)
+		appLog("INFO", sconf, nil)
+		msg := fmt.Sprintf("Vault at %s has %d records", _vault.Directory, len(_vault.Records))
+		appLog("INFO", msg, nil)
+		err := logSyncConfig(app)
+		if err != nil {
+			appLog("ERROR", "unable to read sync config", err)
+		}
 	}
 
 	// set window settings
