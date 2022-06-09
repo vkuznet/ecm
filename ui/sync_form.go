@@ -20,7 +20,44 @@ import (
 var syncStatus binding.String
 
 // helper function to read sync config
-func readSyncConfig(app fyne.App) error {
+func syncConfigMap(app fyne.App) (map[string]string, error) {
+	out := make(map[string]string)
+	// get our sync config file
+	sconf := syncPath(app)
+
+	// open our config file in rw mode
+	file, err := os.Open(sconf)
+	defer file.Close()
+	if err != nil {
+		return out, err
+	}
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return out, err
+	}
+	var key, oldKey, section string
+	for _, line := range strings.Split(string(data), "\n") {
+		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
+			oldKey = key
+			if key != "" {
+				out[key] = section
+				section = ""
+			}
+			key = line[1 : len(line)-1]
+		}
+		if key != oldKey {
+			if section == "" {
+				section = line
+			} else {
+				section = fmt.Sprintf("%s\n%s\n", section, line)
+			}
+		}
+	}
+	return out, nil
+}
+
+// helper function to read and log sync config
+func logSyncConfig(app fyne.App) error {
 	// get our sync config file
 	sconf := syncPath(app)
 
@@ -58,13 +95,20 @@ func updateSyncConfig(app fyne.App, provider string, data []byte) error {
 	var out []string
 	lines := strings.Split(string(sdata), "\n")
 	match := fmt.Sprintf("[%s]", provider)
+	var found bool
 	for _, line := range lines {
 		if line == match {
 			out = append(out, line)
 			// write our token data afterwards
-			out = append(out, string(data))
+			row := fmt.Sprintf("token = %s", string(data))
+			out = append(out, row)
+			found = true
 		} else {
-			out = append(out, line)
+			if found && strings.HasPrefix(line, "token") {
+				continue // skip previous token if it existed for our provider
+			} else {
+				out = append(out, line)
+			}
 		}
 	}
 
@@ -249,7 +293,7 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	pcloudAuth := colorButtonContainer(r.authButton("pcloud"), authColor)
 	sftpSync := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
 	localSync := colorButtonContainer(r.syncButton(local.Text), btnColor)
-	noAuth := colorButtonContainer(r.authButton("noauth"), grayColor)
+	//     noAuth := colorButtonContainer(r.authButton("noauth"), grayColor)
 
 	dropboxLabel := widget.NewLabel("Dropbox to vault")
 	dropboxLabel.TextStyle.Bold = true
@@ -264,15 +308,28 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	localLabel := widget.NewLabel(labelName)
 	localLabel.TextStyle.Bold = true
 
+	sdict, err := syncConfigMap(r.app)
+	if err != nil {
+		appLog("ERROR", "unable to read sync config map", err)
+	}
+	dropboxContainer := container.NewGridWithColumns(2, dropbox, dropboxAuth)
+	if _, ok := sdict["dropbox"]; ok {
+		dropboxContainer = container.NewGridWithColumns(2, dropbox, dropboxSync)
+	}
+	pcloudContainer := container.NewGridWithColumns(2, pcloud, pcloudAuth)
+	if _, ok := sdict["pcloud"]; ok {
+		pcloudContainer = container.NewGridWithColumns(2, pcloud, pcloudSync)
+	}
+
 	box := container.NewVBox(
 		dropboxLabel,
-		container.NewGridWithColumns(3, dropbox, dropboxSync, dropboxAuth),
+		dropboxContainer,
 		pcloudLabel,
-		container.NewGridWithColumns(3, pcloud, pcloudSync, pcloudAuth),
+		pcloudContainer,
 		sftpLabel,
-		container.NewGridWithColumns(3, sftp, sftpSync, noAuth),
+		container.NewGridWithColumns(2, sftp, sftpSync),
 		localLabel,
-		container.NewGridWithColumns(3, local, localSync, noAuth),
+		container.NewGridWithColumns(2, local, localSync),
 		statusText,
 	)
 	return box
