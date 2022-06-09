@@ -4,13 +4,17 @@
 flags=-ldflags="-s -w -X main.appKind=desktop"
 # flags=-ldflags="-s -w"
 
-all: build
+all: credentials build
 
 vet:
 	go vet .
 
 build:
 	go clean; rm -rf pkg; go build -o ecm ${flags}
+
+credentials:
+	# create bundle for credentials
+	fyne bundle credentials.env > credentials.go
 
 build_debug:
 	go clean; rm -rf pkg; go build -o ecm ${flags} -gcflags="-m -m"
