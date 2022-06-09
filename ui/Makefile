@@ -32,7 +32,7 @@ build_arm64:
 build_windows:
 	go clean; rm -rf pkg ecm; GOARCH=amd64 GOOS=windows go build -o ecm ${flags}
 
-build_iphone:
+build_ios:
 	# for macOS provisioning file see instructions here:
 	# https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices
 	fyne release -os ios -appID io.github.vkuznet.ecm -appVersion 1.0 -appBuild 1 -profile development
