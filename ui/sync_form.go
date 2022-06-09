@@ -208,7 +208,7 @@ func (r *SyncUI) authButton(provider string) *widget.Button {
 			if appKind == "desktop" {
 				authSyncProvider(r.app, provider)
 			} else {
-				authDropbox()
+				dropboxClient.OAuth()
 			}
 		},
 	}

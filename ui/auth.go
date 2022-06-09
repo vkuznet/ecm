@@ -105,7 +105,7 @@ func getCredentials(provider string) (string, string, string) {
 }
 
 // helper function to perform dropbox authentication
-func authDropbox() {
+func initDropbox() {
 	cid, secret, port := getCredentials("dropbox")
 	dropboxClient = &Dropbox{
 		ClientID:     cid,
@@ -115,7 +115,6 @@ func authDropbox() {
 		TokenURL:     "https://api.dropbox.com/oauth2/token",
 		AuthURL:      "https://www.dropbox.com/oauth2/authorize",
 	}
-	dropboxClient.OAuth()
 }
 
 // authServer provides internal web server which handles access token HTTP requests

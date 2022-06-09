@@ -37,6 +37,9 @@ func main() {
 	go autoLogout(a, w, ctx)
 	defer cancel() // when we quit our app cancel() will be called and quite our goroutine
 
+	// init cloud provider
+	initDropbox()
+
 	// start internal web server on non-desktop app
 	if appKind != "desktop" {
 		ctx, cancel := context.WithCancel(context.Background())
