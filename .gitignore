@@ -41,5 +41,5 @@ guadrian
 ui/adb
 extension-test
 test-server
-credentials
+credentials*
 
