@@ -7,14 +7,16 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
 	fyne "fyne.io/fyne/v2"
+	"github.com/joho/godotenv"
 )
 
-// global var to keep cloud credentials
-var cloudCredentials string
+// global var for dropbox object
+var dropboxClient *Dropbox
 
 // Auth interface declares how to access cloud providers
 type Auth interface {
@@ -22,22 +24,20 @@ type Auth interface {
 	GetToken(code string) ([]byte, error)
 }
 
-var dropboxClient *Dropbox
-
-// Dropbox client
+// Dropbox structure represent Dropbox auth object, for more information see
+// https://developers.dropbox.com/oauth-guide
+// https://www.dropbox.com/developers/documentation/http/documentation#oauth2-token
 type Dropbox struct {
-	ClientID     string
-	ClientSecret string
-	RedirectURI  string
-	AuthURL      string
-	TokenURL     string
+	ClientID     string // dropbox client id
+	ClientSecret string // dropbox client secret
+	Port         string // redirect port
+	RedirectURI  string // redirect URI
+	AuthURL      string // dropbox authentication URL
+	TokenURL     string // dropbox token URL
 }
 
+// OAuth implements Auth.OAuth method for Dropbox
 func (d *Dropbox) OAuth() {
-	//     ruri := url.QueryEscape("http://localhost:5151")
-	//     auri := fmt.Sprintf("https://www.dropbox.com/oauth2/authorize?client_id=%s&response_type=token&redirect_uri=%s", d.ClientID, ruri)
-	//     auri := fmt.Sprintf("https://www.dropbox.com/oauth2/authorize?client_id=%s&response_type=code", d.ClientID)
-	//     auri := fmt.Sprintf("https://www.dropbox.com/oauth2/authorize?client_id=%s&response_type=code&redirect_uri=%s", d.ClientID, ruri)
 	rurl := url.QueryEscape(d.RedirectURI)
 	auri := fmt.Sprintf(
 		"%s?client_id=%s&response_type=code&redirect_uri=%s",
@@ -49,6 +49,7 @@ func (d *Dropbox) OAuth() {
 	openURL(auri)
 }
 
+// GetToken implements Auth.GetToken method for Dropbox
 func (d *Dropbox) GetToken(code string) ([]byte, error) {
 	vals := url.Values{}
 	vals.Set("code", code)
@@ -84,10 +85,19 @@ type DropboxToken struct {
 
 // helper function to perform dropbox authentication
 func authDropbox() {
+	err := godotenv.Load("credentials.env")
+	if err != nil {
+		appLog("INFO", "uunable to load credentials.env file", err)
+		return
+	}
+	cid := os.Getenv("DROPBOX_CLIENT_ID")
+	sec := os.Getenv("DROPBOX_CLIENT_SECRET")
+	port := os.Getenv("DROPBOX_PORT")
 	dropboxClient = &Dropbox{
-		ClientID:     "",
-		ClientSecret: "",
-		RedirectURI:  "",
+		ClientID:     cid,
+		ClientSecret: sec,
+		Port:         port,
+		RedirectURI:  fmt.Sprintf("http://localhost:%s", port),
 		TokenURL:     "https://api.dropbox.com/oauth2/token",
 		AuthURL:      "https://www.dropbox.com/oauth2/authorize",
 	}
@@ -104,16 +114,15 @@ func authServer(app fyne.App, ctx context.Context) {
 			appLog("INFO", string(data), err)
 			if err == nil {
 				updateSyncConfig(app, "dropbox", data)
-				//                 var token DropboxToken
-				//                 err = json.Unmarshal(data, &token)
 			}
 			msg := "Your ECM confiugration is updated with Dropbox credentials"
 			appLog("INFO", msg, nil)
-			msg += "<p>Please return to ECM app</p>"
-			w.Write([]byte(msg))
+			msg += "Please restart the ECM app to proceed"
+			htmlMsg := fmt.Sprintf("<html><body><h3>%s</h3></body></html>", msg)
+			w.Write([]byte(htmlMsg))
 		}
 	})
-	http.ListenAndServe(":5151", nil)
+	http.ListenAndServe(fmt.Sprintf(":%s", dropboxClient.Port), nil)
 	for {
 		select {
 		case <-ctx.Done():
