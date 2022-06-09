@@ -9,39 +9,39 @@ all: credentials build
 vet:
 	go vet .
 
-build:
-	go clean; rm -rf pkg; go build -o ecm ${flags}
-
 credentials:
 	# create bundle for credentials
 	fyne bundle credentials.env > credentials.go
 
-build_debug:
+build: credentials
+	go clean; rm -rf pkg; go build -o ecm ${flags}
+
+build_debug: credentials
 	go clean; rm -rf pkg; go build -o ecm ${flags} -gcflags="-m -m"
 
 build_amd64: build_linux
 
-build_darwin:
+build_darwin: credentials
 	go clean; rm -rf pkg ecm; GOOS=darwin go build -o ecm ${flags}
 
-build_linux:
+build_linux: credentials
 	go clean; rm -rf pkg ecm; GOOS=linux go build -o ecm ${flags}
 
-build_power8:
+build_power8: credentials
 	go clean; rm -rf pkg ecm; GOARCH=ppc64le GOOS=linux go build -o ecm ${flags}
 
-build_arm64:
+build_arm64: credentials
 	go clean; rm -rf pkg ecm; GOARCH=arm64 GOOS=linux go build -o ecm ${flags}
 
-build_windows:
+build_windows: credentials
 	go clean; rm -rf pkg ecm; GOARCH=amd64 GOOS=windows go build -o ecm ${flags}
 
-build_ios:
+build_ios: credentials
 	# for macOS provisioning file see instructions here:
 	# https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices
 	fyne release -os ios -appID io.github.vkuznet.ecm -appVersion 1.0 -appBuild 1 -profile development
 
-build_android:
+build_android: credentials
 	# see additional instructions for Android: https://developer.android.com/studio/publish/app-signing
 	ANDROID_HOME=/Users/vk/Library/Android/sdk \
 	ANDROID_NDK_HOME=/Users/vk/Library/Android/sdk/ndk/23.1.7779620 \
