@@ -7,12 +7,10 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
 	fyne "fyne.io/fyne/v2"
-	"github.com/joho/godotenv"
 )
 
 // global var for dropbox object
@@ -83,19 +81,35 @@ type DropboxToken struct {
 	AccountID   string `json:"account_id"`
 }
 
+func getCredentials(provider string) (string, string, string) {
+	var cid, secret, port string
+	// NOTE: resourceCredentialsEnv comes from auto-generated bundle
+	// see Makefile: fyne bundle credentials.env > credentials.go
+	creds := string(resourceCredentialsEnv.StaticContent)
+	ckey := strings.ToUpper(fmt.Sprintf("%s_client_id", provider))
+	csec := strings.ToUpper(fmt.Sprintf("%s_client_secret", provider))
+	cport := strings.ToUpper(fmt.Sprintf("%s_port", provider))
+	for _, item := range strings.Split(creds, "\n") {
+		arr := strings.Split(item, "=")
+		if len(arr) == 2 {
+			if arr[0] == ckey {
+				cid = arr[1]
+			} else if arr[0] == csec {
+				secret = arr[1]
+			} else if arr[0] == cport {
+				port = arr[1]
+			}
+		}
+	}
+	return cid, secret, port
+}
+
 // helper function to perform dropbox authentication
 func authDropbox() {
-	err := godotenv.Load("credentials.env")
-	if err != nil {
-		appLog("INFO", "uunable to load credentials.env file", err)
-		return
-	}
-	cid := os.Getenv("DROPBOX_CLIENT_ID")
-	sec := os.Getenv("DROPBOX_CLIENT_SECRET")
-	port := os.Getenv("DROPBOX_PORT")
+	cid, secret, port := getCredentials("dropbox")
 	dropboxClient = &Dropbox{
 		ClientID:     cid,
-		ClientSecret: sec,
+		ClientSecret: secret,
 		Port:         port,
 		RedirectURI:  fmt.Sprintf("http://localhost:%s", port),
 		TokenURL:     "https://api.dropbox.com/oauth2/token",
