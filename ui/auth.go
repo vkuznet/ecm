@@ -13,6 +13,9 @@ import (
 	fyne "fyne.io/fyne/v2"
 )
 
+// global var to keep cloud credentials
+var cloudCredentials string
+
 // Auth interface declares how to access cloud providers
 type Auth interface {
 	OAuth()
@@ -82,9 +85,9 @@ type DropboxToken struct {
 // helper function to perform dropbox authentication
 func authDropbox() {
 	dropboxClient = &Dropbox{
-		ClientID:     "v1yr4i1mk5bi8fw",
-		ClientSecret: "m6w57h8tsandqx4",
-		RedirectURI:  "http://localhost:5151",
+		ClientID:     "",
+		ClientSecret: "",
+		RedirectURI:  "",
 		TokenURL:     "https://api.dropbox.com/oauth2/token",
 		AuthURL:      "https://www.dropbox.com/oauth2/authorize",
 	}
