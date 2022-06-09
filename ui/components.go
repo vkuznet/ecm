@@ -83,7 +83,8 @@ func logTabItem(app fyne.App, w fyne.Window) *container.TabItem {
 	content := container.NewVBox(
 		appLogLabel,
 	)
-	return &container.TabItem{Text: "Log", Icon: theme.InfoIcon(), Content: content}
+	logContainer := container.NewScroll(content)
+	return &container.TabItem{Text: "Log", Icon: theme.InfoIcon(), Content: logContainer}
 }
 
 // Create will stitch together all ui components
