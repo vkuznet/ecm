@@ -101,8 +101,8 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 		a.Refresh()
 	}
 	btnContainer := container.NewGridWithColumns(3,
-		colorButtonContainer(btnEdit, editColor),
-		colorButtonContainer(btnUpdate, updateColor),
+		colorButtonContainer(btnEdit, greenColor),
+		colorButtonContainer(btnUpdate, blueColor),
 		colorButtonContainer(btnRemove, redColor),
 	)
 	objects = append(objects, btnContainer)
