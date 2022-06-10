@@ -293,7 +293,6 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	pcloudAuth := colorButtonContainer(r.authButton("pcloud"), authColor)
 	sftpSync := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
 	localSync := colorButtonContainer(r.syncButton(local.Text), btnColor)
-	//     noAuth := colorButtonContainer(r.authButton("noauth"), grayColor)
 
 	dropboxLabel := widget.NewLabel("Dropbox to vault")
 	dropboxLabel.TextStyle.Bold = true
@@ -313,12 +312,16 @@ func (r *SyncUI) buildUI() *fyne.Container {
 		appLog("ERROR", "unable to read sync config map", err)
 	}
 	dropboxContainer := container.NewGridWithColumns(2, dropbox, dropboxAuth)
-	if _, ok := sdict["dropbox"]; ok {
-		dropboxContainer = container.NewGridWithColumns(2, dropbox, dropboxSync)
+	if vals, ok := sdict["dropbox"]; ok {
+		if strings.Contains(vals, "token") {
+			dropboxContainer = container.NewGridWithColumns(2, dropbox, dropboxSync)
+		}
 	}
 	pcloudContainer := container.NewGridWithColumns(2, pcloud, pcloudAuth)
-	if _, ok := sdict["pcloud"]; ok {
-		pcloudContainer = container.NewGridWithColumns(2, pcloud, pcloudSync)
+	if vals, ok := sdict["pcloud"]; ok {
+		if strings.Contains(vals, "token") {
+			pcloudContainer = container.NewGridWithColumns(2, pcloud, pcloudSync)
+		}
 	}
 
 	box := container.NewVBox(

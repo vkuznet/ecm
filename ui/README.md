@@ -29,4 +29,4 @@ for mobile please follow the following steps:
     - run emulator and check devices `./adb devices`
     - deploy ECM applocation `./adb install ecm.apk`
     - check application log `./adb logcat | grep fyne`
-    - on macOS we write sync config to `$HOME/Library/Preferences/fyne/io.github.USERNAME`
+    - on macOS we write sync config to `$HOME/Library/Preferences/fyne/io.github.vkuznet.ecm`

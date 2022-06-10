@@ -56,7 +56,7 @@ func appLog(level, msg string, err error) {
 	// reverse messages to show last message first
 	rarr := reverse(messages)
 	info := strings.Join(rarr, "\n")
-	if len(rarr) > 10 {
+	if len(rarr) > 100 {
 		info = strings.Join(rarr[0:9], "\n")
 	}
 	appLogEntry.Set(info)

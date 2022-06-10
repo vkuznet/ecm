@@ -39,6 +39,19 @@ func checkVault() {
 	}
 }
 
+// helper function to read vault and start our app
+func startApp(app fyne.App, w fyne.Window) {
+	checkVault()
+	err := _vault.Read()
+	msg := fmt.Sprintf("Vault at %s has %d records", _vault.Directory, len(_vault.Records))
+	appLog("INFO", msg, err)
+	if err != nil {
+		appLog("ERROR", "unable to read vault records", err)
+	} else {
+		AppWindow(app, w)
+	}
+}
+
 // helper function to create appropriate login button with custom text and icon
 func loginButton(app fyne.App, w fyne.Window, entry *widget.Entry) *widget.Button {
 	btn := &widget.Button{
@@ -47,13 +60,7 @@ func loginButton(app fyne.App, w fyne.Window, entry *widget.Entry) *widget.Butto
 		Icon: resourceLockSvg,
 		OnTapped: func() {
 			_vault.Secret = entry.Text
-			checkVault()
-			err := _vault.Read()
-			if err != nil {
-				appLog("ERROR", "unable to read vault records", err)
-			} else {
-				AppWindow(app, w)
-			}
+			startApp(app, w)
 		},
 	}
 	return btn
@@ -86,13 +93,7 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	passwordEntry = widget.NewPasswordEntry()
 	passwordEntry.OnSubmitted = func(p string) {
 		_vault.Secret = p
-		checkVault()
-		err := _vault.Read()
-		if err != nil {
-			appLog("ERROR", "unable to read vault records", err)
-		} else {
-			AppWindow(app, w)
-		}
+		startApp(app, w)
 	}
 	passwordEntry.PlaceHolder = "Enter Master Password"
 
@@ -131,15 +132,11 @@ func LoginWindow(app fyne.App, w fyne.Window) {
 	})
 
 	// read sync config and dump it to the log
-	if appKind != "desktop" {
-		sconf := syncPath(app)
-		appLog("INFO", sconf, nil)
-		msg := fmt.Sprintf("Vault at %s has %d records", _vault.Directory, len(_vault.Records))
-		appLog("INFO", msg, nil)
-		err := logSyncConfig(app)
-		if err != nil {
-			appLog("ERROR", "unable to read sync config", err)
-		}
+	sconf := syncPath(app)
+	appLog("INFO", sconf, nil)
+	err := logSyncConfig(app)
+	if err != nil {
+		appLog("ERROR", "unable to read sync config", err)
 	}
 
 	// set window settings
