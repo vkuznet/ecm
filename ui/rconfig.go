@@ -16,7 +16,8 @@ var ecmconfig []byte
 
 func WriteSyncConfig(app fyne.App) {
 	dir := app.Storage().RootURI().Path()
-	fname := fmt.Sprintf("%s/ecmsync.conf", dir)
+	//     fname := fmt.Sprintf("%s/ecmsync.conf", dir)
+	fname := fmt.Sprintf("%s/rclone.conf", dir)
 	file, err := os.Create(fname)
 	if err != nil {
 		log.Fatal(err)
