@@ -13,7 +13,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// setup fyne app and main window
-	a := app.NewWithID("io.github.vkuznet.ecm")
+	a := app.NewWithID("io.github.vkuznet")
 	a.Settings().SetTheme(theme.DarkTheme())
 	w := a.NewWindow("ECM")
 
@@ -41,7 +41,8 @@ func main() {
 	initDropbox()
 
 	// start internal web server on non-desktop app
-	if appKind != "desktop" {
+	//     if appKind != "desktop" {
+	if appKind != "BLA" {
 		ctx, cancel := context.WithCancel(context.Background())
 		go authServer(a, ctx)
 		defer cancel() // when we quit our app cancel() will be called and quite our goroutine
