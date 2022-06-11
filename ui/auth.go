@@ -38,12 +38,12 @@ type Dropbox struct {
 func (d *Dropbox) OAuth() {
 	rurl := url.QueryEscape(d.RedirectURI)
 	auri := fmt.Sprintf(
-		"%s?client_id=%s&response_type=code&redirect_uri=%s",
+		"%s?client_id=%s&response_type=code&redirect_uri=%s&token_access_type=offline",
 		d.AuthURL,
 		d.ClientID,
 		rurl,
 	)
-	fmt.Println("auth url", auri)
+	//     fmt.Println("auth url", auri)
 	openURL(auri)
 }
 
@@ -111,7 +111,7 @@ func initDropbox() {
 		ClientID:     cid,
 		ClientSecret: secret,
 		Port:         port,
-		RedirectURI:  fmt.Sprintf("http://localhost:%s", port),
+		RedirectURI:  fmt.Sprintf("http://localhost:%s/", port),
 		TokenURL:     "https://api.dropbox.com/oauth2/token",
 		AuthURL:      "https://www.dropbox.com/oauth2/authorize",
 	}
@@ -126,12 +126,18 @@ func authServer(app fyne.App, ctx context.Context) {
 			data, err := dropboxClient.GetToken(code)
 			appLog("INFO", string(data), err)
 			if err == nil {
-				updateSyncConfig(app, "dropbox", data)
+				updateSyncConfig(
+					app,
+					"dropbox",
+					dropboxClient.ClientID,
+					dropboxClient.ClientSecret,
+					data,
+				)
 			}
-			msg := "Your ECM confiugration is updated with Dropbox credentials"
+			msg := "Your ECM confiugration is updated with Dropbox credentials. "
 			appLog("INFO", msg, nil)
 			msg += "Please restart the ECM app to proceed"
-			htmlMsg := fmt.Sprintf("<html><body><h3>%s</h3></body></html>", msg)
+			htmlMsg := fmt.Sprintf("<html><body><h1>%s</h1></body></html>", msg)
 			w.Write([]byte(htmlMsg))
 		}
 	})
