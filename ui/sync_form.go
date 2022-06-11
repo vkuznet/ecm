@@ -77,7 +77,7 @@ func logSyncConfig(app fyne.App) error {
 }
 
 // helper function to update sync config file with token data
-func updateSyncConfig(app fyne.App, provider string, data []byte) error {
+func updateSyncConfig(app fyne.App, provider, cid, secret string, data []byte) error {
 	// get our sync config file
 	sconf := syncPath(app)
 
@@ -103,8 +103,15 @@ func updateSyncConfig(app fyne.App, provider string, data []byte) error {
 			row := fmt.Sprintf("token = %s", string(data))
 			out = append(out, row)
 			found = true
+			// write client id and secret
+			row = fmt.Sprintf("client_id = %s", cid)
+			out = append(out, row)
+			row = fmt.Sprintf("client_secret = %s", secret)
+			out = append(out, row)
 		} else {
 			if found && strings.HasPrefix(line, "token") {
+				continue // skip previous token if it existed for our provider
+			} else if found && strings.HasPrefix(line, "client") {
 				continue // skip previous token if it existed for our provider
 			} else {
 				out = append(out, line)
@@ -142,6 +149,11 @@ func syncPath(app fyne.App) string {
 
 // helper function to create sync config for rclone library
 func syncConfig(app fyne.App) {
+
+	// NOTE: write sync config for rclone usage
+	// if we will not use rclone then I need to comment this out
+	//     WriteSyncConfig(app)
+
 	sconf := syncPath(app)
 	if _, err := os.Stat(sconf); errors.Is(err, os.ErrNotExist) {
 		msg := fmt.Sprintf("create %s", sconf)
@@ -205,18 +217,29 @@ func (r *SyncUI) authButton(provider string) *widget.Button {
 		Text: "OAuth",
 		Icon: theme.ConfirmIcon(),
 		OnTapped: func() {
-			if appKind == "desktop" {
-				authSyncProvider(r.app, provider)
-			} else {
-				dropboxClient.OAuth()
-			}
+			//             if appKind == "desktop" {
+			//                 authSyncProvider(r.app, provider)
+			//             } else {
+			//                 dropboxClient.OAuth()
+			//             }
+
+			// perform oauth request with our dropbox client
+			dropboxClient.OAuth()
+
+			// update rclone path
+			//             sconf := syncPath(r.app)
+			//             err := ecmsync.EcmUpdateConfig(sconf, provider)
+			//             if err != nil {
+			//                 appLog("ERROR", "unable to update rclone config", err)
+			//             }
+			//             authSyncProvider(r.app, provider)
 		},
 	}
 	return btn
 }
 
 // helper function to provide sync button to given destination
-func (r *SyncUI) syncButton(dst string) *widget.Button {
+func (r *SyncUI) syncButton(src string) *widget.Button {
 	// get vault dir from preferences
 	pref := r.app.Preferences()
 	vdir := pref.String("VaultDirectory")
@@ -232,11 +255,12 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 			if sconf != "" {
 				fconf = sconf
 			}
-			msg := fmt.Sprintf("config: %s, sync from %s to %s", fconf, dst, vdir)
+			dst := fmt.Sprintf("local:%s", vdir)
+			msg := fmt.Sprintf("config: %s, sync from %s to %s", fconf, src, dst)
 			appLog("INFO", msg, nil)
-			err := ecmsync.EcmSync(fconf, dst, vdir)
+			err := ecmsync.EcmSync(fconf, src, dst)
 			if err != nil {
-				msg := fmt.Sprintf("unable to sync from %s to %s", dst, vdir)
+				msg := fmt.Sprintf("unable to sync from %s to %s", src, dst)
 				appLog("ERROR", msg, err)
 				syncStatus.Set(msg)
 				return
@@ -254,7 +278,7 @@ func (r *SyncUI) syncButton(dst string) *widget.Button {
 			}
 			// refresh ui records
 			r.vaultRecords.Refresh()
-			msg = fmt.Sprintf("%s records are synced successfully", dst)
+			msg = fmt.Sprintf("%s records are synced successfully", src)
 			syncStatus.Set(msg)
 			appLog("INFO", msg, nil)
 		},
