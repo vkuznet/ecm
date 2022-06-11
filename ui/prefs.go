@@ -68,9 +68,6 @@ func appSettings(app fyne.App) {
 
 	// set images
 	//     setCustomImages()
-
-	// write ecmconfig
-	//     WriteSyncConfig(app)
 }
 
 // helper function to set custom images for our app theme
