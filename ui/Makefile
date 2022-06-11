@@ -39,13 +39,13 @@ build_windows: credentials
 build_ios: credentials
 	# for macOS provisioning file see instructions here:
 	# https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices
-	fyne release -os ios -appID io.github.vkuznet.ecm -appVersion 1.0 -appBuild 1 -profile development
+	fyne release -os ios -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -profile development
 
 build_android: credentials
 	# see additional instructions for Android: https://developer.android.com/studio/publish/app-signing
 	ANDROID_HOME=/Users/vk/Library/Android/sdk \
 	ANDROID_NDK_HOME=/Users/vk/Library/Android/sdk/ndk/23.1.7779620 \
-	fyne release -os android -appID io.github.vkuznet.ecm -appVersion 1.0 -appBuild 1 -keyStore /Users/vk/AndroidKeystore
+	fyne release -os android -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -keyStore /Users/vk/AndroidKeystore
 
 install:
 	go install
