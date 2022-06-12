@@ -46,20 +46,25 @@ func appLog(level, msg string, err error) {
 
 	// get previous message and keep log growing to some size
 	var messages []string
-	sep := fmt.Sprintf("\n%d", time.Now().Year())
+	year := time.Now().Year()
+	sep := fmt.Sprintf("\n%d", year)
 	emsg, err := appLogEntry.Get()
 	if err == nil {
 		for _, m := range strings.Split(emsg, sep) {
-			messages = append(messages, m)
+			if !strings.HasPrefix(m, fmt.Sprintf("%d", year)) {
+				messages = append(messages, fmt.Sprintf("%d%s", year, m))
+			} else {
+				messages = append(messages, m)
+			}
 		}
 	}
 	messages = append(messages, text)
 	// reverse messages to show last message first
 	rarr := reverse(messages)
-	info := strings.Join(rarr, sep)
+	info := strings.Join(rarr, "\n")
 	nLines := 100 // number of log line to keep
 	if len(rarr) > nLines {
-		info = strings.Join(rarr[0:nLines], sep)
+		info = strings.Join(rarr[0:nLines], "\n")
 	}
 	appLogEntry.Set(info)
 }
@@ -75,7 +80,7 @@ func reverse(arr []string) []string {
 // helper function to setup app error label
 func setupAppError() {
 	appLogEntry = binding.NewString()
-	appLogEntry.Set("ECM error window")
+	appLogEntry.Set("ECM log window")
 	appLogLabel = widget.NewLabelWithData(appLogEntry)
 	appLogLabel.Wrapping = fyne.TextWrapBreak
 }
