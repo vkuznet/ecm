@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
@@ -198,12 +200,7 @@ func newUISync(a fyne.App, w fyne.Window, v *vaultRecords) *SyncUI {
 func (r *SyncUI) onDropboxPathChanged(v string) {
 	r.preferences.SetString("dropbox", v)
 }
-func (r *SyncUI) onPCloudPathChanged(v string) {
-	r.preferences.SetString("pcloud", v)
-}
-func (r *SyncUI) onSftpPathChanged(v string) {
-	r.preferences.SetString("sftp", v)
-}
+
 func (r *SyncUI) onLocalPathChanged(v string) {
 	r.preferences.SetString("local", v)
 }
@@ -286,6 +283,58 @@ func (r *SyncUI) syncButton(src string) *widget.Button {
 	return btn
 }
 
+type Token struct {
+	AccessToken string `json:"access_token"`
+	Expire      int64  `json:"expires_in"`
+}
+
+// helper function to check if token is valid for given cloud provider
+func (r *SyncUI) isValidToken(provider string) bool {
+	// get our config mod time in unix format
+	sconf := syncPath(r.app)
+	file, err := os.Stat(sconf)
+	if err != nil {
+		log.Println("sync path", err)
+		appLog("ERROR", "unable to get file stats", err)
+		return false
+	}
+	mtime := file.ModTime().Unix()
+	//     log.Println("sconf", sconf, "mod time", mtime)
+
+	// read out sync config map
+	sdict, err := syncConfigMap(r.app)
+	if err != nil {
+		log.Println("unable to read sync config map", err)
+		appLog("ERROR", "unable to read sync config map", err)
+		return false
+	}
+	// check if our provider has token
+	if vals, ok := sdict[provider]; ok {
+		if strings.Contains(vals, "token") {
+			for _, line := range strings.Split(vals, "\n") {
+				if strings.HasPrefix(line, "token") {
+					arr := strings.Split(line, " = ")
+					//                     log.Println("found token", vals, arr, len(arr))
+					if len(arr) == 2 {
+						var token Token
+						err := json.Unmarshal([]byte(arr[1]), &token)
+						if err != nil {
+							appLog("ERROR", "unable to unmarshal token", err)
+							return false
+						}
+						// check if our token is valid
+						//                         log.Println("token tstamp", mtime+token.Expire, " now ", time.Now().Unix())
+						if mtime+token.Expire > time.Now().Unix() {
+							return true
+						}
+					}
+				}
+			}
+		}
+	}
+	return false
+}
+
 // helper function to build UI
 func (r *SyncUI) buildUI() *fyne.Container {
 
@@ -297,8 +346,6 @@ func (r *SyncUI) buildUI() *fyne.Container {
 
 	// sync form container
 	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
-	pcloud := &widget.Entry{Text: "pcloud:ECM", OnSubmitted: r.onPCloudPathChanged}
-	sftp := &widget.Entry{Text: "sftp:ECM", OnSubmitted: r.onSftpPathChanged}
 	lpath := os.Getenv("EXTERNAL_STORAGE")
 	if lpath == "" {
 		lpath = "sdcard"
@@ -307,23 +354,17 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	if appKind == "desktop" {
 		home := os.Getenv("HOME")
 		lpath = fmt.Sprintf("local:%s/.ecm", home)
-	} else {
 	}
 	local := &widget.Entry{Text: lpath, OnSubmitted: r.onLocalPathChanged}
 
 	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
 	dropboxAuth := colorButtonContainer(r.authButton("dropbox"), authColor)
-	pcloudSync := colorButtonContainer(r.syncButton(pcloud.Text), btnColor)
-	pcloudAuth := colorButtonContainer(r.authButton("pcloud"), authColor)
-	sftpSync := colorButtonContainer(r.syncButton(sftp.Text), btnColor)
 	localSync := colorButtonContainer(r.syncButton(local.Text), btnColor)
+	//     btn := &widget.Button{}
+	//     noAuth := colorButtonContainer(btn, grayColor)
 
 	dropboxLabel := widget.NewLabel("Dropbox to vault")
 	dropboxLabel.TextStyle.Bold = true
-	pcloudLabel := widget.NewLabel("PCloud to vault")
-	pcloudLabel.TextStyle.Bold = true
-	sftpLabel := widget.NewLabel("Sftp to vault")
-	sftpLabel.TextStyle.Bold = true
 	labelName := "local to vault"
 	if appKind != "desktop" {
 		labelName = "sdcard to vault"
@@ -331,32 +372,19 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	localLabel := widget.NewLabel(labelName)
 	localLabel.TextStyle.Bold = true
 
-	sdict, err := syncConfigMap(r.app)
-	if err != nil {
-		appLog("ERROR", "unable to read sync config map", err)
-	}
+	// by default we show auth button
 	dropboxContainer := container.NewGridWithColumns(2, dropbox, dropboxAuth)
-	if vals, ok := sdict["dropbox"]; ok {
-		if strings.Contains(vals, "token") {
-			dropboxContainer = container.NewGridWithColumns(2, dropbox, dropboxSync)
-		}
+	// check if token exist and it is valid, then we show sync button
+	if r.isValidToken("dropbox") {
+		dropboxContainer = container.NewGridWithColumns(2, dropbox, dropboxSync)
 	}
-	pcloudContainer := container.NewGridWithColumns(2, pcloud, pcloudAuth)
-	if vals, ok := sdict["pcloud"]; ok {
-		if strings.Contains(vals, "token") {
-			pcloudContainer = container.NewGridWithColumns(2, pcloud, pcloudSync)
-		}
-	}
+	localContainer := container.NewGridWithColumns(2, local, localSync)
 
 	box := container.NewVBox(
 		dropboxLabel,
 		dropboxContainer,
-		pcloudLabel,
-		pcloudContainer,
-		sftpLabel,
-		container.NewGridWithColumns(2, sftp, sftpSync),
 		localLabel,
-		container.NewGridWithColumns(2, local, localSync),
+		localContainer,
 		statusText,
 	)
 	return box
