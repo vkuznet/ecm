@@ -46,18 +46,20 @@ func appLog(level, msg string, err error) {
 
 	// get previous message and keep log growing to some size
 	var messages []string
+	sep := fmt.Sprintf("\n%d", time.Now().Year())
 	emsg, err := appLogEntry.Get()
 	if err == nil {
-		for _, m := range strings.Split(emsg, "\n") {
+		for _, m := range strings.Split(emsg, sep) {
 			messages = append(messages, m)
 		}
 	}
 	messages = append(messages, text)
 	// reverse messages to show last message first
 	rarr := reverse(messages)
-	info := strings.Join(rarr, "\n")
-	if len(rarr) > 100 {
-		info = strings.Join(rarr[0:9], "\n")
+	info := strings.Join(rarr, sep)
+	nLines := 100 // number of log line to keep
+	if len(rarr) > nLines {
+		info = strings.Join(rarr[0:nLines], sep)
 	}
 	appLogEntry.Set(info)
 }
