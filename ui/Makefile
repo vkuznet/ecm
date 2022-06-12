@@ -13,6 +13,9 @@ credentials:
 	# create bundle for credentials
 	fyne bundle credentials.env > credentials.go
 
+sign:
+	sudo codesign --force --deep --sign - ${PWD}/ecm
+
 build: credentials
 	go clean; rm -rf pkg; go build -o ecm ${flags}
 
