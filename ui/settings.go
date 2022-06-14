@@ -50,10 +50,13 @@ func (r *Settings) onThemeChanged(v string) {
 	if v == "dark" {
 		r.app.Settings().SetTheme(theme.DarkTheme())
 	} else if v == "ligth" {
-		r.app.Settings().SetTheme(theme.LightTheme())
+		//         r.app.Settings().SetTheme(theme.LightTheme())
+		r.app.Settings().SetTheme(&grayTheme{})
 	} else {
-		r.app.Settings().SetTheme(theme.LightTheme())
+		//         r.app.Settings().SetTheme(theme.LightTheme())
+		r.app.Settings().SetTheme(&grayTheme{})
 	}
+	r.app.Preferences().SetString("AppTheme", appTheme)
 	appRefresh(r.app, r.window)
 }
 func (r *Settings) onVaultCipherChanged(v string) {
