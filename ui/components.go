@@ -31,8 +31,11 @@ func AppWindow(app fyne.App, w fyne.Window) {
 	w.SetContent(Create(app, w))
 	w.Resize(windowSize)
 	w.SetMaster()
-	// custom theme
-	//     app.Settings().SetTheme(&grayTheme{})
+
+	pref := app.Preferences()
+	if pref.String("AppTheme") == "light" {
+		app.Settings().SetTheme(&grayTheme{})
+	}
 }
 
 // helper function to unify error messages
@@ -94,14 +97,17 @@ func logTabItem(app fyne.App, w fyne.Window) *container.TabItem {
 	return &container.TabItem{Text: "Log", Icon: theme.InfoIcon(), Content: logContainer}
 }
 
+// keep appRecords global as we'll need to update them
+var appRecords *vaultRecords
+
 // Create will stitch together all ui components
 func Create(app fyne.App, window fyne.Window) *container.AppTabs {
-	uiRecords := newUIVaultRecords(app, window)
+	appRecords = newUIVaultRecords(app, window)
 	appTabs = &container.AppTabs{Items: []*container.TabItem{
-		uiRecords.tabItem(),
+		appRecords.tabItem(),
 		newUIRecord(app, window).tabItem(),
 		newUIPassword(app, window).tabItem(),
-		newUISync(app, window, uiRecords).tabItem(),
+		newUISync(app, window, appRecords).tabItem(),
 		newUISettings(app, window).tabItem(),
 		logTabItem(app, window),
 		logoutTabItem(app, window),
