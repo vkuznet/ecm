@@ -42,7 +42,14 @@ build_windows: credentials
 build_ios: credentials
 	# for macOS provisioning file see instructions here:
 	# https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices
-	fyne release -os ios -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -profile development
+	# we need to have signed certificate, so setup IOS_CERT environment and use it
+	fyne release -os ios -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -profile development -cert ${IOS_CERT}
+
+release_darwin: credentials
+	# for macOS provisioning file see instructions here:
+	# https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices
+	# we need to have signed certificate, so setup IOS_CERT environment and use it
+	fyne release -os darwin -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -profile development -cert ${IOS_CERT} -category utilities
 
 build_android: credentials
 	# see additional instructions for Android: https://developer.android.com/studio/publish/app-signing
