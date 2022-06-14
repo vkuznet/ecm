@@ -11,6 +11,7 @@ import (
 	"time"
 
 	fyne "fyne.io/fyne/v2"
+	theme "fyne.io/fyne/v2/theme"
 )
 
 // global var for dropbox object
@@ -20,6 +21,7 @@ var dropboxClient *Dropbox
 type Auth interface {
 	OAuth()
 	GetToken(code string) ([]byte, error)
+	RefreshToken(rtoken string) ([]byte, error)
 }
 
 // Dropbox structure represent Dropbox auth object, for more information see
@@ -81,6 +83,29 @@ type DropboxToken struct {
 	AccountID   string `json:"account_id"`
 }
 
+// RefreshToken implements Auth.Refresh method for Dropbox
+func (d *Dropbox) RefreshToken(rtoken string) ([]byte, error) {
+	vals := url.Values{}
+	vals.Set("refresh_token", rtoken)
+	vals.Set("grant_type", "refresh_token")
+
+	log.Printf("values %+v", vals)
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	req, err := http.NewRequest("POST", d.TokenURL, strings.NewReader(vals.Encode()))
+	if err != nil {
+		return []byte{}, err
+	}
+	req.SetBasicAuth(d.ClientID, d.ClientSecret)
+	resp, err := client.Do(req)
+
+	defer resp.Body.Close()
+	data, err := io.ReadAll(resp.Body)
+	return data, err
+
+}
+
 func getCredentials(provider string) (string, string, string) {
 	var cid, secret, port string
 	// NOTE: resourceCredentialsEnv comes from auto-generated bundle
@@ -138,6 +163,18 @@ func authServer(app fyne.App, ctx context.Context) {
 			appLog("INFO", msg, nil)
 			msg += "Please restart the ECM app to proceed"
 			htmlMsg := fmt.Sprintf("<html><body><h1>%s</h1></body></html>", msg)
+
+			// refresh dropbox auth button
+			if dropboxAuthButton != nil {
+				dropboxAuthButton.Text = "Sync"
+				dropboxAuthButton.Icon = theme.HistoryIcon()
+				dropboxAuthButton.OnTapped = func() {
+					src := "dropbox:ECM" // FIXME
+					syncFunc(app, _vault.Directory, src)
+				}
+				dropboxAuthButton.Refresh()
+			}
+
 			w.Write([]byte(htmlMsg))
 		}
 	})
