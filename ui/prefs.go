@@ -26,9 +26,11 @@ func appSettings(app fyne.App) {
 	cipher := "aes"
 	vdir := fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME"))
 	fontSize := "Normal"
-	appTheme = pref.String("AppTheme")
 	if appTheme == "" {
-		appTheme = "dark"
+		appTheme = pref.String("AppTheme")
+		if appTheme == "" {
+			appTheme = "dark"
+		}
 	}
 
 	// color for our buttons
