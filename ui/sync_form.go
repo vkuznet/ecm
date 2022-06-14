@@ -235,6 +235,46 @@ func (r *SyncUI) authButton(provider string) *widget.Button {
 	return btn
 }
 
+// helper function to perform sync operation
+func syncFunc(app fyne.App, vdir, src string) {
+	// perform sync from dropbox to vault
+	dir := app.Storage().RootURI().Path()
+	fconf := fmt.Sprintf("%s/rclone.conf", dir)
+	sconf := os.Getenv("ECM_SYNC_CONFIG")
+	if sconf != "" {
+		fconf = sconf
+	}
+	dst := fmt.Sprintf("local:%s", vdir)
+	msg := fmt.Sprintf("config: %s, sync from %s to %s", fconf, src, dst)
+	appLog("INFO", msg, nil)
+	err := ecmsync.EcmSync(fconf, src, dst)
+	if err != nil {
+		msg := fmt.Sprintf("unable to sync from %s to %s", src, dst)
+		appLog("ERROR", msg, err)
+		syncStatus.Set(msg)
+		return
+	}
+	log.Println("records are synced")
+	// reset vault records
+	_vault.Records = nil
+	// read again vault records
+	err = _vault.Read()
+	if err != nil {
+		msg := fmt.Sprintf("unable to read the vault records, %v", err)
+		appLog("ERROR", msg, err)
+		syncStatus.Set(msg)
+		return
+	}
+	// refresh ui records
+	//     r.vaultRecords.Refresh()
+	if appRecords != nil {
+		appRecords.Refresh()
+	}
+	msg = fmt.Sprintf("%s records are synced successfully", src)
+	syncStatus.Set(msg)
+	appLog("INFO", msg, nil)
+}
+
 // helper function to provide sync button to given destination
 func (r *SyncUI) syncButton(src string) *widget.Button {
 	// get vault dir from preferences
@@ -245,47 +285,17 @@ func (r *SyncUI) syncButton(src string) *widget.Button {
 		Text: "Sync",
 		Icon: theme.HistoryIcon(),
 		OnTapped: func() {
-			// perform sync from dropbox to vault
-			dir := r.app.Storage().RootURI().Path()
-			fconf := fmt.Sprintf("%s/rclone.conf", dir)
-			sconf := os.Getenv("ECM_SYNC_CONFIG")
-			if sconf != "" {
-				fconf = sconf
-			}
-			dst := fmt.Sprintf("local:%s", vdir)
-			msg := fmt.Sprintf("config: %s, sync from %s to %s", fconf, src, dst)
-			appLog("INFO", msg, nil)
-			err := ecmsync.EcmSync(fconf, src, dst)
-			if err != nil {
-				msg := fmt.Sprintf("unable to sync from %s to %s", src, dst)
-				appLog("ERROR", msg, err)
-				syncStatus.Set(msg)
-				return
-			}
-			log.Println("records are synced")
-			// reset vault records
-			_vault.Records = nil
-			// read again vault records
-			err = _vault.Read()
-			if err != nil {
-				msg := fmt.Sprintf("unable to read the vault records, %v", err)
-				appLog("ERROR", msg, err)
-				syncStatus.Set(msg)
-				return
-			}
-			// refresh ui records
-			r.vaultRecords.Refresh()
-			msg = fmt.Sprintf("%s records are synced successfully", src)
-			syncStatus.Set(msg)
-			appLog("INFO", msg, nil)
+			syncFunc(r.app, vdir, src)
 		},
 	}
 	return btn
 }
 
+// Token describes structure of OAuath token response
 type Token struct {
-	AccessToken string `json:"access_token"`
-	Expire      int64  `json:"expires_in"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	Expires      int64  `json:"expires_in"`
 }
 
 // helper function to check if token is valid for given cloud provider
@@ -314,7 +324,6 @@ func (r *SyncUI) isValidToken(provider string) bool {
 			for _, line := range strings.Split(vals, "\n") {
 				if strings.HasPrefix(line, "token") {
 					arr := strings.Split(line, " = ")
-					//                     log.Println("found token", vals, arr, len(arr))
 					if len(arr) == 2 {
 						var token Token
 						err := json.Unmarshal([]byte(arr[1]), &token)
@@ -323,9 +332,34 @@ func (r *SyncUI) isValidToken(provider string) bool {
 							return false
 						}
 						// check if our token is valid
-						//                         log.Println("token tstamp", mtime+token.Expire, " now ", time.Now().Unix())
-						if mtime+token.Expire > time.Now().Unix() {
+						if mtime+token.Expires > time.Now().Unix() {
 							return true
+						} else {
+							// place refresh token request
+							data, err := dropboxClient.RefreshToken(token.RefreshToken)
+							if err == nil {
+								// if successfull we get new token object
+								var newToken Token
+								err := json.Unmarshal(data, &newToken)
+								if err == nil {
+									// if successfull we update new token object
+									newToken.RefreshToken = token.RefreshToken
+									// and we get its binary representation
+									newData, err := json.Marshal(data)
+									if err == nil {
+										// if successfull we update sync config
+										updateSyncConfig(
+											r.app,
+											"dropbox",
+											dropboxClient.ClientID,
+											dropboxClient.ClientSecret,
+											newData,
+										)
+									}
+									return true
+
+								}
+							}
 						}
 					}
 				}
@@ -334,6 +368,9 @@ func (r *SyncUI) isValidToken(provider string) bool {
 	}
 	return false
 }
+
+// global auth button pointer
+var dropboxAuthButton *widget.Button
 
 // helper function to build UI
 func (r *SyncUI) buildUI() *fyne.Container {
@@ -357,8 +394,10 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	}
 	local := &widget.Entry{Text: lpath, OnSubmitted: r.onLocalPathChanged}
 
-	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
-	dropboxAuth := colorButtonContainer(r.authButton("dropbox"), authColor)
+	dropboxAuthButton = r.authButton("dropbox")
+	//     dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
+	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), authColor)
+	dropboxAuth := colorButtonContainer(dropboxAuthButton, authColor)
 	localSync := colorButtonContainer(r.syncButton(local.Text), btnColor)
 	//     btn := &widget.Button{}
 	//     noAuth := colorButtonContainer(btn, grayColor)
@@ -373,8 +412,8 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	localLabel.TextStyle.Bold = true
 
 	// by default we show auth button
-	dropboxContainer := container.NewGridWithColumns(2, dropbox, dropboxAuth)
 	// check if token exist and it is valid, then we show sync button
+	dropboxContainer := container.NewGridWithColumns(2, dropbox, dropboxAuth)
 	if r.isValidToken("dropbox") {
 		dropboxContainer = container.NewGridWithColumns(2, dropbox, dropboxSync)
 	}
