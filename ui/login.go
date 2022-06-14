@@ -79,12 +79,14 @@ func tapButton(resource *fyne.Resource, link string) *widget.Button {
 
 // LoginWindow represents login window
 func LoginWindow(app fyne.App, w fyne.Window) {
-	// custom theme
-	//     app.Settings().SetTheme(&grayTheme{})
+
+	pref := app.Preferences()
+	if pref.String("AppTheme") == "light" {
+		app.Settings().SetTheme(&grayTheme{})
+	}
 
 	// get vault records
 	if _vault == nil {
-		pref := app.Preferences()
 		cipher := pref.String("VaultCipher")
 		vdir := pref.String("VaultDirectory")
 		_vault = &vt.Vault{Directory: vdir, Cipher: cipher, Start: time.Now()}
