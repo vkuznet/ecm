@@ -52,4 +52,8 @@ and we rely on Web Assembly ([WASM](https://webassembly.org/))
 technology to enforce the same-origin and permissions security policies of the browser.
 
 ## Tools
-ECM toolkit provides variety of tools, CLI, UI, Web extension and web server. Please check them out on [Tools](tools.md) page.
+ECM toolkit provides variety of tools, CLI, UI, Web extension and web server. Please check them out:
+- [Command line tool](https://github.com/vkuznet/ecm/blob/gh-pages/tools.md#ecm-command-line-interface-cli)
+- [Native application](https://github.com/vkuznet/ecm/blob/gh-pages/tools.md#ui-tool)
+- [Web extension](https://github.com/vkuznet/ecm/blob/gh-pages/tools.md#wasm-browser-extention)
+- [Web server](https://github.com/vkuznet/ecm/blob/gh-pages/tools.md#webserver)
