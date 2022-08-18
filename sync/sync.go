@@ -50,6 +50,8 @@ func EcmCreateConfig(cname string) error {
 	w.Write([]byte("type = local\n\n"))
 	w.Write([]byte("[dropbox]\n"))
 	w.Write([]byte("type = dropbox\n"))
+	w.Write([]byte("client_id = dropbox\n"))
+	w.Write([]byte("client_secret = dropbox\n"))
 	w.Write([]byte("env_auth = true\n\n"))
 	w.Write([]byte("[pcloud]\n"))
 	w.Write([]byte("type = pcloud\n"))
