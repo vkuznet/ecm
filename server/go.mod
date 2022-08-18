@@ -3,7 +3,7 @@ module github.com/vkuznet/ecm
 go 1.18
 
 require (
-	github.com/dchest/captcha v0.0.0-20200903113550-03f5f0333e1f
+	github.com/dchest/captcha v1.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dgryski/dgoogauth v0.0.0-20190221195224-5a805980a5f3
 	github.com/disintegration/imaging v1.6.2
@@ -12,12 +12,12 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/ulule/limiter/v3 v3.10.0
-	github.com/vkuznet/ecm/crypt v0.0.0-20220612133308-076c048cbda8
-	github.com/vkuznet/ecm/kvdb v0.0.0-20220612133308-076c048cbda8
-	github.com/vkuznet/ecm/utils v0.0.0-20220612133308-076c048cbda8
-	github.com/vkuznet/ecm/vault v0.0.0-20220612133308-076c048cbda8
+	github.com/vkuznet/ecm/crypt v0.0.0-20220818200842-835e275b9d58
+	github.com/vkuznet/ecm/kvdb v0.0.0-20220818171734-0c8fffb8109c
+	github.com/vkuznet/ecm/utils v0.0.0-20220818195422-9a9778fa611d
+	github.com/vkuznet/ecm/vault v0.0.0-20220818195422-9a9778fa611d
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
+	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8
 	rsc.io/qr v0.2.0
 )
 
@@ -36,18 +36,18 @@ require (
 	github.com/google/flatbuffers v2.0.6+incompatible // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
-	github.com/klauspost/compress v1.15.4 // indirect
-	github.com/lestrrat-go/strftime v1.0.5 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
+	github.com/lestrrat-go/strftime v1.0.6 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220604132921-4104f7c463c9 // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220818195422-9a9778fa611d // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/exp/errors v0.0.0-20220602145555-4a0574d9293f // indirect
-	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
-	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
-	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
+	golang.org/x/exp/errors v0.0.0-20220722155223-a9213eeb770e // indirect
+	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539 // indirect
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
+	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
+	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 )
