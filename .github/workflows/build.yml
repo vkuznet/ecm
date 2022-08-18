@@ -48,8 +48,9 @@ jobs:
         echo "build fyne"
         mkdir fyne-build
         cd fyne-build
-        git clone git@github.com:fyne-io/fyne.git
-        cd fyne
+        curl -ksLO https://github.com/fyne-io/fyne/archive/refs/tags/v2.2.2.tar.gz
+        tar xfz v2.2.2.tar.gz
+        cd fyne-2.2.2
         go build
         cp cmd/fyne/fyne ../../ui
         cd ../../ui
