@@ -6,7 +6,6 @@ import (
 	"os"
 	"runtime"
 	"time"
-	//     "github.com/rivo/tview"
 )
 
 // version of the code
@@ -22,8 +21,8 @@ func ecmInfo() string {
 func main() {
 	var version bool
 	flag.BoolVar(&version, "version", false, "show version")
-	var serverConfig string
-	flag.StringVar(&serverConfig, "serverConfig", "", "start HTTP server with provided configuration")
+	var config string
+	flag.StringVar(&config, "config", "", "start HTTP server with provided configuration")
 	flag.Parse()
 	if version {
 		fmt.Println(ecmInfo())
@@ -32,5 +31,5 @@ func main() {
 	}
 
 	// start server
-	startServer(serverConfig)
+	startServer(config)
 }
