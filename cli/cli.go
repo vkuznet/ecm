@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"syscall"
 
@@ -42,7 +41,7 @@ func decryptFile(dfile, cipher, pcopy string) {
 		write = "clipboard"
 	}
 	decryptInput(dfile, password, cipher, write, pcopy)
-	os.Exit(0)
+	//     os.Exit(0)
 }
 
 // cli main function
@@ -57,22 +56,26 @@ func cli(
 	// decrypt file if given
 	if dfile != "" {
 		decryptFile(dfile, vault.Cipher, pcopy)
+		return
 	}
 	// get vault secret
-	salt, err := secretPlain(verbose)
-	if err != nil {
-		log.Fatal(err)
+	if vault.Secret == "" {
+		salt, err := secretPlain(verbose)
+		if err != nil {
+			log.Fatal(err)
+		}
+		vault.Secret = salt
 	}
-	vault.Secret = salt
 
 	// encrypt given record
 	if efile != "" {
 		vault.EncryptFile(efile)
-		os.Exit(0)
+		//         os.Exit(0)
+		return
 	}
 
 	// read from our vault
-	err = vault.Read()
+	err := vault.Read()
 	if err != nil {
 		log.Fatal("unable to read vault, error ", err)
 	}
@@ -80,7 +83,8 @@ func cli(
 	// show vault info
 	if info {
 		fmt.Println(vault.Info())
-		os.Exit(0)
+		//         os.Exit(0)
+		return
 	}
 
 	// sync vault
@@ -105,7 +109,8 @@ func cli(
 		if err != nil {
 			log.Fatal(err)
 		}
-		os.Exit(0)
+		//         os.Exit(0)
+		return
 	}
 
 	// add given record
@@ -118,7 +123,8 @@ func cli(
 		if err != nil {
 			log.Fatalf("unable to edit vault record, error '%s'", err)
 		}
-		os.Exit(0)
+		//         os.Exit(0)
+		return
 	}
 	// edit given record
 	if edit != "" {
@@ -126,7 +132,8 @@ func cli(
 		if err != nil {
 			log.Fatalf("unable to edit vault record, error '%s'", err)
 		}
-		os.Exit(0)
+		//         os.Exit(0)
+		return
 	}
 	// export vault records
 	if export != "" && vimport == "" {
@@ -134,7 +141,8 @@ func cli(
 		if err != nil {
 			log.Fatalf("unable to export vault records, error %v", err)
 		}
-		os.Exit(0)
+		//         os.Exit(0)
+		return
 	}
 
 	// import records to the vault
@@ -143,7 +151,8 @@ func cli(
 		if err != nil {
 			log.Fatalf("unable to import records to the vault, error %v", err)
 		}
-		os.Exit(0)
+		//         os.Exit(0)
+		return
 	}
 
 	// change master password of the vault and re-encrypt all records
@@ -171,7 +180,8 @@ func cli(
 		if err != nil {
 			log.Fatalf("unable to change vault master password and re-encrypt its records, error %v", err)
 		}
-		os.Exit(0)
+		//         os.Exit(0)
+		return
 	}
 
 	records := vault.Records
