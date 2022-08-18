@@ -20,30 +20,50 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Build
+    - name: Build-CLI
       run: |
-        mkdir gpm_{amd64,darwin,power8,arm64,windows}
+        cd cli
+        mkdir ecm_{amd64,darwin,power8,arm64,windows}
         echo "AMD64 build"
-        make build_amd64;   mv gpm gpm_amd64
+        make build_amd64;   mv ecm ecm_amd64
 
         echo "Darwin build"
-        make build_darwin;  mv gpm gpm_darwin
+        make build_darwin;  mv ecm ecm_darwin
 
         echo "Power8 build"
-        make build_power8;  mv gpm gpm_power8
+        make build_power8;  mv ecm ecm_power8
 
         echo "ARM64 build"
-        make build_arm64;   mv gpm gpm_arm64
+        make build_arm64;   mv ecm ecm_arm64
 
         echo "Windows build"
-        make build_windows; mv gpm gpm_windows
+        make build_windows; mv ecm ecm_windows
 
         echo "Tar all builds"
-        tar cfz gpm_amd64.tar.gz gpm_amd64
-        tar cfz gpm_darwin.tar.gz gpm_darwin
-        tar cfz gpm_power8.tar.gz gpm_power8
-        tar cfz gpm_arm64.tar.gz gpm_arm64
-        tar cfz gpm_windows.tar.gz gpm_windows
+        tar cfz ../ecm_cli.tar.gz ecm_amd64 ecm_darwin ecm_power8 ecm_arm64 ecm_windows
+        cd -
+
+    - name: Build-UI
+      run: |
+        cd ui
+        mkdir ecm_{amd64,darwin,power8,arm64,windows}
+        echo "AMD64 build"
+        make build_amd64;   mv ecm ecm_amd64
+
+        echo "Darwin build"
+        make build_darwin;  mv ecm ecm_darwin
+
+        echo "Power8 build"
+        make build_power8;  mv ecm ecm_power8
+
+        echo "ARM64 build"
+        make build_arm64;   mv ecm ecm_arm64
+
+        echo "Windows build"
+        make build_windows; mv ecm ecm_windows
+
+        echo "Tar all builds"
+        tar cfz ../ecm_app.tar.gz ecm_amd64 ecm_darwin ecm_power8 ecm_arm64 ecm_windows
 
     - name: Create Release
       id: create_release
@@ -56,99 +76,57 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload amd64 binary
-      id: upload-gpm
+    - name: Upload cli binaries
+      id: upload-ecm-cli
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./gpm_amd64.tar.gz
-        asset_name: gpm_amd64.tar.gz
+        asset_path: ./ecm_cli.tar.gz
+        asset_name: ecm_cli.tar.gz
         asset_content_type: application/octet-stream
 
-    - name: Upload darwin binary
-      id: upload-gpm-darwin
+    - name: Upload app binaries
+      id: upload-ecm-app
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./gpm_darwin.tar.gz
-        asset_name: gpm_darwin.tar.gz
+        asset_path: ./ecm_app.tar.gz
+        asset_name: ecm_app.tar.gz
         asset_content_type: application/octet-stream
 
-    - name: Upload power8 binary
-      id: upload-gpm-power8
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./gpm_power8.tar.gz
-        asset_name: gpm_power8.tar.gz
-        asset_content_type: application/octet-stream
+#     - name: Get the Ref
+#       id: get-ref
+#       uses: ankitvgupta/ref-to-tag-action@master
+#       with:
+#         ref: ${{ github.ref }}
+#         head_ref: ${{ github.head_ref }}
 
-    - name: Upload arm64 binary
-      id: upload-gpm-arm64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./gpm_arm64.tar.gz
-        asset_name: gpm_arm64.tar.gz
-        asset_content_type: application/octet-stream
+#     - name: Build image
+#       run: |
+#         docker build . --tag docker.pkg.github.com/vkuznet/ecm/ecm
 
-    - name: Upload windows binary
-      id: upload-gpm-windows
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./gpm_windows.tar.gz
-        asset_name: gpm_windows.tar.gz
-        asset_content_type: application/octet-stream
+#     - name: Login to docker github registry
+#       uses: docker/login-action@v1.6.0
+#       with:
+#         registry: docker.pkg.github.com
+#         username: ${{ github.actor }}
+#         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Get the Ref
-      id: get-ref
-      uses: ankitvgupta/ref-to-tag-action@master
-      with:
-        ref: ${{ github.ref }}
-        head_ref: ${{ github.head_ref }}
-
-    - name: Build image
-      run: |
-        docker build . --tag docker.pkg.github.com/vkuznet/gpm/gpm
-
-    - name: Login to docker github registry
-      uses: docker/login-action@v1.6.0
-      with:
-        registry: docker.pkg.github.com
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Publish image
-      uses: docker/build-push-action@v1
-      with:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: docker.pkg.github.com
-        repository: vkuznet/gpm/gpm
-        tag_with_ref: true
+#     - name: Publish image
+#       uses: docker/build-push-action@v1
+#       with:
+#         username: ${{ github.actor }}
+#         password: ${{ secrets.GITHUB_TOKEN }}
+#         registry: docker.pkg.github.com
+#         repository: vkuznet/ecm/ecm
+#         tag_with_ref: true
 
 #     - name: Login to DockerHub
 #       uses: docker/login-action@v1
 #       with:
 #         username: ${{ secrets.DOCKER_HUB_USERNAME }}
 #         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-#     - name: Build and push
-#       uses: docker/build-push-action@v2
-#       with:
-#         context: .
-#         file: ./Dockerfile
-#         load: true
-#         tags: veknet/gpm:${{steps.get-ref.outputs.tag}}
-#     - run: docker push cmssw/gpm:${{steps.get-ref.outputs.tag}}
