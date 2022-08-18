@@ -583,7 +583,7 @@ func (v *Vault) Import(fname, oname string) error {
 	defer f.Close()
 
 	var records []VaultRecord
-	if fname == "ecm.json" {
+	if strings.Contains(fname, "ecm.json") {
 		data, err := io.ReadAll(f)
 		if err != nil {
 			return err
@@ -593,7 +593,7 @@ func (v *Vault) Import(fname, oname string) error {
 			return err
 		}
 
-	} else if strings.HasSuffix(fname, "csv") {
+	} else if strings.HasSuffix(fname, "csv") || strings.Contains(fname, "test.csv") {
 
 		// read csv values using csv.Reader
 		reader := csv.NewReader(f)
@@ -624,7 +624,7 @@ func (v *Vault) Import(fname, oname string) error {
 			records = append(records, *vRecord)
 		}
 
-	} else if strings.HasSuffix(fname, "json") {
+	} else if strings.HasSuffix(fname, "json") || strings.Contains(fname, "test.json") {
 
 		data, err := io.ReadAll(f)
 		if err != nil {
