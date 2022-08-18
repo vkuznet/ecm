@@ -1,4 +1,4 @@
-module github.com/vkuznet/ecm-server
+module github.com/vkuznet/ecm
 
 go 1.18
 
@@ -12,12 +12,12 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/ulule/limiter/v3 v3.10.0
-	github.com/vkuznet/ecm/crypt v0.0.0-20220524174539-538ae49c57b2
-	github.com/vkuznet/ecm/kvdb v0.0.0-20220524174539-538ae49c57b2
-	github.com/vkuznet/ecm/utils v0.0.0-20220524174539-538ae49c57b2
-	github.com/vkuznet/ecm/vault v0.0.0-20220524174539-538ae49c57b2
+	github.com/vkuznet/ecm/crypt v0.0.0-20220612133308-076c048cbda8
+	github.com/vkuznet/ecm/kvdb v0.0.0-20220612133308-076c048cbda8
+	github.com/vkuznet/ecm/utils v0.0.0-20220612133308-076c048cbda8
+	github.com/vkuznet/ecm/vault v0.0.0-20220612133308-076c048cbda8
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
-	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 	rsc.io/qr v0.2.0
 )
 
@@ -37,22 +37,17 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/klauspost/compress v1.15.4 // indirect
-	github.com/lestrrat-go/strftime v1.0.6 // indirect
+	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220604132921-4104f7c463c9 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/exp/errors v0.0.0-20220518171630-0b5c67f07fdf // indirect
-	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9 // indirect
+	golang.org/x/exp/errors v0.0.0-20220602145555-4a0574d9293f // indirect
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
-	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
+	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
-
-// replace github.com/vkuznet/ecm/crypt => /Users/vk/Work/Languages/Go/ecm/crypt
-
-// replace github.com/vkuznet/ecm/utils => /Users/vk/Work/Languages/Go/ecm/utils
-
-// replace github.com/vkuznet/ecm/vault => /Users/vk/Work/Languages/Go/ecm/vault
