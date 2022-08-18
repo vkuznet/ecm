@@ -45,7 +45,14 @@ jobs:
 
     - name: Build-UI
       run: |
-        cd ui
+        echo "build fyne"
+        mkdir fyne-build
+        cd fyne-build
+        git clone git@github.com:fyne-io/fyne.git
+        cd fyne
+        go build
+        cp cmd/fyne/fyne ../../ui
+        cd ../../ui
         mkdir ecm_{amd64,darwin,power8,arm64,windows}
         echo "AMD64 build"
         make build_amd64;   mv ecm ecm_amd64
