@@ -43,18 +43,23 @@ jobs:
         tar cfz ../ecm_cli.tar.gz ecm_amd64 ecm_darwin ecm_power8 ecm_arm64 ecm_windows
         cd -
 
-    - name: Build-UI
+    - name: Build fyne
       run: |
         echo "build fyne"
-        mkdir fyne-build
-        cd fyne-build
         curl -ksLO https://github.com/fyne-io/fyne/archive/refs/tags/v2.2.2.tar.gz
         tar xfz v2.2.2.tar.gz
         cd fyne-2.2.2/cmd/fyne
+        pwd
+        ls
         go build
+        ls
+        cp fyne ../../../
         cd -
-        cp cmd/fyne/fyne ../../ui
-        cd ../../ui
+
+    - name: Build-UI
+      run: |
+        pwd
+        cd ui
         mkdir ecm_{amd64,darwin,power8,arm64,windows}
         echo "AMD64 build"
         make build_amd64;   mv ecm ecm_amd64
