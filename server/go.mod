@@ -1,6 +1,6 @@
 module github.com/vkuznet/ecm
 
-go 1.18
+go 1.19
 
 require (
 	github.com/dchest/captcha v1.0.0
@@ -12,10 +12,10 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/ulule/limiter/v3 v3.10.0
-	github.com/vkuznet/ecm/crypt v0.0.0-20220818200842-835e275b9d58
-	github.com/vkuznet/ecm/kvdb v0.0.0-20220818171734-0c8fffb8109c
-	github.com/vkuznet/ecm/utils v0.0.0-20220818195422-9a9778fa611d
-	github.com/vkuznet/ecm/vault v0.0.0-20220818195422-9a9778fa611d
+	github.com/vkuznet/ecm/crypt v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/kvdb v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/utils v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/vault v0.0.0-20220819131744-ff4f867cf60c
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
 	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8
 	rsc.io/qr v0.2.0
@@ -41,7 +41,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220818195422-9a9778fa611d // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220819131744-ff4f867cf60c // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/exp/errors v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539 // indirect

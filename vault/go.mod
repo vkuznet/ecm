@@ -1,13 +1,13 @@
 module github.com/vkuznet/ecm/vault
 
-go 1.18
+go 1.19
 
 require (
 	github.com/fatih/color v1.13.0
 	github.com/google/uuid v1.3.0
-	github.com/vkuznet/ecm/crypt v0.0.0-20220818171734-0c8fffb8109c
-	github.com/vkuznet/ecm/storage v0.0.0-20220818171734-0c8fffb8109c
-	github.com/vkuznet/ecm/utils v0.0.0-20220818171734-0c8fffb8109c
+	github.com/vkuznet/ecm/crypt v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/storage v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/utils v0.0.0-20220819131744-ff4f867cf60c
 )
 
 require (

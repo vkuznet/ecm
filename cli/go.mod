@@ -1,13 +1,13 @@
 module github.com/vkuznet/ecm-cli
 
-go 1.18
+go 1.19
 
 require (
 	github.com/atotto/clipboard v0.1.4
-	github.com/vkuznet/ecm/crypt v0.0.0-20220818171734-0c8fffb8109c
-	github.com/vkuznet/ecm/storage v0.0.0-20220818195422-9a9778fa611d
-	github.com/vkuznet/ecm/utils v0.0.0-20220818195422-9a9778fa611d
-	github.com/vkuznet/ecm/vault v0.0.0-20220818195422-9a9778fa611d
+	github.com/vkuznet/ecm/crypt v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/storage v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/utils v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/vault v0.0.0-20220819131744-ff4f867cf60c
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 )
 
