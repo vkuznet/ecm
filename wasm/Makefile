@@ -9,7 +9,7 @@ vet:
 js:
 	cp -f ${ECM}/misc/wasm/wasm_exec.js .
 
-build:
+build: js
 	GOOS=js GOARCH=wasm go build -o ecm.wasm ${flags}
 	/bin/cp -f ecm.wasm wasm_exec.js extension/js
 
