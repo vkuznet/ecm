@@ -6,7 +6,7 @@ following:
 # creeate server config file, e.g. server_config.json
 # adjust your vault area to where your actual vault is
 {
-    "port": 8888,
+    "port": 5888,
     "vault_area": "/path/.ecm",
     "verbose": 1
 }
@@ -25,15 +25,15 @@ The ECM server support the following list of APIs
 For example,
 ```
 # to get records from the vault named Primary
-curl http;//localhost:8888/vault/Primary
+curl http;//localhost:5888/vault/Primary
 
 # to get specific record content from vault Primary:
-curl http;//localhost:8888/vault/Primary/fb26fd73-ea17-49f5-b38b-cf17575f1264.aes
+curl http;//localhost:5888/vault/Primary/fb26fd73-ea17-49f5-b38b-cf17575f1264
 
 # to post record to the vault Primary:
-curl -X POST -d@your_record.json http;//localhost:8888/vault/Primary
+curl -X POST -d@your_record.json http;//localhost:5888/vault/Primary
 
 # to delete record from the vault Primary
-curl -X DELETE http;//localhost:8888/vault/Primary/fb26fd73-ea17-49f5-b38b-cf17575f1264.aes 
+curl -X DELETE http;//localhost:5888/vault/Primary/fb26fd73-ea17-49f5-b38b-cf17575f1264
 
 ```
