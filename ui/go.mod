@@ -4,18 +4,19 @@ go 1.19
 
 require (
 	fyne.io/fyne/v2 v2.2.3
+	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/vkuznet/ecm/crypt v0.0.0-20220819114302-42b4f1198fad
 	github.com/vkuznet/ecm/sync v0.0.0-20220819114302-42b4f1198fad
 	github.com/vkuznet/ecm/utils v0.0.0-20220819114302-42b4f1198fad
 	github.com/vkuznet/ecm/vault v0.0.0-20220819114302-42b4f1198fad
 	golang.org/x/exp/errors v0.0.0-20220722155223-a9213eeb770e
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	fyne.io/systray v1.10.1-0.20220621085403-9a2652634e93 // indirect
 	github.com/Max-Sum/base32768 v0.0.0-20191205131208-7937843c71d5 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/Unknwon/goconfig v1.0.0 // indirect
 	github.com/aalpar/deheap v0.0.0-20210914013432-0cc84d79dec3 // indirect
 	github.com/abbot/go-http-auth v0.4.0 // indirect
@@ -40,10 +41,10 @@ require (
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/iguanesolutions/go-systemd/v5 v5.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/jonboulle/clockwork v0.3.0 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
 	github.com/jzelinskie/whirlpool v0.0.0-20201016144138-0675e54bb004 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/lufia/plan9stats v0.0.0-20220517141722-cf486979b281 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
