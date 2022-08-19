@@ -3,7 +3,8 @@
   "name": "ecm extension",
   "version": "0.1",
   "permissions": [
-        "http://127.0.0.1:8888/*"
+        "http://127.0.0.1:5888/*",
+        "https://127.0.0.1:5888/*"
   ],
   "browser_action": {
     "default_icon": "images/icon.png",
