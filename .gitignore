@@ -22,6 +22,8 @@ TODO*
 *.diff
 *.graffle
 go.mod.replace
+ecm.log*
+ecm.conf
 
 # ignore wasm stuff
 static/js/*.wasm
