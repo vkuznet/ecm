@@ -89,7 +89,7 @@ jobs:
         make build_amd64;   mv ecm ecm_amd64
 
         echo "Darwin build"
-        GOOS=darwin go build -v -o ecm -ldflags="-w -X main.appKind=desktop"
+        CGO_ENABLED=1 GOOS=darwin go build -v -o ecm -ldflags="-w -X main.appKind=desktop"
         mv ecm ecm_darwin
         #make build_darwin;  mv ecm ecm_darwin
 
