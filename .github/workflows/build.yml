@@ -68,6 +68,14 @@ jobs:
         DROPBOX_PORT=${{ secrets.DROPBOX_PORT }}
         EOF
         sed -i -e "s,^[[:space:]]*,,g" credentials.env
+        cat > rclone.conf << EOF
+        [local]
+        type = local
+        [dropbox]
+        type = dropbox
+        env_auth = true
+        EOF
+        sed -i -e "s,^[[:space:]]*,,g" rclone.conf
         cd -
 
     - name: Build-UI
