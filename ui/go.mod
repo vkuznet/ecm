@@ -89,4 +89,4 @@ require (
 	honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2 // indirect
 )
 
-replace fyne.io/fyne/v2 => /Users/vk/tmp/fyne
+// replace fyne.io/fyne/v2 => /Users/vk/tmp/fyne
