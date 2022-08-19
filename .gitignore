@@ -19,11 +19,13 @@ ecm
 *.aes*
 TODO*
 *config.json
+*config_tls.json
 *.diff
 *.graffle
 go.mod.replace
 ecm.log*
 ecm.conf
+rootCA.crt
 
 # ignore wasm stuff
 static/js/*.wasm
