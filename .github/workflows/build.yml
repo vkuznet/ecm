@@ -60,12 +60,15 @@ jobs:
 
     - name: Add credentials
       run: |
+        pwd
+        cd ui
         cat > credentials.env << EOF
         DROPBOX_CLIENT_ID=${{ secrets.DROPBOX_CLIENT_ID }}
         DROPBOX_CLIENT_SECRET=${{ secrets.DROPBOX_CLIENT_SECRET }}
         DROPBOX_PORT=${{ secrets.DROPBOX_PORT }}
         EOF
         sed -i -e "s,^[[:space:]]*,,g" credentials.env
+        cd -
 
     - name: Build-UI
       run: |
