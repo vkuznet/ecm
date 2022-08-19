@@ -2,15 +2,44 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
+	"os"
+	"runtime"
+	"time"
 
 	app "fyne.io/fyne/v2/app"
 	theme "fyne.io/fyne/v2/theme"
 )
 
+// version of the code
+var gitVersion, gitTag string
+
+// ecmInfo function returns version string of the server
+func ecmInfo() string {
+	goVersion := runtime.Version()
+	tstamp := time.Now().Format("2006-02-01")
+	return fmt.Sprintf("ecm git=%s tag=%s go=%s date=%s", gitVersion, gitTag, goVersion, tstamp)
+}
+
 func main() {
-	// set our logging settings
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	var config string
+	flag.StringVar(&config, "config", "", "config file name")
+	var version bool
+	flag.BoolVar(&version, "version", false, "show version")
+	flag.Parse()
+	if version {
+		fmt.Println(ecmInfo())
+		os.Exit(0)
+
+	}
+	if config != "" {
+		err := ParseConfig(config)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	// setup fyne app and main window
 	a := app.NewWithID("io.github.vkuznet")
