@@ -77,7 +77,10 @@ func getRecords(url, cipher, password string) (RecordMap, error) {
 	rmap := make(RecordMap)
 
 	// Make the HTTP request
-	client := httpClient(RootCA)
+	client, err := httpClient(RootCA)
+	if err != nil {
+		return rmap, err
+	}
 
 	// get results from our url
 	res, err := client.Get(url)

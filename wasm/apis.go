@@ -45,7 +45,10 @@ func postData(api string, rec interface{}) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	client := httpClient(RootCA)
+	client, err := httpClient(RootCA)
+	if err != nil {
+		return err
+	}
 	_, err = client.Do(req)
 	return err
 }
