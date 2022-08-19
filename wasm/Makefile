@@ -1,5 +1,6 @@
 ECM=`go env GOROOT`
-flags=-ldflags="-s -w -extldflags -static -X main.RootCA=$(shell pwd)/rootCA.crt"
+# flags=-ldflags="-s -w -extldflags -static -X main.RootCA=$(shell pwd)/rootCA.crt"
+flags=-ldflags="-s -w -extldflags -static"
 
 all: build
 
