@@ -1,5 +1,5 @@
 ECM=`go env GOROOT`
-flags=-ldflags="-s -w -extldflags -static"
+flags=-ldflags="-s -w -extldflags -static -X main.RootCA=$(shell pwd)/rootCA.crt"
 
 all: build
 
@@ -11,6 +11,7 @@ js:
 
 build:
 	GOOS=js GOARCH=wasm go build -o ecm.wasm ${flags}
+	/bin/cp -f ecm.wasm wasm_exec.js extension/js
 
 tinygo:
 	GOROOT=/usr/local/go tinygo build -o ecm.wasm -target=wasm
