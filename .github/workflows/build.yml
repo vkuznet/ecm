@@ -88,11 +88,6 @@ jobs:
         sudo apt-get -y install xorg-dev
         make build_amd64;   mv ecm ecm_amd64
 
-        echo "Darwin build"
-        GOOS=darwin go build -v -o ecm -ldflags="-w -X main.appKind=desktop"
-        mv ecm ecm_darwin
-        #make build_darwin;  mv ecm ecm_darwin
-
         echo "Power8 build"
         make build_power8;  mv ecm ecm_power8
 
@@ -101,6 +96,9 @@ jobs:
 
         echo "Windows build"
         make build_windows; mv ecm ecm_windows
+
+        echo "Darwin build"
+        make build_darwin;  mv ecm ecm_darwin
 
         echo "Tar all builds"
         tar cfz ../ecm_app.tar.gz ecm_amd64 ecm_darwin ecm_power8 ecm_arm64 ecm_windows
