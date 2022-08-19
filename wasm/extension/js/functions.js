@@ -1,3 +1,6 @@
+// flag to check if password was read
+let passwordRead = false;
+
 async function asyncRecords() {
     // clean-up previously shown content
     var rec = document.getElementById('records');
@@ -8,18 +11,20 @@ async function asyncRecords() {
     var server = document.getElementById("server").value;
     var vault = document.getElementById("vault").value;
     var cipher = document.getElementById("cipher").value;
+    var pattern = document.getElementById("search").value;
     var x = document.getElementById("password");
     var password = x.value;
     x.value = "";
-    if(password=="") {
+    if(password == "" && passwordSet == false) {
         Lock();
         var doc = document.getElementById('records');
         doc.setAttribute('class', 'alert is-error');
         doc.innerHTML = 'Invalid password';
         return
     }
+    passwordSet=true;
     try {
-        const response = await records(server, vault, cipher, password);
+        const response = await records(server, vault, cipher, password, pattern);
         const data = await response.json();
         for (const key of data) {
             console.log("array key", key)
@@ -42,6 +47,7 @@ async function asyncRecords_Original() {
     var server = document.getElementById("server").value;
     var vault = document.getElementById("vault").value;
     var cipher = document.getElementById("cipher").value;
+    var pattern = document.getElementById("search").value;
     var x = document.getElementById("password");
     var password = x.value;
     x.value = "";
@@ -53,7 +59,7 @@ async function asyncRecords_Original() {
         return
     }
     try {
-        const response = await records(server, vault, cipher, password);
+        const response = await records(server, vault, cipher, password, pattern);
         const data = await response.json();
         // add records list
         var ul = document.createElement('ul');
