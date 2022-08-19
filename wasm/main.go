@@ -129,6 +129,9 @@ func main() {
 	<-make(chan bool)
 }
 
+// VaultPassword keeps copy of vault password
+var VaultPassword string
+
 // recordsWraper function performs business logic, i.e.
 // it recordss given input obtained from JS upstream code
 func recordsWrapper() js.Func {
@@ -137,13 +140,20 @@ func recordsWrapper() js.Func {
 		vault := args[1].String()
 		cipher := args[2].String()
 		password := args[3].String()
+		//         var pattern string
+		pattern := args[4].String()
+
 		// construct URL, e.g.
 		// http://127.0.0.1:8888/vault/Primary/records
 		url := fmt.Sprintf("%s/vault/%s/records", server, vault)
 
+		if VaultPassword == "" {
+			VaultPassword = password
+		}
+
 		// Create and return the Promise object
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			go RecordsHandler(url, cipher, password, args)
+			go RecordsHandler(url, cipher, VaultPassword, pattern, args)
 			return nil
 		})
 		// define where we should put our data
@@ -276,7 +286,7 @@ func loginWrapper() js.Func {
 }
 
 // update records within DOM document
-func updateRecords(url, cipher, passphrase string, extention bool) ([]string, error) {
+func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]string, error) {
 
 	var rids []string
 	err := recordsManager.update(url, cipher, passphrase)
@@ -297,6 +307,18 @@ func updateRecords(url, cipher, passphrase string, extention bool) ([]string, er
 		rurl := lrec.URL
 		tags := lrec.Tags
 		rids = append(rids, key)
+
+		if pattern != "" {
+			// TODO: we may need to fetch only appropriate records from server
+			// instead of filtering here
+			if !(strings.Contains(name, pattern) ||
+				strings.Contains(login, pattern) ||
+				strings.Contains(password, pattern) ||
+				strings.Contains(rurl, pattern) ||
+				strings.Contains(tags, pattern)) {
+				continue
+			}
+		}
 
 		// construct frontend UI
 		li := document.Call("createElement", "li")
@@ -397,13 +419,13 @@ func updateRecords(url, cipher, passphrase string, extention bool) ([]string, er
 }
 
 // RecordsHandler handles asynchronously HTTP requests
-func RecordsHandler(url, cipher, passphrase string, args []js.Value) {
+func RecordsHandler(url, cipher, passphrase, pattern string, args []js.Value) {
 	resolve := args[0]
 	reject := args[1]
 
 	// place records within DOM page
 	extention := true
-	rids, err := updateRecords(url, cipher, passphrase, extention)
+	rids, err := updateRecords(url, cipher, passphrase, pattern, extention)
 	if err != nil {
 		ErrorHandler(reject, err)
 		return
