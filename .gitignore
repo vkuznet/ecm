@@ -29,7 +29,6 @@ ecm.conf
 static/js/*.wasm
 wasm/*.wasm
 wasm/server/*.wasm
-wasm/server/index.html
 wasm/server/wasm_exec.js
 wasm/wasm_exec.js
 wasm/extension/js/ecm.wasm
