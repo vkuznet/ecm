@@ -4,15 +4,15 @@ go 1.18
 
 require (
 	fyne.io/fyne/v2 v2.2.3
-	github.com/vkuznet/ecm/crypt v0.0.0-20220818171734-0c8fffb8109c
-	github.com/vkuznet/ecm/sync v0.0.0-20220818195422-9a9778fa611d
-	github.com/vkuznet/ecm/utils v0.0.0-20220818195422-9a9778fa611d
-	github.com/vkuznet/ecm/vault v0.0.0-20220818195422-9a9778fa611d
+	github.com/vkuznet/ecm/crypt v0.0.0-20220819114302-42b4f1198fad
+	github.com/vkuznet/ecm/sync v0.0.0-20220819114302-42b4f1198fad
+	github.com/vkuznet/ecm/utils v0.0.0-20220819114302-42b4f1198fad
+	github.com/vkuznet/ecm/vault v0.0.0-20220819114302-42b4f1198fad
 	golang.org/x/exp/errors v0.0.0-20220722155223-a9213eeb770e
 )
 
 require (
-	fyne.io/systray v1.10.0 // indirect
+	fyne.io/systray v1.10.1-0.20220621085403-9a2652634e93 // indirect
 	github.com/Max-Sum/base32768 v0.0.0-20191205131208-7937843c71d5 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
@@ -69,7 +69,7 @@ require (
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.5.0 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220818195422-9a9778fa611d // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220819113721-25662adc8140 // indirect
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
 	github.com/yuin/goldmark v1.4.13 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
@@ -78,7 +78,7 @@ require (
 	golang.org/x/mobile v0.0.0-20220722155234-aaac322e2105 // indirect
 	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
 	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7 // indirect
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
+	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
 	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.3.7 // indirect
