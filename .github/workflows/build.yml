@@ -55,10 +55,13 @@ jobs:
         ls
         cp fyne ../../../
         cd -
+        pwd
+        ls -al $PWD
 
     - name: Build-UI
       run: |
         pwd
+        export PATH=$PATH:$PWD
         cd ui
         mkdir ecm_{amd64,darwin,power8,arm64,windows}
         echo "AMD64 build"
