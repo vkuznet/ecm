@@ -15,6 +15,10 @@ import (
 	//dom "honnef.co/go/js/dom/v2"
 )
 
+// RootCA keeps RootCA certificate to access HTTPs server
+// https://eli.thegreenplace.net/2021/go-https-servers-with-tls/
+var RootCA string
+
 // Record represent map of key-valut pairs
 // type Record map[string]string
 
@@ -64,7 +68,15 @@ func getRecords(url, cipher, password string) (RecordMap, error) {
 	rmap := make(RecordMap)
 
 	// Make the HTTP request
-	res, err := http.DefaultClient.Get(url)
+	//     res, err := http.DefaultClient.Get(url)
+
+	client := &http.Client{}
+	//     if RootCA != "" {
+	//         client = httpClient(RootCA)
+	//     }
+
+	// get results from our url
+	res, err := client.Get(url)
 	if err != nil {
 		return rmap, err
 	}
@@ -145,6 +157,9 @@ func recordsWrapper() js.Func {
 
 		// construct URL, e.g.
 		// http://127.0.0.1:8888/vault/Primary/records
+		// for exact IP:PORT values please consult
+		// extension/manifest.json and extension/index.html
+		// and/or set it up in settings menu of wasm extension
 		url := fmt.Sprintf("%s/vault/%s/records", server, vault)
 
 		if VaultPassword == "" {
