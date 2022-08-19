@@ -32,6 +32,7 @@ async function asyncRecords() {
             button.addEventListener('click', fillFormHelper, false);
         }
     } catch (err) {
+        console.log(err)
         console.error('Caught exception', err)
     }
 }
