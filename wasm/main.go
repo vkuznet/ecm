@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"strings"
 	"syscall/js"
 	"time"
@@ -56,6 +55,16 @@ var recordsManager *RecordsManager
 func (mgr *RecordsManager) update(url, cipher, password string) error {
 	if recordsManager.Map == nil || recordsManager.Expire < time.Now().Unix() {
 		rmap, err := getRecords(url, cipher, password)
+		if err != nil {
+			rmap := make(RecordMap)
+			rid := "12345"
+			lrec := LoginRecord{
+				ID:    rid,
+				Login: "Error",
+				Name:  fmt.Sprintf("url: %s, error: %v", url, err),
+			}
+			rmap[rid] = lrec
+		}
 		mgr.Map = rmap
 		mgr.Expire = time.Now().Unix() + mgr.RenewInterval
 		return err
@@ -68,12 +77,7 @@ func getRecords(url, cipher, password string) (RecordMap, error) {
 	rmap := make(RecordMap)
 
 	// Make the HTTP request
-	//     res, err := http.DefaultClient.Get(url)
-
-	client := &http.Client{}
-	//     if RootCA != "" {
-	//         client = httpClient(RootCA)
-	//     }
+	client := httpClient(RootCA)
 
 	// get results from our url
 	res, err := client.Get(url)
@@ -152,7 +156,6 @@ func recordsWrapper() js.Func {
 		vault := args[1].String()
 		cipher := args[2].String()
 		password := args[3].String()
-		//         var pattern string
 		pattern := args[4].String()
 
 		// construct URL, e.g.
