@@ -20,6 +20,8 @@ ecm
 TODO*
 *config.json
 *.diff
+*.graffle
+go.mod.replace
 
 # ignore wasm stuff
 static/js/*.wasm
@@ -28,18 +30,31 @@ wasm/server/*.wasm
 wasm/server/index.html
 wasm/server/wasm_exec.js
 wasm/wasm_exec.js
+wasm/extension/js/ecm.wasm
 
 cli/ecm
 server/ecm
 server/*config.json
+server/static/.DS_Store
 term/ecm
 
 tmp/
 2fa-*
 guadrian
 
-ui/adb
 extension-test
 test-server
 credentials*
 dev
+
+sync/access.md
+
+ui/adb
+ui/rclone.conf
+ui/dropbox
+ui/images
+ui/*.apk*
+ui/*.pkg*
+ui/ecmsync.conf
+ui/.DS_Store
+ui/developer
