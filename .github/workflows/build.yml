@@ -89,7 +89,9 @@ jobs:
         make build_amd64;   mv ecm ecm_amd64
 
         echo "Darwin build"
-        make build_darwin;  mv ecm ecm_darwin
+        GOOS=darwin go build -v -o ecm -ldflags="-w -X main.appKind=desktop"
+        mv ecm ecm_darwin
+        #make build_darwin;  mv ecm ecm_darwin
 
         echo "Power8 build"
         make build_power8;  mv ecm ecm_power8
