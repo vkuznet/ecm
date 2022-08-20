@@ -72,7 +72,7 @@ jobs:
         echo "Darwin build"
         fyne bundle credentials.env > credentials.go
         fyne package
-        tar cfz ../ecm_app_macOS.tar.gz ecm
+        tar cfz ../ecm_app_macOS.tar.gz ecm.app
 
     - name: Create Release
       id: create_release
