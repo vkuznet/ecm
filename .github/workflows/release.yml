@@ -111,7 +111,7 @@ jobs:
       - name: Set upload_url
         id: upload-url
         run: |
-          echo "{upload_url}=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+          echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
 
       - name: Upload cli binaries
         id: upload-ecm-cli
@@ -200,7 +200,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ env.upload_url }}
+          upload_url: ${{ env.UPLOAD_URL }}
           asset_path: ./ecm_app_macOS.tar.gz
           asset_name: ecm_app_macOS.tar.gz
           asset_content_type: application/octet-stream
@@ -257,7 +257,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ env.upload_url }}
+          upload_url: ${{ env.UPLOAD_URL }}
           asset_path: ./ecm_app_windows.tar.gz
           asset_name: ecm_app_windows.tar.gz
           asset_content_type: application/octet-stream
