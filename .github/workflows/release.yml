@@ -192,7 +192,8 @@ jobs:
 
       - name: Build-UI
         run: |
-          export PATH=$PATH:$PWD
+          set PATH="%PATH%;."
+          $env:path += ";."
           cd ui
           echo "Windows build"
           fyne.exe bundle credentials.env > credentials.go
