@@ -1,3 +1,6 @@
+for Chrome V3 manifest please see:
+https://groups.google.com/a/chromium.org/g/chromium-extensions/c/sJiaTnFMLHQ/m/tJQ9AE9vBQAJ
+
 We may use
  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 but we should restrict it to sha-256 scheme:
