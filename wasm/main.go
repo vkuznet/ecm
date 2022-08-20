@@ -14,10 +14,6 @@ import (
 	//dom "honnef.co/go/js/dom/v2"
 )
 
-// RootCA keeps RootCA certificate to access HTTPs server
-// https://eli.thegreenplace.net/2021/go-https-servers-with-tls/
-var RootCA string
-
 // Record represent map of key-valut pairs
 // type Record map[string]string
 
@@ -77,7 +73,7 @@ func getRecords(url, cipher, password string) (RecordMap, error) {
 	rmap := make(RecordMap)
 
 	// Make the HTTP request
-	client, err := httpClient(RootCA)
+	client, err := httpClient()
 	if err != nil {
 		return rmap, err
 	}
