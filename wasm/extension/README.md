@@ -1,6 +1,14 @@
 for Chrome V3 manifest please see:
 https://groups.google.com/a/chromium.org/g/chromium-extensions/c/sJiaTnFMLHQ/m/tJQ9AE9vBQAJ
 
+https://developer.chrome.com/blog/mv2-transition/
+https://groups.google.com/a/chromium.org/g/chromium-extensions
+https://developer.chrome.com/docs/extensions/mv3/getstarted/
+https://developer.chrome.com/docs/extensions/reference/
+https://support.google.com/chrome/a/answer/7515036?hl=en
+https://developer.chrome.com/docs/extensions/reference/webRequest/
+
+
 We may use
  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 but we should restrict it to sha-256 scheme:
