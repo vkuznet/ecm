@@ -25,7 +25,6 @@ TODO*
 go.mod.replace
 ecm.log*
 ecm.conf
-rootCA.crt
 
 # ignore wasm stuff
 static/js/*.wasm
