@@ -84,12 +84,10 @@ jobs:
         export PATH=$PATH:$PWD
         cd ui
         mkdir ecm_{amd64,darwin,power8,arm64,windows}
-        echo "AMD64 build"
-        sudo apt-get -y install xorg-dev
-        make build_amd64;   mv ecm ecm_amd64
 
         echo "Darwin build"
         fyne package
+        ls -lt
         #make build_darwin;  mv ecm ecm_darwin
 
         echo "Power8 build"
@@ -100,6 +98,10 @@ jobs:
 
         echo "Windows build"
         CGO_ENABLED=1 make build_windows; mv ecm ecm_windows
+
+        echo "AMD64 build"
+        sudo apt-get -y install xorg-dev
+        make build_amd64;   mv ecm ecm_amd64
 
         echo "Tar all builds"
         tar cfz ../ecm_app.tar.gz ecm_amd64 ecm_power8 ecm_arm64 ecm_windows ecm.app
