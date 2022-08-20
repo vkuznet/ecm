@@ -98,10 +98,11 @@ jobs:
         make build_windows; mv ecm ecm_windows
 
         echo "Darwin build"
-        make build_darwin;  mv ecm ecm_darwin
+        fyna package
+        #make build_darwin;  mv ecm ecm_darwin
 
         echo "Tar all builds"
-        tar cfz ../ecm_app.tar.gz ecm_amd64 ecm_darwin ecm_power8 ecm_arm64 ecm_windows
+        tar cfz ../ecm_app.tar.gz ecm_amd64 ecm_power8 ecm_arm64 ecm_windows ecm.app
 
     - name: Create Release
       id: create_release
