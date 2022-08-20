@@ -107,7 +107,6 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-          allowUpdates: true
 
       - name: Upload cli binaries
         id: upload-ecm-cli
@@ -134,6 +133,7 @@ jobs:
   job-macos:
     name: Build-macos
     runs-on: macos-latest
+    needs: [job-linux]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -189,18 +189,6 @@ jobs:
           fyne package
           tar cfz ../ecm_app_macOS.tar.gz ecm.app
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-          allowUpdates: true
-
       - name: Upload app binaries
         id: upload-ecm-app
         uses: actions/upload-release-asset@v1
@@ -215,6 +203,7 @@ jobs:
   job-windows:
     name: Build-windows
     runs-on: windows-latest
+    needs: [job-linux]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -256,18 +245,6 @@ jobs:
           fyne.exe bundle credentials.env > credentials.go
           fyne.exe package
           tar cfz ../ecm_app_windows.tar.gz ecm.exe
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-          allowUpdates: true
 
       - name: Upload app binaries
         id: upload-ecm-app
