@@ -108,13 +108,16 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Set upload_url
+        id: upload-url
+        run: |
+          echo "{upload_url}=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
       - name: Upload cli binaries
         id: upload-ecm-cli
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "{upload_url}=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ecm_cli.tar.gz
