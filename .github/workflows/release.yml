@@ -10,7 +10,7 @@ on:
 jobs:
   job-linux:
     build:
-      name: Build
+      name: Build-linux
       runs-on: ubuntu-latest
       steps:
         - name: Set up Go
@@ -208,7 +208,9 @@ jobs:
           ls
 
   job-release:
+    name: release
     needs: [job-linux, job-macos, job-windows]
+    steps:
 
 #   job-release:
 #     - name: Create Release
