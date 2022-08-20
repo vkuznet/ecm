@@ -1,11 +1,11 @@
 name: Build release
 
 on:
-#   push:
-#     tags:
-#       - '*.*.*'
   push:
-    branches: [ main ]
+    tags:
+      - '*.*.*'
+#   push:
+#     branches: [ main ]
 
 jobs:
   job-linux:
@@ -97,6 +97,40 @@ jobs:
           tar cfz ../ecm_app.tar.gz ecm_amd64
           #tar cfz ../ecm_app.tar.gz ecm_amd64 ecm_power8 ecm_arm64 ecm_windows ecm.app
 
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+          allowUpdates: true
+
+      - name: Upload cli binaries
+        id: upload-ecm-cli
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ecm_cli.tar.gz
+          asset_name: ecm_cli.tar.gz
+          asset_content_type: application/octet-stream
+
+      - name: Upload app binaries
+        id: upload-ecm-app
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ecm_app.tar.gz
+          asset_name: ecm_app.tar.gz
+          asset_content_type: application/octet-stream
+
   job-macos:
     name: Build-macos
     runs-on: macos-latest
@@ -155,6 +189,29 @@ jobs:
           fyne package
           tar cfz ../ecm_app_macOS.tar.gz ecm.app
 
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+          allowUpdates: true
+
+      - name: Upload app binaries
+        id: upload-ecm-app
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ecm_app_macOS.tar.gz
+          asset_name: ecm_app_macOS.tar.gz
+          asset_content_type: application/octet-stream
+
   job-windows:
     name: Build-windows
     runs-on: windows-latest
@@ -198,43 +255,27 @@ jobs:
           echo "Windows build"
           fyne.exe bundle credentials.env > credentials.go
           fyne.exe package
-          ls
+          tar cfz ../ecm_app_windows.tar.gz ecm.exe
 
-#   job-release:
-#     name: release
-#     needs: [job-linux, job-macos, job-windows]
-#     steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+          allowUpdates: true
 
-#   job-release:
-#     - name: Create Release
-#       id: create_release
-#       uses: actions/create-release@v1
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       with:
-#         tag_name: ${{ github.ref }}
-#         release_name: Release ${{ github.ref }}
-#         draft: false
-#         prerelease: false
-
-#     - name: Upload cli binaries
-#       id: upload-ecm-cli
-#       uses: actions/upload-release-asset@v1
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       with:
-#         upload_url: ${{ steps.create_release.outputs.upload_url }}
-#         asset_path: ./ecm_cli.tar.gz
-#         asset_name: ecm_cli.tar.gz
-#         asset_content_type: application/octet-stream
-
-#     - name: Upload app binaries
-#       id: upload-ecm-app
-#       uses: actions/upload-release-asset@v1
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       with:
-#         upload_url: ${{ steps.create_release.outputs.upload_url }}
-#         asset_path: ./ecm_app.tar.gz
-#         asset_name: ecm_app.tar.gz
-#         asset_content_type: application/octet-stream
+      - name: Upload app binaries
+        id: upload-ecm-app
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ecm_app_windows.tar.gz
+          asset_name: ecm_app_windows.tar.gz
+          asset_content_type: application/octet-stream
