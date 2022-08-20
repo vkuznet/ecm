@@ -1,24 +1,18 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "ecm extension",
   "version": "0.1",
-  "permissions": [
-        "http://127.0.0.1:5888/*",
-        "https://127.0.0.1:5888/*"
-  ],
-  "browser_action": {
+  "action": {
     "default_icon": "images/icon.png",
     "default_popup": "index.html",
     "default_title": "ecm canvas"
   },
+  "host_permissions": ["<all_urls>"],
   "permissions": [
-    "tabs",
-    "notifications",
-    "webRequest",
-    "<all_urls>",
-    "file://*",
-    "http://*/",
-    "https://*/"
+      "tabs",
+      "webRequest"
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  }
 }
