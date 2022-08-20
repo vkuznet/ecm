@@ -206,10 +206,10 @@ jobs:
           fyne package
           ls
 
-  job-release:
-    name: release
-    needs: [job-linux, job-macos, job-windows]
-    steps:
+#   job-release:
+#     name: release
+#     needs: [job-linux, job-macos, job-windows]
+#     steps:
 
 #   job-release:
 #     - name: Create Release
