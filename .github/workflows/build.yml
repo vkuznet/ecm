@@ -15,7 +15,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: ^1.18
+        go-version: ^1.19
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -87,6 +87,7 @@ jobs:
         sudo apt-get -y install xorg-dev
 
         echo "Darwin build"
+        fyne bundle credentials.env > credentials.go
         fyne package
         ls -lt
         #make build_darwin;  mv ecm ecm_darwin
@@ -139,35 +140,49 @@ jobs:
         asset_name: ecm_app.tar.gz
         asset_content_type: application/octet-stream
 
-#     - name: Get the Ref
-#       id: get-ref
-#       uses: ankitvgupta/ref-to-tag-action@master
-#       with:
-#         ref: ${{ github.ref }}
-#         head_ref: ${{ github.head_ref }}
+# jobs:
+#   build:
+#     name: Build
+#     runs-on: macos-12
+#     steps:
 
-#     - name: Build image
+#     - name: Set up Go
+#       uses: actions/setup-go@v2
+#       with:
+#         go-version: ^1.19
+
+#     - name: Check out code into the Go module directory
+#       uses: actions/checkout@v2
+#     - name: Add credentials
+
 #       run: |
-#         docker build . --tag docker.pkg.github.com/vkuznet/ecm/ecm
+#         pwd
+#         cd ui
+#         cat > credentials.env << EOF
+#         DROPBOX_CLIENT_ID=${{ secrets.DROPBOX_CLIENT_ID }}
+#         DROPBOX_CLIENT_SECRET=${{ secrets.DROPBOX_CLIENT_SECRET }}
+#         DROPBOX_PORT=${{ secrets.DROPBOX_PORT }}
+#         EOF
+#         sed -i -e "s,^[[:space:]]*,,g" credentials.env
+#         cat > rclone.conf << EOF
+#         [local]
+#         type = local
+#         [dropbox]
+#         type = dropbox
+#         env_auth = true
+#         EOF
+#         sed -i -e "s,^[[:space:]]*,,g" rclone.conf
+#         cd -
 
-#     - name: Login to docker github registry
-#       uses: docker/login-action@v1.6.0
-#       with:
-#         registry: docker.pkg.github.com
-#         username: ${{ github.actor }}
-#         password: ${{ secrets.GITHUB_TOKEN }}
+#     - name: Build-UI
+#       run: |
+#         pwd
+#         export PATH=$PATH:$PWD
+#         cd ui
+#         mkdir ecm_{amd64,darwin,power8,arm64,windows}
+#         sudo apt-get -y install xorg-dev
 
-#     - name: Publish image
-#       uses: docker/build-push-action@v1
-#       with:
-#         username: ${{ github.actor }}
-#         password: ${{ secrets.GITHUB_TOKEN }}
-#         registry: docker.pkg.github.com
-#         repository: vkuznet/ecm/ecm
-#         tag_with_ref: true
-
-#     - name: Login to DockerHub
-#       uses: docker/login-action@v1
-#       with:
-#         username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+#         echo "Darwin build"
+#         fyne bundle credentials.env > credentials.go
+#         fyne package
+#         ls -lt
