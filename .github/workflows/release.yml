@@ -113,6 +113,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "{upload_url}=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ecm_cli.tar.gz
@@ -195,7 +197,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ env.upload_url }}
           asset_path: ./ecm_app_macOS.tar.gz
           asset_name: ecm_app_macOS.tar.gz
           asset_content_type: application/octet-stream
@@ -252,7 +254,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ env.upload_url }}
           asset_path: ./ecm_app_windows.tar.gz
           asset_name: ecm_app_windows.tar.gz
           asset_content_type: application/octet-stream
