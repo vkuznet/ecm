@@ -31,7 +31,7 @@ build_linux: credentials
 	go clean; rm -rf pkg ecm; GOOS=linux go build -o ecm ${flags}
 
 build_power8: credentials
-	go clean; rm -rf pkg ecm; GOARCH=ppc64le GOOS=linux go build -o ecm ${flags}
+	go clean; rm -rf pkg ecm; CGO_ENABLED=1 GOARCH=ppc64le GOOS=linux go build -o ecm ${flags}
 
 build_arm64: credentials
 	go clean; rm -rf pkg ecm; GOARCH=arm64 GOOS=linux go build -o ecm ${flags}
