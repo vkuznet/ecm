@@ -172,8 +172,11 @@ jobs:
           echo "build fyne"
           curl -ksLO https://github.com/fyne-io/fyne/archive/refs/tags/v2.2.2.tar.gz
           tar xfz v2.2.2.tar.gz
-          cd fyne-2.2.2/cmd/fyne
+          pwd
+          cd fyne-2.2.2\cmd\fyne
+          pwd
           go build
+          ls
           copy fyne ..\..\..\
           cd -
 
