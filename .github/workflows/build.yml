@@ -88,18 +88,18 @@ jobs:
         sudo apt-get -y install xorg-dev
         make build_amd64;   mv ecm ecm_amd64
 
+        echo "Darwin build"
+        fyne package
+        #make build_darwin;  mv ecm ecm_darwin
+
         echo "Power8 build"
-        make build_power8;  mv ecm ecm_power8
+        CGO_ENABLED=1 make build_power8;  mv ecm ecm_power8
 
         echo "ARM64 build"
-        make build_arm64;   mv ecm ecm_arm64
+        CGO_ENABLED=1 make build_arm64;   mv ecm ecm_arm64
 
         echo "Windows build"
-        make build_windows; mv ecm ecm_windows
-
-        echo "Darwin build"
-        fyna package
-        #make build_darwin;  mv ecm ecm_darwin
+        CGO_ENABLED=1 make build_windows; mv ecm ecm_windows
 
         echo "Tar all builds"
         tar cfz ../ecm_app.tar.gz ecm_amd64 ecm_power8 ecm_arm64 ecm_windows ecm.app
