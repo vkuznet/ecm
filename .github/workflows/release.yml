@@ -9,6 +9,7 @@ on:
 #
 # For cross-platofrms builds options see
 # https://stackoverflow.com/questions/63467662/github-action-define-workflow-level-environment-variable-between-jobs
+# https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
 
 jobs:
   job-linux:
