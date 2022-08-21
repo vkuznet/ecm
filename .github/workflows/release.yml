@@ -6,6 +6,9 @@ on:
       - '*.*.*'
 #   push:
 #     branches: [ main ]
+#
+# For cross-platofrms builds options see
+# https://stackoverflow.com/questions/63467662/github-action-define-workflow-level-environment-variable-between-jobs
 
 jobs:
   job-linux:
