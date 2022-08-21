@@ -111,7 +111,7 @@ jobs:
       - name: Set upload_url
         id: upload-url
         run: |
-          echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+          echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $env:GITHUB_ENV
 
       - name: Upload cli binaries
         id: upload-ecm-cli
