@@ -94,7 +94,7 @@ jobs:
           make build_amd64;   mv ecm ecm_amd64
 
           echo "Tar all builds"
-          tar cfz ../ecm_app.tar.gz ecm_amd64
+          tar cfz ../ecm_app_linux.tar.gz ecm_amd64
           #tar cfz ../ecm_app.tar.gz ecm_amd64 ecm_power8 ecm_arm64 ecm_windows ecm.app
 
       - name: Create Release
@@ -126,8 +126,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ecm_app.tar.gz
-          asset_name: ecm_app.tar.gz
+          asset_path: ./ecm_app_linux.tar.gz
+          asset_name: ecm_app_linux.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Set upload_url
