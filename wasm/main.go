@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"regexp"
 	"strings"
 	"syscall/js"
 	"time"
@@ -302,6 +303,30 @@ func loginWrapper() js.Func {
 	})
 }
 
+// helper function to match url with pattern
+func urlMatch(url, pattern string) bool {
+	purl := strings.Replace(url, "http://", "", -1)
+	purl = strings.Replace(purl, "https://", "", -1)
+	arr := strings.Split(purl, "/")
+	for _, v := range strings.Split(arr[0], ".") {
+		if matched, err := regexp.MatchString(v, pattern); err == nil && matched {
+			return true
+		}
+	}
+	return false
+}
+
+// helper function to match url parts with LoginRecord
+func urlMatchRecord(url string, rec LoginRecord) bool {
+	if urlMatch(url, rec.Name) ||
+		urlMatch(url, rec.URL) ||
+		urlMatch(url, rec.Tags) ||
+		urlMatch(url, rec.Note) {
+		return true
+	}
+	return false
+}
+
 // update records within DOM document
 func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]string, error) {
 
@@ -311,19 +336,33 @@ func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]s
 		return rids, err
 	}
 
+	// get pageUrl
 	document := js.Global().Get("document")
+	// TODO: I should find a way to obtain page URL
+	// in wasm there is no way to access page url
+	pageUrl := ""
+
 	docRecords := document.Call("getElementById", "records")
 	docRecords.Set("innerHTML", "")
 	ul := document.Call("createElement", "ul")
 	ul.Call("setAttribute", "class", "records")
 	docRecords.Call("appendChild", ul)
+	count := 0
+	nrec := 5 // total number of records to show
+
 	for key, lrec := range recordsManager.Map {
+		count += 1
+		// skip records which does not match page url
+		if pageUrl != "" && pattern == "" {
+			if !urlMatchRecord(pageUrl, lrec) {
+				continue
+			}
+		}
 		name := lrec.Name
 		login := lrec.Login
 		password := lrec.Password
 		rurl := lrec.URL
 		tags := lrec.Tags
-		rids = append(rids, key)
 
 		if pattern != "" {
 			// TODO: we may need to fetch only appropriate records from server
@@ -336,6 +375,11 @@ func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]s
 				continue
 			}
 		}
+
+		if count > nrec {
+			continue
+		}
+		rids = append(rids, key)
 
 		// construct frontend UI
 		li := document.Call("createElement", "li")
@@ -430,6 +474,21 @@ func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]s
 		li.Call("append", passDiv)
 		if extention {
 			li.Call("append", buttons)
+		}
+	}
+	if count > nrec {
+		moreDiv := document.Call("createElement", "div")
+		moreDiv.Set("innerHTML", fmt.Sprintf("Total: %d, show first matches for %s", count, pageUrl))
+		docRecords.Call("append", moreDiv)
+	}
+	if len(rids) == 0 {
+		count := 0
+		for key, _ := range recordsManager.Map {
+			count += 1
+			if count > nrec {
+				break
+			}
+			rids = append(rids, key)
 		}
 	}
 	return rids, nil
