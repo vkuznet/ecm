@@ -157,6 +157,7 @@ func recordsWrapper() js.Func {
 		cipher := args[2].String()
 		password := args[3].String()
 		pattern := args[4].String()
+		pageUrl := args[5].String()
 
 		// construct URL, e.g.
 		// http://127.0.0.1:8888/vault/Primary/records
@@ -171,7 +172,7 @@ func recordsWrapper() js.Func {
 
 		// Create and return the Promise object
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			go RecordsHandler(url, cipher, VaultPassword, pattern, args)
+			go RecordsHandler(url, cipher, VaultPassword, pattern, pageUrl, args)
 			return nil
 		})
 		// define where we should put our data
@@ -328,7 +329,7 @@ func urlMatchRecord(url string, rec LoginRecord) bool {
 }
 
 // update records within DOM document
-func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]string, error) {
+func updateRecords(url, cipher, passphrase, pattern, pageUrl string, extention bool) ([]string, error) {
 
 	var rids []string
 	err := recordsManager.update(url, cipher, passphrase)
@@ -340,7 +341,7 @@ func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]s
 	document := js.Global().Get("document")
 	// TODO: I should find a way to obtain page URL
 	// in wasm there is no way to access page url
-	pageUrl := ""
+	//     pageUrl := ""
 
 	docRecords := document.Call("getElementById", "records")
 	docRecords.Set("innerHTML", "")
@@ -478,9 +479,10 @@ func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]s
 	}
 	if count > nrec {
 		moreDiv := document.Call("createElement", "div")
-		moreDiv.Set("innerHTML", fmt.Sprintf("Total: %d, show first matches for %s", count, pageUrl))
+		moreDiv.Set("innerHTML", fmt.Sprintf("Total vault records: %d<br>URL %s<br>Pattern: %s", count, pageUrl, pattern))
 		docRecords.Call("append", moreDiv)
 	}
+	// if we do not have any records matched above we'll use first nrec ones
 	if len(rids) == 0 {
 		count := 0
 		for key, _ := range recordsManager.Map {
@@ -495,13 +497,13 @@ func updateRecords(url, cipher, passphrase, pattern string, extention bool) ([]s
 }
 
 // RecordsHandler handles asynchronously HTTP requests
-func RecordsHandler(url, cipher, passphrase, pattern string, args []js.Value) {
+func RecordsHandler(url, cipher, passphrase, pattern, pageUrl string, args []js.Value) {
 	resolve := args[0]
 	reject := args[1]
 
 	// place records within DOM page
 	extention := true
-	rids, err := updateRecords(url, cipher, passphrase, pattern, extention)
+	rids, err := updateRecords(url, cipher, passphrase, pattern, pageUrl, extention)
 	if err != nil {
 		ErrorHandler(reject, err)
 		return

@@ -76,7 +76,8 @@ func showRecords() ([]byte, error) {
 	url := fmt.Sprintf("/vault/%s/records", vault)
 	extention := false
 	pattern := ""
-	rids, err := updateRecords(url, cipher, password, pattern, extention)
+	pageUrl := ""
+	rids, err := updateRecords(url, cipher, password, pattern, pageUrl, extention)
 	if err != nil {
 		return []byte{}, err
 	}

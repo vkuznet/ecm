@@ -65,8 +65,20 @@ function showPassword(evt) {
     }
 }
 
+// helper function to fetch tab url and fill out pageUrl input field
+// Chrome specific implementation
+// TODO: add other browser implementtation
+function tabUrl() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+       var tab = tabs[0];
+       document.getElementById("pageUrl").value = tab.url;
+    });
+}
+
 // for information how to pass argument values see
 // https://stackoverflow.com/questions/256754/how-to-pass-arguments-to-addeventlistener-listener-function
+// Chrome specific implementation
+// TODO: add other browser implementtation
 function fillFormInTab(evt) {
     var login = evt.currentTarget.Login;
     var password = evt.currentTarget.Password;
@@ -78,7 +90,10 @@ function fillFormInTab(evt) {
       }, function(response) {});
     });
 }
+
 // helper function which we will use in go wasm
+// Chrome specific implementation
+// TODO: add other browser implementtation
 function fillFormHelper(evt) {
     var rid = evt.currentTarget.RecordID;
     var login = getLogin(rid);
@@ -95,6 +110,8 @@ function fillFormHelper(evt) {
 
 
 // helper function to return main web page inputs
+// Chrome specific implementation
+// TODO: add other browser implementtation
 function getPageInputs(evt) {
     var inputs = Array();
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {

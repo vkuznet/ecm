@@ -8,6 +8,7 @@ async function asyncRecords() {
     // unlock records part
     Unlock();
     // obtain server creds
+    var pageUrl = document.getElementById("pageUrl").value;
     var server = document.getElementById("server").value;
     var vault = document.getElementById("vault").value;
     var cipher = document.getElementById("cipher").value;
@@ -24,12 +25,13 @@ async function asyncRecords() {
     }
     passwordSet=true;
     try {
-        const response = await records(server, vault, cipher, password, pattern);
+        const response = await records(server, vault, cipher, password, pattern, pageUrl);
         const data = await response.json();
         for (const key of data) {
-            console.log("array key", key)
             var button = document.getElementById('autofill-'+key)
-            button.addEventListener('click', fillFormHelper, false);
+            if (button) {
+                button.addEventListener('click', fillFormHelper, false);
+            }
         }
     } catch (err) {
         console.log(err)
