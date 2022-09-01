@@ -80,7 +80,7 @@ jobs:
           cp fyne ../../../
           cd -
 
-      - name: Build wasm extention
+      - name: Build wasm extension
         run: |
           #apt-get install -y wget sudo
           #wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -88,7 +88,7 @@ jobs:
           #/usr/bin/google-chrome-stable --pack-extension=$PWD
           cd wasm
           make
-          tar cfz ../ecm_extention.tar.gz extention
+          tar cfz ../ecm_extension.tar.gz extension
           cd -
 
       - name: Add credentials
@@ -179,15 +179,15 @@ jobs:
           asset_name: ecm_server_linux.tar.gz
           asset_content_type: application/octet-stream
 
-      - name: Upload wasm extention
-        id: upload-ecm-extention
+      - name: Upload wasm extension
+        id: upload-ecm-extension
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ecm_extention_linux.tar.gz
-          asset_name: ecm_extention_linux.tar.gz
+          asset_path: ./ecm_extension_linux.tar.gz
+          asset_name: ecm_extension_linux.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Set upload_url
