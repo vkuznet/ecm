@@ -175,8 +175,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ecm_server_linux.tar.gz
-          asset_name: ecm_server_linux.tar.gz
+          asset_path: ./ecm_server.tar.gz
+          asset_name: ecm_server.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Upload wasm extension
