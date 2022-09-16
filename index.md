@@ -61,3 +61,4 @@ ECM toolkit provides variety of tools, CLI, UI, Web extension and web server. Pl
 - [Web server](tools.md#webserver)
 - [Web APIs](apis.md)
 - [ECM Syncing](sync.md)
+- [Support](support.md)
