@@ -8,7 +8,9 @@ Originally, there were few missing pieces with 1Password such as:
 - support of multiple cloud providers and usage of on/off-site premises
 
 But more importantly, the 1Password has changed their license based approach to
-subscription model starting version 8. Even though it is profiable for tha
+subscription model starting version 8, see their
+[reply](https://1password.community/discussion/133705/does-1password8-support-non-subscription-mode/p1?new=1).
+Even though it is profiable for tha
 company we considered that over the time it is not sustaibable solution, e.g.
 the current pricing model of $5/month leads to $60/year and since such manager
 is mandatory in our digital life it can lead to substantial expenses over the
