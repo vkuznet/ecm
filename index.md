@@ -54,8 +54,10 @@ technology to enforce the same-origin and permissions security policies of the b
 ## Tools
 ECM toolkit provides variety of tools, CLI, UI, Web extension and web server. Please check them out:
 - [Motivation](motivation.md)
+- [Architecture](architecture.md)
 - [Command line tool](tools.md#ecm-command-line-interface-cli)
 - [Native UI application](tools.md#ui-tool)
 - [Browser extension](tools.md#wasm-browser-extention)
 - [Web server](tools.md#webserver)
+- [Web APIs](apis.md)
 - [ECM Syncing](sync.md)
