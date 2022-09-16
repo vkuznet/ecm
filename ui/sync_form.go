@@ -20,8 +20,29 @@ import (
 	"golang.org/x/exp/errors"
 )
 
+// supportedProviders contains a list of supported providers
+var supportedProviders string
+
 // global variable we'll use to update sync status
-var syncStatus, localURI binding.String
+var syncStatus, localURI, cloudURI binding.String
+
+// helper function to get list of supported providers
+func supportedProvider(provider string) bool {
+	var providers []string
+	for _, p := range strings.Split(supportedProviders, ",") {
+		providers = append(providers, strings.ToLower(strings.Trim(p, " ")))
+	}
+	if len(providers) == 0 {
+		providers = append(providers, "dropbox")
+	}
+	for _, p := range providers {
+		if p == provider {
+			return true
+		}
+	}
+	return false
+
+}
 
 // helper function to read sync config
 func syncConfigMap(app fyne.App) (map[string]string, error) {
@@ -203,6 +224,11 @@ func (r *SyncUI) onDropboxPathChanged(v string) {
 	r.preferences.SetString("dropbox", v)
 }
 
+func (r *SyncUI) onCloudPathChanged(v string) {
+	cloudURI.Set(v)
+	r.preferences.SetString("cloud", v)
+}
+
 func (r *SyncUI) onLocalPathChanged(v string) {
 	localURI.Set(v)
 	r.preferences.SetString("local", v)
@@ -223,8 +249,31 @@ func (r *SyncUI) authButton(provider string) *widget.Button {
 			//                 dropboxClient.OAuth()
 			//             }
 
-			// perform oauth request with our dropbox client
-			dropboxClient.OAuth()
+			// check that new value for cloudURI is among supported providers
+			val, err := cloudURI.Get()
+			if err == nil {
+				p := strings.Split(val, ":")[0]
+				if !supportedProvider(p) {
+					msg := fmt.Sprintf("provider %s is not supported in %v", p, supportedProviders)
+					appLog("ERROR", msg, errors.New("user input error"))
+					return
+				}
+				provider = p
+			} else {
+				appLog("ERROR", "fail to get cloudURI", err)
+				return
+			}
+			msg := fmt.Sprintf("Supported provider %s", provider)
+			appLog("INFO", msg, nil)
+
+			// perform oauth request with our cloud provider
+			if provider == "dropbox" {
+				dropboxClient.OAuth()
+			} else {
+				msg := fmt.Sprintf("Cloud provider %s is not supported yet", provider)
+				appLog("ERROR", msg, errors.New(msg))
+				return
+			}
 
 			// update rclone path
 			//             sconf := syncPath(r.app)
@@ -364,6 +413,13 @@ type Token struct {
 
 // helper function to check if token is valid for given cloud provider
 func (r *SyncUI) isValidToken(provider string) bool {
+	// TODO: we should generalize this function to any cloud provider
+	if provider != "dropbox" {
+		msg := fmt.Sprintf("Cloud provider %s is not supported", provider)
+		appLog("ERROR", msg, errors.New(msg))
+		return false
+	}
+
 	// get our config mod time in unix format
 	sconf := syncPath(r.app)
 	file, err := os.Stat(sconf)
@@ -434,7 +490,7 @@ func (r *SyncUI) isValidToken(provider string) bool {
 }
 
 // global auth button pointer
-var dropboxAuthButton *widget.Button
+var cloudAuthButton *widget.Button
 var localSetButton *widget.Button
 
 // helper function to build UI
@@ -446,12 +502,18 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	statusText := widget.NewLabelWithData(syncStatus)
 	statusText.Wrapping = fyne.TextWrapBreak
 
-	// sync form container
-	dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
+	// cloud storage URI
+	cloudURI = binding.NewString()
+	cloudURI.Set("dropbox:ECM")
+	cloud := widget.NewEntryWithData(cloudURI)
+	cloud.OnChanged = r.onCloudPathChanged
+	//     dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
+	cloudStorage := widget.NewEntryWithData(cloudURI)
+	cloudStorage.OnSubmitted = r.onCloudPathChanged
+	cloudStorage.OnChanged = r.onCloudPathChanged
+
+	// local storage URI
 	lpath := os.Getenv("EXTERNAL_STORAGE")
-	if lpath == "" {
-		lpath = "sdcard"
-	}
 	lpath = fmt.Sprintf("local:/%s/ECM", lpath)
 	if appKind == "desktop" {
 		home := os.Getenv("HOME")
@@ -467,31 +529,30 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	local := widget.NewEntryWithData(localURI)
 	local.OnChanged = r.onLocalPathChanged
 
-	dropboxAuthButton = r.authButton("dropbox")
-	//     dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
-	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text, false), authColor)
-	dropboxAuth := colorButtonContainer(dropboxAuthButton, authColor)
+	cloudAuthButton = r.authButton("dropbox")
+	cloudSync := colorButtonContainer(r.syncButton(cloud.Text, false), authColor)
+	cloudAuth := colorButtonContainer(cloudAuthButton, authColor)
 	localSync := colorButtonContainer(r.syncButton(local.Text, true), btnColor)
 	//     btn := &widget.Button{}
 	//     noAuth := colorButtonContainer(btn, grayColor)
 
-	dropboxLabel := widget.NewLabel("Dropbox to vault")
-	dropboxLabel.TextStyle.Bold = true
+	cloudLabel := widget.NewLabel("Cloud to vault")
+	cloudLabel.TextStyle.Bold = true
 	labelName := "local to vault"
 	localLabel := widget.NewLabel(labelName)
 	localLabel.TextStyle.Bold = true
 
 	// by default we show auth button
 	// check if token exist and it is valid, then we show sync button
-	dropboxContainer := container.NewGridWithColumns(2, dropbox, dropboxAuth)
+	cloudContainer := container.NewGridWithColumns(2, cloud, cloudAuth)
 	if r.isValidToken("dropbox") {
-		dropboxContainer = container.NewGridWithColumns(2, dropbox, dropboxSync)
+		cloudContainer = container.NewGridWithColumns(2, cloud, cloudSync)
 	}
 	localContainer := container.NewGridWithColumns(2, local, localSync)
 
 	box := container.NewVBox(
-		dropboxLabel,
-		dropboxContainer,
+		cloudLabel,
+		cloudContainer,
 		localLabel,
 		localContainer,
 		statusText,

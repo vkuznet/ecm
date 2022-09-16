@@ -165,14 +165,14 @@ func authServer(app fyne.App, ctx context.Context) {
 			htmlMsg := fmt.Sprintf("<html><body><h1>%s</h1></body></html>", msg)
 
 			// refresh dropbox auth button
-			if dropboxAuthButton != nil {
-				dropboxAuthButton.Text = "Sync"
-				dropboxAuthButton.Icon = theme.HistoryIcon()
-				dropboxAuthButton.OnTapped = func() {
+			if cloudAuthButton != nil {
+				cloudAuthButton.Text = "Sync"
+				cloudAuthButton.Icon = theme.HistoryIcon()
+				cloudAuthButton.OnTapped = func() {
 					src := "dropbox:ECM" // FIXME
 					syncFunc(app, _vault.Directory, src, false)
 				}
-				dropboxAuthButton.Refresh()
+				cloudAuthButton.Refresh()
 			}
 
 			w.Write([]byte(htmlMsg))

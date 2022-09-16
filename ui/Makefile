@@ -1,6 +1,6 @@
 GITTAG=`git describe --tags`
 VERSION=`git rev-parse --short HEAD`
-flags=-ldflags="-s -w -X main.appKind=desktop -X main.gitVersion=${VERSION} -X main.gitTag=${GITTAG}"
+flags=-ldflags="-s -w -X main.appKind=desktop -X main.gitVersion=${VERSION} -X main.gitTag=${GITTAG} -X main.supportedProviders=dropbox"
 # flags=-ldflags="-s -w -X main.appKind=desktop"
 # flags=-ldflags="-s -w"
 
