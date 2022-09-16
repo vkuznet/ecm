@@ -170,7 +170,7 @@ func authServer(app fyne.App, ctx context.Context) {
 				dropboxAuthButton.Icon = theme.HistoryIcon()
 				dropboxAuthButton.OnTapped = func() {
 					src := "dropbox:ECM" // FIXME
-					syncFunc(app, _vault.Directory, src)
+					syncFunc(app, _vault.Directory, src, false)
 				}
 				dropboxAuthButton.Refresh()
 			}

@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -19,7 +21,7 @@ import (
 )
 
 // global variable we'll use to update sync status
-var syncStatus binding.String
+var syncStatus, localURI binding.String
 
 // helper function to read sync config
 func syncConfigMap(app fyne.App) (map[string]string, error) {
@@ -202,6 +204,7 @@ func (r *SyncUI) onDropboxPathChanged(v string) {
 }
 
 func (r *SyncUI) onLocalPathChanged(v string) {
+	localURI.Set(v)
 	r.preferences.SetString("local", v)
 }
 
@@ -235,8 +238,58 @@ func (r *SyncUI) authButton(provider string) *widget.Button {
 	return btn
 }
 
+// HTTPVaultRecord represents HTTP vault record
+type HTTPVaultRecord struct {
+	ID   string
+	Data []byte
+}
+
+// helper function to perform sync operation from HTTP end-point
+func syncHTTP(rurl, dst string) error {
+	client := &http.Client{}
+	resp, err := client.Get(rurl)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	// records represent list of HTTP vault records
+	var records []HTTPVaultRecord
+	err = json.Unmarshal(data, &records)
+	if err != nil {
+		return err
+	}
+	for _, rec := range records {
+		fname := fmt.Sprintf("%s/%s", dst, rec.ID)
+		file, err := os.Create(fname)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		file.Write(rec.Data)
+	}
+	return nil
+}
+
 // helper function to perform sync operation
-func syncFunc(app fyne.App, vdir, src string) {
+func syncFunc(app fyne.App, vdir, src string, local bool) {
+	dst := fmt.Sprintf("local:%s", vdir)
+	// fetch local entry if it was set within widget
+	if local {
+		if val, err := localURI.Get(); err == nil {
+			msg := fmt.Sprintf("syncFunc %s", src)
+			appLog("INFO", msg, nil)
+			src = val
+		} else {
+			msg := fmt.Sprintf("syncFunc %v", err)
+			appLog("ERROR", msg, nil)
+		}
+		dst = vdir
+	}
+
 	// perform sync from dropbox to vault
 	dir := app.Storage().RootURI().Path()
 	fconf := fmt.Sprintf("%s/rclone.conf", dir)
@@ -244,10 +297,21 @@ func syncFunc(app fyne.App, vdir, src string) {
 	if sconf != "" {
 		fconf = sconf
 	}
-	dst := fmt.Sprintf("local:%s", vdir)
 	msg := fmt.Sprintf("config: %s, sync from %s to %s", fconf, src, dst)
-	appLog("INFO", msg, nil)
-	err := ecmsync.EcmSync(fconf, src, dst)
+	var err error
+	if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
+		pref := app.Preferences()
+		vname := pref.String("VaultName")
+		if vname == "" {
+			vname = "Primary"
+		}
+		rurl := fmt.Sprintf("%s/vault/%s/records?id=true", src, vname)
+		appLog("INFO", msg, nil)
+		err = syncHTTP(rurl, dst)
+	} else {
+		appLog("INFO", msg, nil)
+		err = ecmsync.EcmSync(fconf, src, dst)
+	}
 	if err != nil {
 		msg := fmt.Sprintf("unable to sync from %s to %s", src, dst)
 		appLog("ERROR", msg, err)
@@ -276,7 +340,7 @@ func syncFunc(app fyne.App, vdir, src string) {
 }
 
 // helper function to provide sync button to given destination
-func (r *SyncUI) syncButton(src string) *widget.Button {
+func (r *SyncUI) syncButton(src string, local bool) *widget.Button {
 	// get vault dir from preferences
 	pref := r.app.Preferences()
 	vdir := pref.String("VaultDirectory")
@@ -285,7 +349,7 @@ func (r *SyncUI) syncButton(src string) *widget.Button {
 		Text: "Sync",
 		Icon: theme.HistoryIcon(),
 		OnTapped: func() {
-			syncFunc(r.app, vdir, src)
+			syncFunc(r.app, vdir, src, local)
 		},
 	}
 	return btn
@@ -371,6 +435,7 @@ func (r *SyncUI) isValidToken(provider string) bool {
 
 // global auth button pointer
 var dropboxAuthButton *widget.Button
+var localSetButton *widget.Button
 
 // helper function to build UI
 func (r *SyncUI) buildUI() *fyne.Container {
@@ -392,22 +457,27 @@ func (r *SyncUI) buildUI() *fyne.Container {
 		home := os.Getenv("HOME")
 		lpath = fmt.Sprintf("local:%s/.ecm", home)
 	}
-	local := &widget.Entry{Text: lpath, OnSubmitted: r.onLocalPathChanged}
+	localURI = binding.NewString()
+	localValue, err := localURI.Get()
+	// set localURI only we need to
+	if err != nil || localValue == "" {
+		localURI.Set(lpath)
+	}
+	//local := &widget.Entry{Text: lpath, OnSubmitted: r.onLocalPathChanged}
+	local := widget.NewEntryWithData(localURI)
+	local.OnChanged = r.onLocalPathChanged
 
 	dropboxAuthButton = r.authButton("dropbox")
 	//     dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), btnColor)
-	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text), authColor)
+	dropboxSync := colorButtonContainer(r.syncButton(dropbox.Text, false), authColor)
 	dropboxAuth := colorButtonContainer(dropboxAuthButton, authColor)
-	localSync := colorButtonContainer(r.syncButton(local.Text), btnColor)
+	localSync := colorButtonContainer(r.syncButton(local.Text, true), btnColor)
 	//     btn := &widget.Button{}
 	//     noAuth := colorButtonContainer(btn, grayColor)
 
 	dropboxLabel := widget.NewLabel("Dropbox to vault")
 	dropboxLabel.TextStyle.Bold = true
 	labelName := "local to vault"
-	if appKind != "desktop" {
-		labelName = "sdcard to vault"
-	}
 	localLabel := widget.NewLabel(labelName)
 	localLabel.TextStyle.Bold = true
 
