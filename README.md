@@ -10,7 +10,7 @@ alternative to password managers similar to 1Password, LastPass, ButterCup,
 etc. but it is not restricted to secure only the meta-data. Any content can be
 encrypted with ECM.
 
-ECM fills the gap of provide CLI, Web server, browser extension and UI
+ECM fills the gap among different solutions and provide CLI, Web server, browser extension and UI
 based on GoLang crypto library. It depends on [rclone](https://rclone.org/)
 library to provide sync capabilities to various cloud providers (such as
 Dropbox, PCloud, etc.) as well as syncing to specific hosts (via sftp
@@ -20,6 +20,26 @@ allows to work with ECM from a terminal, and therefore portable across
 hosts. The web server (and wasm extention) provides fully featured
 web server with 2fa authentication. Finally, thanks to [fyne.io](https://fyne.io/)
 library the UI provides consistent interface among platform and mobile devices.
+
+### Motivation
+We start this project after many years of using 1Password solution.
+Originally, there are few missing issues with 1Password such as:
+- command line interace (fixed in version 8)
+- web server
+- support multiple cloud providers and usage of on/off-site premises
+But more importantly, the 1Password has changed their license based approach
+to subscription model. Even though it is profiable for tha company we
+considered that over the time it is not valuable solution. Despite monthly
+fee the 1Password does not provide ability to use own infrastructure, lack
+of support for different cloud storage providers and closed model of their
+solution. All of these factors lead to seek alternative solutions and idea
+of implementing password manager with larger scope came up once we discovered
+that Go application now have native GUI (via [fyne.io](https://fyne.io/))
+and ability to run code on moble platform, e.g.
+[gomobile](https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile).
+Moreover, the support for various architectures, such as AMD, ARM, Power8, and
+[WebAssembly](https://www.wikiwand.com/en/WebAssembly) leads us to Go-based
+implementation of encryption toolkit.
 
 ### Architectore
 Below you can find current architecture of ECM toolkit:
