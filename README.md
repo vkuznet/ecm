@@ -22,11 +22,11 @@ web server with 2fa authentication. Finally, thanks to [fyne.io](https://fyne.io
 library the UI provides consistent interface among platform and mobile devices.
 
 ### Motivation
-We start this project after many years of using 1Password solution.
-Originally, there are few missing issues with 1Password such as:
-- command line interace (fixed in version 8)
-- web server
-- support multiple cloud providers and usage of on/off-site premises
+We start this project after many years of experience with 1Password solution.
+Originally, there were few missing pieces with 1Password such as:
+- command line interace (provided in version 8)
+- web server (there is no publicly available server so far)
+- support of multiple cloud providers and usage of on/off-site premises
 But more importantly, the 1Password has changed their license based approach
 to subscription model. Even though it is profiable for tha company we
 considered that over the time it is not valuable solution. Despite monthly
