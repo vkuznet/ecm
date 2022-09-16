@@ -117,6 +117,12 @@ type AuthRecord struct {
 
 var auth AuthRecord
 
+// HTTPVaultRecord represents HTTP vault record
+type HTTPVaultRecord struct {
+	ID   string `json:"id"`
+	Data []byte `json:"data"`
+}
+
 // VaultAuthHandler provides authentication with our vault
 func VaultAuthHandler(w http.ResponseWriter, r *http.Request) {
 	// it should be POST request which will ready vault credentials
@@ -135,6 +141,15 @@ func VaultAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 // VaultRecordsHandler provides basic functionality of status response
 func VaultRecordsHandler(w http.ResponseWriter, r *http.Request) {
+	// parse input parameters to identify if we need to construct id records
+	var idRecord bool
+	vals, ok := r.URL.Query()["id"]
+	if ok && len(vals) > 0 {
+		if vals[0] == "true" {
+			idRecord = true
+		}
+	}
+
 	vdir, err := getVault(r)
 	if err != nil {
 		responseMsg(w, r, fmt.Sprintf("%v", err), "VaultHandler", http.StatusBadRequest)
@@ -146,9 +161,11 @@ func VaultRecordsHandler(w http.ResponseWriter, r *http.Request) {
 		responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
 		return
 	}
+	var ids []string
 	var records [][]byte
 	for _, name := range files {
 		fname := fmt.Sprintf("%s/%s", vdir, name)
+		ids = append(ids, name)
 		data, err := os.ReadFile(fname)
 		if err != nil {
 			responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
@@ -156,7 +173,18 @@ func VaultRecordsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		records = append(records, data)
 	}
-	data, err := json.Marshal(records)
+	var data []byte
+	if idRecord {
+		var httpRecords []HTTPVaultRecord
+		for idx, fid := range ids {
+			rec := HTTPVaultRecord{ID: fid, Data: records[idx]}
+			httpRecords = append(httpRecords, rec)
+		}
+		data, err = json.Marshal(httpRecords)
+	} else {
+		data, err = json.Marshal(records)
+	}
+
 	if err != nil {
 		responseMsg(w, r, err.Error(), "VaultHandler", http.StatusInternalServerError)
 		return
