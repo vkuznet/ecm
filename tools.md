@@ -1,9 +1,7 @@
 ### ECM tools
-The ECM toolkit provides different set of tools. Please refer to appropriate section below to your favorite area.
+The ECM toolkit provides a different set of tools. Please refer to the appropriate section below to your favorite area.
 #### ECM Command Line Interface (CLI)
-This ECM cli tool provide conveninent Command Line Interface which works identically across many different
-operating systems, e.g. Linux, OSX, Windows, etc. You can either download the `ecm` cli tool from a release
-area or compile it using the following steps:
+This ECM cli tool provide convenient Command Line Interface which works identically across many different operating systems, e.g. Linux, OSX, Windows, etc. You can either download the `ecm` cli tool from a release area or compile it using the following steps:
 ```
 git clone git@github.com:vkuznet/ecm.git
 cd ecm/cli
@@ -99,14 +97,14 @@ Here is a typical structure of `ecm` vault(s):
 tree ~/.ecm
 /Users/users/.ecm
 ├── Primary
-│   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes
-│   ├── 71488552-1023-4480-9aa4-a909b23726ee.aes
-│   ├── 9636520f-63ad-478c-92f7-3ed3b4eb579f.aes
-│   ├── acb8a9f7-6140-42d2-bb32-f730f7ab572f.aes
-│   ├── backups
-│   │   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes-2021-08-30T18:02:56-04:00
-│   │   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes-2021-08-30T18:03:10-04:00
-│   └── fb26fd73-ea17-49f5-b38b-cf17575f1264.aes
+│   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes
+│   ├── 71488552-1023-4480-9aa4-a909b23726ee.aes
+│   ├── 9636520f-63ad-478c-92f7-3ed3b4eb579f.aes
+│   ├── acb8a9f7-6140-42d2-bb32-f730f7ab572f.aes
+│   ├── backups
+│   │   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes-2021-08-30T18:02:56-04:00
+│   │   ├── 6b346bbd-a8a5-4af8-b9c6-c308c42bcd86.aes-2021-08-30T18:03:10-04:00
+│   └── fb26fd73-ea17-49f5-b38b-cf17575f1264.aes
 ....
 ```
 
@@ -125,7 +123,7 @@ In order to use it just start `ecm` executable. Below we show few screen shots o
 ![Password menu](pages/images/ecm-password.png)
 ![Sync menu](pages/images/ecm-sync.png)
 ![Settings menu](pages/images/ecm-settings.png)
-![Loout screen](pages/images/ecm-logout.png)
+![Logout screen](pages/images/ecm-logout.png)
 
-#### WASM browser extention
+#### WASM browser extension
 #### WebServer
