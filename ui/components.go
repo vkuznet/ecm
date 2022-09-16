@@ -41,7 +41,7 @@ func AppWindow(app fyne.App, w fyne.Window) {
 // helper function to unify error messages
 func appLog(level, msg string, err error) {
 	tstamp := time.Now().Format(time.RFC3339)
-	text := fmt.Sprintf("%s %s %s %v", tstamp, level, msg, err)
+	text := fmt.Sprintf("%s %s %s, error=%v", tstamp, level, msg, err)
 	if appLogEntry == nil {
 		appLogEntry = binding.NewString()
 	}
