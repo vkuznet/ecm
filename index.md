@@ -31,7 +31,7 @@ encrypted before put on a wire. All server communications and APIs use HTTPs
 protocol to exchange your encrypted data. For complete guide of ECM
 architecture please follow this [link](architecture.md).
 
-ECM provides RESTful APIs to exchange your data within your favorie
+ECM provides web server with RESTful APIs to exchange your data within your favorie
 application.  Please refer to our [APIs](apis.md) documentation for more
 details.
 
