@@ -1,3 +1,7 @@
 theme: jekyll-theme-cayman
 title: Encrypted Content Management
 description: A toolkit to encrypt and manage your digital content anywhere.
+
+relative_links:
+  enabled:     true
+  collections: false
