@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -42,40 +41,6 @@ func EcmHome() string {
 		hdir = fmt.Sprintf("%s/.ecm", hdir)
 	}
 	return hdir
-}
-
-// Backup performs backup copy of source to destination
-// based on https://github.com/mactsouk/opensource.com/blob/master/cp1.go
-func Backup(src, dst string) (int64, error) {
-	sourceFileStat, err := os.Stat(src)
-	if err != nil {
-		//         log.Printf("file '%s' does not exist, error %v", src, err)
-		return 0, err
-	}
-
-	if !sourceFileStat.Mode().IsRegular() {
-		return 0, fmt.Errorf("%s is not a regular file", src)
-	}
-
-	source, err := os.Open(src)
-	if err != nil {
-		return 0, err
-	}
-	defer source.Close()
-
-	destination, err := os.Create(dst)
-	if err != nil {
-		return 0, err
-	}
-	defer destination.Close()
-
-	err = os.Chmod(dst, 0600)
-	if err != nil {
-		log.Println("unable to change file permission of", dst)
-	}
-
-	nBytes, err := io.Copy(destination, source)
-	return nBytes, err
 }
 
 // InList checks item in a list
