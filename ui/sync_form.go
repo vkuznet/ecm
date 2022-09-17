@@ -312,9 +312,11 @@ func syncFunc(app fyne.App, vdir, src string, local bool) {
 	var err error
 	if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
 		pref := app.Preferences()
-		vname := pref.String("VaultName")
-		if vname == "" {
-			vname = "Primary"
+		vdir := pref.String("VaultDirectory")
+		arr := strings.Split(vdir, "/")
+		vname := "Primary"
+		if len(arr) > 1 {
+			vname = arr[len(arr)-1]
 		}
 		rurl := fmt.Sprintf("%s/vault/%s/records?id=true", src, vname)
 		appLog("INFO", msg, nil)
