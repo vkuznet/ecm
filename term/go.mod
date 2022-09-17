@@ -7,9 +7,9 @@ require (
 	github.com/gdamore/tcell/v2 v2.5.3
 	github.com/google/uuid v1.3.0
 	github.com/rivo/tview v0.0.0-20220916081518-2e69b7385a37
-	github.com/vkuznet/ecm/crypt v0.0.0-20220917152815-e925ee8d24a9
-	github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9
-	github.com/vkuznet/ecm/vault v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/crypt v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/vault v0.0.0-20220917181756-60c9c5c67894
 )
 
 require (
@@ -20,7 +20,7 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220917152815-e925ee8d24a9 // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220917181756-60c9c5c67894 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/exp/errors v0.0.0-20220916125017-b168a2c6b86b // indirect
 	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect

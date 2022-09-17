@@ -2,7 +2,10 @@ module github.com/vkuznet/ecm/sync
 
 go 1.19
 
-require github.com/rclone/rclone v1.59.2
+require (
+	github.com/rclone/rclone v1.59.2
+	github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894
+)
 
 require (
 	github.com/Max-Sum/base32768 v0.0.0-20191205131208-7937843c71d5 // indirect
@@ -41,7 +44,6 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.5.0 // indirect
-	github.com/vkuznet/ecm/utils v0.0.0-20220917180357-523c799fc409 // indirect
 	github.com/xanzy/ssh-agent v0.3.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect

@@ -10,6 +10,8 @@ github.com/vkuznet/ecm/utils v0.0.0-20220917141421-6d243eef124f h1:zteaQ5KYEpciS
 github.com/vkuznet/ecm/utils v0.0.0-20220917141421-6d243eef124f/go.mod h1:v2uyfaBpnPnPF8124HczKz8aAw+LD7Z3gpJEA4oQTNc=
 github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9 h1:jKuci+AK02sX/prZuzg8CoOB9jusWXSzyxBfM/wnDOQ=
 github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9/go.mod h1:v2uyfaBpnPnPF8124HczKz8aAw+LD7Z3gpJEA4oQTNc=
+github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894 h1:I/RBnIZQDYSbhfq+Jem9mbBCXds9sgSJ2MHV3IyH9YI=
+github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894/go.mod h1:v2uyfaBpnPnPF8124HczKz8aAw+LD7Z3gpJEA4oQTNc=
 golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898 h1:SLP7Q4Di66FONjDJbCYrCRrh97focO6sLogHO7/g8F0=
 golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 h1:GIAS/yBem/gq2MUqgNIzUHW7cJMmx3TGZOrnyYaNQ6c=

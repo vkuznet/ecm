@@ -4,10 +4,10 @@ go 1.19
 
 require (
 	github.com/atotto/clipboard v0.1.4
-	github.com/vkuznet/ecm/crypt v0.0.0-20220917152815-e925ee8d24a9
-	github.com/vkuznet/ecm/storage v0.0.0-20220917152815-e925ee8d24a9
-	github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9
-	github.com/vkuznet/ecm/vault v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/crypt v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/storage v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/vault v0.0.0-20220917181756-60c9c5c67894
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 )
 

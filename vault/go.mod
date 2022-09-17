@@ -5,9 +5,9 @@ go 1.19
 require (
 	github.com/fatih/color v1.13.0
 	github.com/google/uuid v1.3.0
-	github.com/vkuznet/ecm/crypt v0.0.0-20220917152815-e925ee8d24a9
-	github.com/vkuznet/ecm/storage v0.0.0-20220917152815-e925ee8d24a9
-	github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/crypt v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/storage v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894
 )
 
 require (

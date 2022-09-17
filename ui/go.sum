@@ -734,6 +734,8 @@ github.com/vkuznet/ecm/crypt v0.0.0-20220917141421-6d243eef124f h1:mMPiwbTZ7WQcC
 github.com/vkuznet/ecm/crypt v0.0.0-20220917141421-6d243eef124f/go.mod h1:87eB1SFUE9nAETM5YShXuM2CaJ8HYBkoLxrnje0u3UQ=
 github.com/vkuznet/ecm/crypt v0.0.0-20220917152815-e925ee8d24a9 h1:TbgpZL56hyA8bwkVuci61i8UL9ij/U/vwveFZHQZbmM=
 github.com/vkuznet/ecm/crypt v0.0.0-20220917152815-e925ee8d24a9/go.mod h1:87eB1SFUE9nAETM5YShXuM2CaJ8HYBkoLxrnje0u3UQ=
+github.com/vkuznet/ecm/crypt v0.0.0-20220917181756-60c9c5c67894 h1:TVhCQg02JmTXhsZHW62VYS+b5S3RcDHTP7kB6VoaXE8=
+github.com/vkuznet/ecm/crypt v0.0.0-20220917181756-60c9c5c67894/go.mod h1:5gFEWe5fue0UYWOmsbhjJ+XWnCsmjdvNsZqC2/Q1yNQ=
 github.com/vkuznet/ecm/storage v0.0.0-20220819113721-25662adc8140 h1:0u13CLvWwDI+zp4CMTh9z/CFf1/BcslToCcPbgQywWg=
 github.com/vkuznet/ecm/storage v0.0.0-20220819113721-25662adc8140/go.mod h1:Awdc2VbjwAe9zsTztFmYvOAbb81qkv65JIIxmSHyGtQ=
 github.com/vkuznet/ecm/storage v0.0.0-20220917124759-19ece3c4d663 h1:+vnaFD3YcD7VG7a8Z/saT8EImF3weCz2IOQvaudbbK0=
@@ -742,6 +744,8 @@ github.com/vkuznet/ecm/storage v0.0.0-20220917141421-6d243eef124f h1:nvtnoV6cIcP
 github.com/vkuznet/ecm/storage v0.0.0-20220917141421-6d243eef124f/go.mod h1:+Ij++X6sXCTOimlZAvzIn8ALFOraTzcw7dPd57YJq6k=
 github.com/vkuznet/ecm/storage v0.0.0-20220917152815-e925ee8d24a9 h1:CmUqa/XLChNR93sU8WAShrXb3cLIkGhP6JAB1rBwiYA=
 github.com/vkuznet/ecm/storage v0.0.0-20220917152815-e925ee8d24a9/go.mod h1:+Ij++X6sXCTOimlZAvzIn8ALFOraTzcw7dPd57YJq6k=
+github.com/vkuznet/ecm/storage v0.0.0-20220917181756-60c9c5c67894 h1:rxX2bzcAJjhXlenFi01kHCogaqLALBCh1SojiHODR94=
+github.com/vkuznet/ecm/storage v0.0.0-20220917181756-60c9c5c67894/go.mod h1:+Ij++X6sXCTOimlZAvzIn8ALFOraTzcw7dPd57YJq6k=
 github.com/vkuznet/ecm/sync v0.0.0-20220819114302-42b4f1198fad h1:Q1dRqRWEkBDha+yFseIczS9+DXdMkUT8H+eqdryqn1U=
 github.com/vkuznet/ecm/sync v0.0.0-20220819114302-42b4f1198fad/go.mod h1:hZHkPlEQMz6zImGRx+jduyLU5ZG+Rre5cJxNcNrqdE4=
 github.com/vkuznet/ecm/sync v0.0.0-20220917124759-19ece3c4d663 h1:ovNwkJoxDI+vGxmzBaU0eKWlcqNWJpDpNr0Mp2k4s3w=
@@ -750,6 +754,8 @@ github.com/vkuznet/ecm/sync v0.0.0-20220917141421-6d243eef124f h1:MKCyu/FEJqrOJi
 github.com/vkuznet/ecm/sync v0.0.0-20220917141421-6d243eef124f/go.mod h1:4/mLOol3ZILT/+8IIxQVkzB1G0H0lxUQmaoAUXx1+gE=
 github.com/vkuznet/ecm/sync v0.0.0-20220917152815-e925ee8d24a9 h1:PE7bjDUlwwSCUWvl5oYYk15j+KbMtf5bGnclJmYKkks=
 github.com/vkuznet/ecm/sync v0.0.0-20220917152815-e925ee8d24a9/go.mod h1:4/mLOol3ZILT/+8IIxQVkzB1G0H0lxUQmaoAUXx1+gE=
+github.com/vkuznet/ecm/sync v0.0.0-20220917181756-60c9c5c67894 h1:CpWi/kiaLVlivv5TTxKImgAP1gc7vZ2FfCa+C3fJIns=
+github.com/vkuznet/ecm/sync v0.0.0-20220917181756-60c9c5c67894/go.mod h1:F/v0pfmVbSxh0kFttFjjGXlIedjojdrzqQjf2g6N0AQ=
 github.com/vkuznet/ecm/utils v0.0.0-20220819114302-42b4f1198fad h1:3FyElh/DwiXNcFHjzB0Plmq0EAA2GjvGCgsy5Yb6DiY=
 github.com/vkuznet/ecm/utils v0.0.0-20220819114302-42b4f1198fad/go.mod h1:iyvlmwco1CU64R7S11vmVNSTGqj+GwsqFREF3EUqAR4=
 github.com/vkuznet/ecm/utils v0.0.0-20220917124759-19ece3c4d663 h1:0uzymtukqaAx/Hc9VGO9lCZ/Iu8es9U6Zox30v0VOXE=
@@ -758,10 +764,14 @@ github.com/vkuznet/ecm/utils v0.0.0-20220917141421-6d243eef124f h1:zteaQ5KYEpciS
 github.com/vkuznet/ecm/utils v0.0.0-20220917141421-6d243eef124f/go.mod h1:v2uyfaBpnPnPF8124HczKz8aAw+LD7Z3gpJEA4oQTNc=
 github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9 h1:jKuci+AK02sX/prZuzg8CoOB9jusWXSzyxBfM/wnDOQ=
 github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9/go.mod h1:v2uyfaBpnPnPF8124HczKz8aAw+LD7Z3gpJEA4oQTNc=
+github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894 h1:I/RBnIZQDYSbhfq+Jem9mbBCXds9sgSJ2MHV3IyH9YI=
+github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894/go.mod h1:v2uyfaBpnPnPF8124HczKz8aAw+LD7Z3gpJEA4oQTNc=
 github.com/vkuznet/ecm/vault v0.0.0-20220917141421-6d243eef124f h1:+NI5a2bpXfO+BdYiR3cRWo7wS9d23vOX25jPhsg99RA=
 github.com/vkuznet/ecm/vault v0.0.0-20220917141421-6d243eef124f/go.mod h1:bA3oQ+Yg21tjzoDG9dyIQfL9OrdszdLzMz+ITkQcRIk=
 github.com/vkuznet/ecm/vault v0.0.0-20220917152815-e925ee8d24a9 h1:AtJRtacAwTt5/wZ2Z55szf0IQUG7Zn/czj946kcgSZg=
 github.com/vkuznet/ecm/vault v0.0.0-20220917152815-e925ee8d24a9/go.mod h1:bA3oQ+Yg21tjzoDG9dyIQfL9OrdszdLzMz+ITkQcRIk=
+github.com/vkuznet/ecm/vault v0.0.0-20220917181756-60c9c5c67894 h1:eiG7Vz01JLoIOH/2dmhZwa4wnNRjbn7vXPjelJ2x2JQ=
+github.com/vkuznet/ecm/vault v0.0.0-20220917181756-60c9c5c67894/go.mod h1:GmfsLfC0OWd3JBcZjgekd1GXEFFsk+5ZSi/0mZf+N/g=
 github.com/willf/bitset v1.1.9/go.mod h1:RjeCKbqT1RxIR/KWY6phxZiaY1IyutSBfGjNPySAYV4=
 github.com/winfsp/cgofuse v1.5.1-0.20220421173602-ce7e5a65cac7/go.mod h1:uxjoF2jEYT3+x+vC2KJddEGdk/LU8pRowXmyVMHSV5I=
 github.com/xanzy/ssh-agent v0.3.1 h1:AmzO1SSWxw73zxFZPRwaMN1MohDw8UyHnmuxyceTEGo=
