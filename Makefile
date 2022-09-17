@@ -6,6 +6,7 @@ update:
 	cd utils; go get -u; cd -
 	cd kvdb; go get -u; cd -
 	cd crypt; go get -u; cd -
+	cd sync; go get -u; cd -
 	cd vault; go get -u; cd -
 	cd cli; go get -u; cd -
 	cd server; go get -u; cd -
@@ -24,6 +25,10 @@ build_kvdb:
 build_crypt:
 	echo "Building crypt package ..."
 	cd crypt; go mod tidy; go build; go test .; cd -
+
+build_sync:
+	echo "Building sync package ..."
+	cd sync; go mod tidy; go build; go test .; cd -
 
 build_vault:
 	echo "Building vault package ..."
