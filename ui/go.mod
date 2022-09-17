@@ -5,11 +5,11 @@ go 1.19
 require (
 	fyne.io/fyne/v2 v2.2.3
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
-	github.com/vkuznet/ecm/crypt v0.0.0-20220819114302-42b4f1198fad
-	github.com/vkuznet/ecm/sync v0.0.0-20220819114302-42b4f1198fad
-	github.com/vkuznet/ecm/utils v0.0.0-20220819114302-42b4f1198fad
-	github.com/vkuznet/ecm/vault v0.0.0-20220819114302-42b4f1198fad
-	golang.org/x/exp/errors v0.0.0-20220722155223-a9213eeb770e
+	github.com/vkuznet/ecm/crypt v0.0.0-20220917124759-19ece3c4d663
+	github.com/vkuznet/ecm/sync v0.0.0-20220917124759-19ece3c4d663
+	github.com/vkuznet/ecm/utils v0.0.0-20220917124759-19ece3c4d663
+	github.com/vkuznet/ecm/vault v0.0.0-20220917124759-19ece3c4d663
+	golang.org/x/exp/errors v0.0.0-20220916125017-b168a2c6b86b
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -46,44 +46,44 @@ require (
 	github.com/jzelinskie/whirlpool v0.0.0-20201016144138-0675e54bb004 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
-	github.com/lufia/plan9stats v0.0.0-20220517141722-cf486979b281 // indirect
+	github.com/lufia/plan9stats v0.0.0-20220913051719-115f729f3c8c // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/sftp v1.13.5 // indirect
-	github.com/pkg/xattr v0.4.8 // indirect
+	github.com/pkg/xattr v0.4.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
 	github.com/prometheus/client_golang v1.13.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
-	github.com/rclone/rclone v1.59.1 // indirect
+	github.com/rclone/rclone v1.59.2 // indirect
 	github.com/rfjakob/eme v1.1.2 // indirect
-	github.com/shirou/gopsutil/v3 v3.22.7 // indirect
+	github.com/shirou/gopsutil/v3 v3.22.8 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/srwiley/oksvg v0.0.0-20220731023508-a61f04f16b76 // indirect
+	github.com/srwiley/oksvg v0.0.0-20220904191616-8889df18e8f4 // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.5.0 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220819113721-25662adc8140 // indirect
-	github.com/xanzy/ssh-agent v0.3.1 // indirect
-	github.com/yuin/goldmark v1.4.13 // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220917124759-19ece3c4d663 // indirect
+	github.com/xanzy/ssh-agent v0.3.2 // indirect
+	github.com/yuin/goldmark v1.4.14 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
-	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
-	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539 // indirect
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
+	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
 	golang.org/x/mobile v0.0.0-20220722155234-aaac322e2105 // indirect
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
-	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7 // indirect
-	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
-	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
+	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
+	golang.org/x/sync v0.0.0-20220907140024-f12130a52804 // indirect
+	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
