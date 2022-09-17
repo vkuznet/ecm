@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -58,13 +59,32 @@ func Files(vdir string) ([]string, error) {
 	return out, nil
 }
 
+// helper function to create timestamp subdir in backdur
+func BackupTDir(bdir string) (string, error) {
+	tstamp := time.Now().Format(time.RFC3339)
+	tdir := strings.Split(tstamp, "T")[0]
+	bsubdir := strings.Replace(fmt.Sprintf("%s/%s", bdir, tdir), "//", "/", -1)
+	// create subdir if it does not exist
+	_, err := os.Stat(bsubdir)
+	if os.IsNotExist(err) {
+		err := os.Mkdir(bsubdir, os.ModePerm)
+		if err != nil {
+			return "", err
+		}
+	}
+	return bsubdir, nil
+}
+
 // BackupFile perform backup copy of given file in vault dir
 func BackupFile(vdir, fid, bdir string) error {
 	fname := fmt.Sprintf("%s", filepath.Join(vdir, fid))
-	if _, err := os.Stat(fname); err != nil {
-		// backup file name with existing cipher
-		tstamp := time.Now().Format(time.RFC3339)
-		bname := filepath.Join(bdir, fmt.Sprintf("%s-%s", fid, tstamp))
+	if _, err := os.Stat(fname); err == nil {
+		// backup file name
+		bsubdir, err := BackupTDir(bdir)
+		if err != nil {
+			return err
+		}
+		bname := filepath.Join(bsubdir, fid)
 		// make backup of our record
 		_, err = Copy(fname, bname)
 		return err
