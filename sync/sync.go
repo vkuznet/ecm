@@ -9,6 +9,9 @@ import (
 	"net/http"
 	"os"
 
+	// ecm packages
+	"github.com/vkuznet/ecm/utils"
+
 	// load backend modules for rclone
 	_ "github.com/rclone/rclone/backend/dropbox"
 	_ "github.com/rclone/rclone/backend/local"
@@ -27,11 +30,19 @@ import (
 // EcmSync provides a sync interface between source and destination
 // The code is based on https://rclone.org/ library
 func EcmSync(cpath, src, dst string) error {
+	// create backup of our destination area
+	err := utils.Backup(dst, 0) // non-verbose
+	if err != nil {
+		return err
+	}
+
+	// setup configuration for rclone
 	if cpath != "" {
 		config.SetConfigPath(cpath)
 	}
 	configfile.Install()
 
+	// perform sync call of rclone, see https://rclone.org/commands/rclone_sync/
 	args := []string{src, dst}
 	createEmptySrcDirs := true
 	fsrc, srcFileName, fdst := cmd.NewFsSrcFileDst(args)
@@ -91,6 +102,13 @@ type ServerRecord struct {
 
 // helper function to perform sync operation from HTTP end-point
 func SyncFromServer(rurl, dst string) error {
+	// create backup of our destination area
+	err := utils.Backup(dst, 0) // non-verbose
+	if err != nil {
+		return err
+	}
+
+	// perform HTTP call to our server and create new records at destination
 	client := &http.Client{}
 	resp, err := client.Get(rurl)
 	if err != nil {
