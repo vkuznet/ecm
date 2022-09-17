@@ -3,7 +3,10 @@ package sync
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 
 	// load backend modules for rclone
@@ -76,6 +79,42 @@ func EcmUpdateConfig(cpath, provider string) error {
 	_, err := config.UpdateRemote(context.Background(), provider, in, opts)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+// ServerRecord represents HTTP vault record
+type ServerRecord struct {
+	ID   string
+	Data []byte
+}
+
+// helper function to perform sync operation from HTTP end-point
+func SyncFromServer(rurl, dst string) error {
+	client := &http.Client{}
+	resp, err := client.Get(rurl)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	// records represent list of HTTP vault records
+	var records []ServerRecord
+	err = json.Unmarshal(data, &records)
+	if err != nil {
+		return err
+	}
+	for _, rec := range records {
+		fname := fmt.Sprintf("%s/%s", dst, rec.ID)
+		file, err := os.Create(fname)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		file.Write(rec.Data)
 	}
 	return nil
 }
