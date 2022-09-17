@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -287,42 +285,6 @@ func (r *SyncUI) authButton(provider string) *widget.Button {
 	return btn
 }
 
-// HTTPVaultRecord represents HTTP vault record
-type HTTPVaultRecord struct {
-	ID   string
-	Data []byte
-}
-
-// helper function to perform sync operation from HTTP end-point
-func syncHTTP(rurl, dst string) error {
-	client := &http.Client{}
-	resp, err := client.Get(rurl)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	// records represent list of HTTP vault records
-	var records []HTTPVaultRecord
-	err = json.Unmarshal(data, &records)
-	if err != nil {
-		return err
-	}
-	for _, rec := range records {
-		fname := fmt.Sprintf("%s/%s", dst, rec.ID)
-		file, err := os.Create(fname)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		file.Write(rec.Data)
-	}
-	return nil
-}
-
 // helper function to perform sync operation
 func syncFunc(app fyne.App, vdir, src string, local bool) {
 	dst := fmt.Sprintf("local:%s", vdir)
@@ -356,7 +318,7 @@ func syncFunc(app fyne.App, vdir, src string, local bool) {
 		}
 		rurl := fmt.Sprintf("%s/vault/%s/records?id=true", src, vname)
 		appLog("INFO", msg, nil)
-		err = syncHTTP(rurl, dst)
+		err = ecmsync.SyncFromServer(rurl, dst)
 	} else {
 		appLog("INFO", msg, nil)
 		err = ecmsync.EcmSync(fconf, src, dst)
