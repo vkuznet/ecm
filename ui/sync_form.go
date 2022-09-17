@@ -466,7 +466,8 @@ func (r *SyncUI) buildUI() *fyne.Container {
 
 	// cloud storage URI
 	cloudURI = binding.NewString()
-	cloudURI.Set("dropbox:ECM")
+	//     cloudURI.Set("dropbox:ECM")
+	cloudURI.Set(getPrefValue(r.preferences, "cloud", "dropbox:ECM"))
 	cloud := widget.NewEntryWithData(cloudURI)
 	cloud.OnChanged = r.onCloudPathChanged
 	//     dropbox := &widget.Entry{Text: "dropbox:ECM", OnSubmitted: r.onDropboxPathChanged}
@@ -485,7 +486,9 @@ func (r *SyncUI) buildUI() *fyne.Container {
 	localValue, err := localURI.Get()
 	// set localURI only we need to
 	if err != nil || localValue == "" {
-		localURI.Set(lpath)
+		// set localURI either from preference value or provided one
+		localURI.Set(getPrefValue(r.preferences, "local", lpath))
+		//         localURI.Set(lpath)
 	}
 	//local := &widget.Entry{Text: lpath, OnSubmitted: r.onLocalPathChanged}
 	local := widget.NewEntryWithData(localURI)

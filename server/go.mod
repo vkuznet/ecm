@@ -12,12 +12,12 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/ulule/limiter/v3 v3.10.0
-	github.com/vkuznet/ecm/crypt v0.0.0-20220819131744-ff4f867cf60c
-	github.com/vkuznet/ecm/kvdb v0.0.0-20220819131744-ff4f867cf60c
-	github.com/vkuznet/ecm/utils v0.0.0-20220819131744-ff4f867cf60c
-	github.com/vkuznet/ecm/vault v0.0.0-20220819131744-ff4f867cf60c
+	github.com/vkuznet/ecm/crypt v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/kvdb v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/vault v0.0.0-20220917152815-e925ee8d24a9
 	github.com/vkuznet/http-logging v0.0.0-20210729230351-fc50acd79868
-	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 	rsc.io/qr v0.2.0
 )
 
@@ -33,20 +33,20 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/flatbuffers v2.0.6+incompatible // indirect
+	github.com/google/flatbuffers v2.0.8+incompatible // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
-	github.com/klauspost/compress v1.15.9 // indirect
+	github.com/klauspost/compress v1.15.10 // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220819131744-ff4f867cf60c // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220917152815-e925ee8d24a9 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/exp/errors v0.0.0-20220722155223-a9213eeb770e // indirect
-	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539 // indirect
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
-	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
+	golang.org/x/exp/errors v0.0.0-20220916125017-b168a2c6b86b // indirect
+	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
+	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

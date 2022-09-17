@@ -8,6 +8,16 @@ import (
 	crypt "github.com/vkuznet/ecm/crypt"
 )
 
+// helper function to fetch attribute value from preference and assign default
+func getPrefValue(pref fyne.Preferences, key, value string) string {
+	prefValue := pref.String(key)
+	if prefValue != "" {
+		value = prefValue
+	}
+	return value
+}
+
+// helper function to create bold label widget
 func newBoldLabel(text string) *widget.Label {
 	return &widget.Label{Text: text, TextStyle: fyne.TextStyle{Bold: true}}
 }

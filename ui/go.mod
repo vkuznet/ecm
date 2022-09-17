@@ -5,10 +5,10 @@ go 1.19
 require (
 	fyne.io/fyne/v2 v2.2.3
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
-	github.com/vkuznet/ecm/crypt v0.0.0-20220917124759-19ece3c4d663
-	github.com/vkuznet/ecm/sync v0.0.0-20220917124759-19ece3c4d663
-	github.com/vkuznet/ecm/utils v0.0.0-20220917124759-19ece3c4d663
-	github.com/vkuznet/ecm/vault v0.0.0-20220917124759-19ece3c4d663
+	github.com/vkuznet/ecm/crypt v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/sync v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/utils v0.0.0-20220917152815-e925ee8d24a9
+	github.com/vkuznet/ecm/vault v0.0.0-20220917152815-e925ee8d24a9
 	golang.org/x/exp/errors v0.0.0-20220916125017-b168a2c6b86b
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -73,7 +73,7 @@ require (
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.5.0 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220917124759-19ece3c4d663 // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220917152815-e925ee8d24a9 // indirect
 	github.com/xanzy/ssh-agent v0.3.2 // indirect
 	github.com/yuin/goldmark v1.4.14 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
