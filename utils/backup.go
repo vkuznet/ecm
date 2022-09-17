@@ -58,6 +58,20 @@ func Files(vdir string) ([]string, error) {
 	return out, nil
 }
 
+// BackupFile perform backup copy of given file in vault dir
+func BackupFile(vdir, fid, bdir string) error {
+	fname := fmt.Sprintf("%s", filepath.Join(vdir, fid))
+	if _, err := os.Stat(fname); err != nil {
+		// backup file name with existing cipher
+		tstamp := time.Now().Format(time.RFC3339)
+		bname := filepath.Join(bdir, fmt.Sprintf("%s-%s", fid, tstamp))
+		// make backup of our record
+		_, err = Copy(fname, bname)
+		return err
+	}
+	return nil
+}
+
 // Backup backups vault directory
 func Backup(vdir string, verbose int) error {
 	// create backups vault area
@@ -76,17 +90,10 @@ func Backup(vdir string, verbose int) error {
 
 	for _, fid := range files {
 		// backup existing record if it exists
-		fname := fmt.Sprintf("%s", filepath.Join(vdir, fid))
-		if _, err := os.Stat(fname); err != nil {
-			// backup file name with existing cipher
-			tstamp := time.Now().Format(time.RFC3339)
-			bname := filepath.Join(bdir, fmt.Sprintf("%s-%s", fid, tstamp))
-			// make backup of our record
-			_, err = Copy(fname, bname)
-			if err != nil {
-				if verbose > 0 {
-					log.Println("unable to make backup for record", fid, " error ", err)
-				}
+		err = BackupFile(vdir, fid, bdir)
+		if err != nil {
+			if verbose > 0 {
+				log.Println("unable to make backup for record", fid, " error ", err)
 			}
 		}
 	}
