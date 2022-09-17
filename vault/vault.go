@@ -413,19 +413,10 @@ func (v *Vault) WriteRecord(rec VaultRecord) error {
 	}
 
 	// backup existing record if it exists
-	//     fname := fmt.Sprintf("%s.%s", filepath.Join(v.Directory, rec.ID), v.Cipher)
-	fname := fmt.Sprintf("%s", filepath.Join(v.Directory, rec.ID))
-	if _, err := os.Stat(fname); err != nil {
-		// backup file name with existing cipher
-		tstamp := time.Now().Format(time.RFC3339)
-		//         bname := filepath.Join(bdir, fmt.Sprintf("%s.%s-%s", rec.ID, v.Cipher, tstamp))
-		bname := filepath.Join(bdir, fmt.Sprintf("%s-%s", rec.ID, tstamp))
-		// make backup of our record
-		_, err = utils.Backup(fname, bname)
-		if err != nil {
-			if v.Verbose > 0 {
-				log.Println("unable to make backup for record", rec.ID, " error ", err)
-			}
+	err = utils.BackupFile(v.Directory, rec.ID, bdir)
+	if err != nil {
+		if v.Verbose > 0 {
+			log.Println("unable to make backup for record", rec.ID, " error ", err)
 		}
 	}
 
