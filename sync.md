@@ -7,6 +7,45 @@ But first we will discuss how to put your data to the cloud provider. There are 
 Since ECM stores its data in individual encrypted files you can safely copy it to your favorite cloud based provider, e.g. to Dropbox. For instance, you may install a Dropbox app and use your favorite copy approach to copy your files, e.g. using GUI or CLI interfaces.
 Once data is on a cloud we will show here how to sync it to your app, e.g. mobile phone.
 
+### Sync via SFTP
+The [rclone](https://rclone.org/) provides ability to sync data over sftp
+protocol. To enable it please locate your app `rclone.conf` file:
+```
+./ecm -prefs
+/some/path/it/will/print
+```
+and over there you'll find your `rclone.conf` file. Just add to it the
+following section:
+```
+[sftp]
+type = sftp
+host = YOUR_HOST_NAME
+user = YOUR_USER_NAME
+pubkey_file = /YOUR_PATH/.ssh/id_ecdsa.pub
+privatekey_file = /YOUR_PATH/.ssh/id_ecdsa
+md5sum_command = md5 -r
+sha1sum_command = none
+shell_type = unix
+```
+Please replace parts started with `YOUR` to your values. You will also need to
+generate proper `id_ecdsa` files as following:
+```
+ssh-keygen -t ECDSA
+```
+and place your ecdsa public file to your host. Fore more information you
+may search on google how to do it or look at this
+[manual](https://linuxhint.com/generate-ssh-keys-on-linux/).
+
+Then, test your ssh connection with your ecdsa key to ensure that you
+can access remote host.
+
+After these steps you may use your sftp method in ECM app. Just visit
+settings page and enter into your `local|http|sftp` field:
+```
+sftp:/path/to/ECM
+```
+Where `/path/to/ECM` is a path to your ECM area which will be used for sync'ing
+records to your app.
 
 
 ### Sync procedure using Local HTTP server
