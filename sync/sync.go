@@ -28,7 +28,7 @@ import (
 )
 
 // EcmSync provides a sync interface between source and destination
-// The code is based on https://rclone.org/ library
+// The code is based on https://rclone.org/ library and relies on sync module
 func EcmSync(cpath, src, dst string) error {
 	// create backup of our destination area
 	err := utils.Backup(dst, 0) // non-verbose
@@ -47,7 +47,10 @@ func EcmSync(cpath, src, dst string) error {
 	createEmptySrcDirs := true
 	fsrc, srcFileName, fdst := cmd.NewFsSrcFileDst(args)
 	if srcFileName == "" {
-		return sync.Sync(context.Background(), fdst, fsrc, createEmptySrcDirs)
+		// if we need to sync: it will wiped out files at destination if they don't exist at src
+		// return sync.Sync(context.Background(), fdst, fsrc, createEmptySrcDirs)
+		// if we need to copy: it will preserve files at destination
+		return sync.CopyDir(context.Background(), fdst, fsrc, createEmptySrcDirs)
 	}
 	return operations.CopyFile(context.Background(), fdst, fsrc, srcFileName, srcFileName)
 }
