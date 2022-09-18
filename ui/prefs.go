@@ -11,26 +11,33 @@ import (
 
 // various sizes of our application
 var windowSize, inputSize, rowSize fyne.Size
-var appKind, appTheme string
+var appKind, appTheme, fontSize string
 
 // var gitImage, docImage, webImage, lockImage, syncImage, passImage, listImage *canvas.Image
 // var rightArrowImage, leftArrowImage *canvas.Image
 var btnColor, greenColor, blueColor, redColor, authColor, grayColor color.NRGBA
 
 // helper function to set application preferences/settings
+// the app preference file has the following attributes
+// AppTheme: dark or light
+// FontSize: Normal
+// VaultCipher: aes
+// VaultDirectory: /path/.ecm/Primary
+// VaultName: Primary
+// cloud: dropbox:ECM
+// local: http://...
 func appSettings(app fyne.App) {
 	// set some values for our app preferences
 	pref := app.Preferences()
 
 	// default values
-	cipher := "aes"
-	vdir := fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME"))
-	fontSize := "Normal"
+	cipher := getPrefValue(pref, "VaultCipher", "aes")
+	vdir := getPrefValue(pref, "VaultDirectory", fmt.Sprintf("%s/.ecm/Primary", os.Getenv("HOME")))
+	if fontSize == "" {
+		fontSize = getPrefValue(pref, "FontSize", "Normal")
+	}
 	if appTheme == "" {
-		appTheme = pref.String("AppTheme")
-		if appTheme == "" {
-			appTheme = "dark"
-		}
+		appTheme = getPrefValue(pref, "AppTheme", "dark")
 	}
 
 	// color for our buttons
