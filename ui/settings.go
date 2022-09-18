@@ -1,6 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+
 	"fyne.io/fyne/v2"
 	container "fyne.io/fyne/v2/container"
 	theme "fyne.io/fyne/v2/theme"
@@ -140,4 +146,28 @@ func (r *Settings) buildUI() *container.Scroll {
 }
 func (r *Settings) tabItem() *container.TabItem {
 	return &container.TabItem{Text: "Settings", Icon: theme.SettingsIcon(), Content: r.buildUI()}
+}
+
+// helper function to print preferences area/files
+func printPrefs(a fyne.App) {
+	dir := a.Storage().RootURI().Path()
+	fmt.Println(dir)
+	if files, err := ioutil.ReadDir(dir); err == nil {
+		for _, finfo := range files {
+			if finfo.IsDir() {
+				continue
+			}
+			fmt.Println(finfo.Name())
+			fname := filepath.Join(dir, finfo.Name())
+			file, err := os.Open(fname)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer file.Close()
+			data, err := ioutil.ReadAll(file)
+			if err == nil {
+				fmt.Println(string(data))
+			}
+		}
+	}
 }

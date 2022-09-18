@@ -28,6 +28,8 @@ func main() {
 	flag.StringVar(&config, "config", "", "config file name")
 	var version bool
 	flag.BoolVar(&version, "version", false, "show version")
+	var prefs bool
+	flag.BoolVar(&prefs, "prefs", false, "show prefs")
 	flag.Parse()
 	if version {
 		fmt.Println(ecmInfo())
@@ -43,6 +45,10 @@ func main() {
 
 	// setup fyne app and main window
 	a := app.NewWithID("io.github.vkuznet")
+	if prefs {
+		printPrefs(a)
+		os.Exit(0)
+	}
 	a.Settings().SetTheme(theme.DarkTheme())
 	w := a.NewWindow("ECM")
 
