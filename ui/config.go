@@ -70,7 +70,7 @@ func ParseConfig(configFile string) error {
 	//     if Config.Verbose > 0 {
 	//         log.SetFlags(log.LstdFlags | log.Lshortfile)
 	//     }
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetFlags(log.Lshortfile)
 	if Config.LogFile != "" {
 		rl, err := rotatelogs.New(Config.LogFile + "-%Y%m%d")
 		if err == nil {
