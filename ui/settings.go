@@ -37,7 +37,7 @@ type Settings struct {
 	vaultCipher     *widget.Select
 	vaultDirectory  *widget.Entry
 	vaultAutologout *widget.Entry
-	//     fontSize       *widget.Select
+	fontSize        *widget.Select
 }
 
 func newUISettings(a fyne.App, w fyne.Window) *Settings {
@@ -54,6 +54,10 @@ func (r *Settings) onSyncURLChanged(v string) {
 	r.preferences.SetString("SyncURL", v)
 }
 func (r *Settings) onFontSizeChanged(v string) {
+	// TODO: find out how to change font size based on provided value, e.g. tiny
+	// for example it may require to get theme
+	// r.app.Settings().Theme()
+	// and adjust it accoringly
 	r.preferences.SetString("FontSize", v)
 }
 func (r *Settings) onPasswordLengthChanged(v string) {
@@ -80,11 +84,20 @@ func (r *Settings) onVaultCipherChanged(v string) {
 	r.app.Preferences().SetString("VaultCipher", v)
 }
 func (r *Settings) onVaultDirectoryChanged(v string) {
-	_vault.Directory = v
-	_vault.Records = nil
-	err := _vault.Read()
-	if err != nil {
-		appLog("ERROR", "fail to read vault record", err)
+	if _, err := os.Stat(_vault.Directory); !os.IsNotExist(err) {
+		_vault.Directory = v
+		_vault.Records = nil
+		err := _vault.Read()
+		if err != nil {
+			appLog("ERROR", "fail to read vault record", err)
+		} else {
+			msg := fmt.Sprintf("Read vault %s, found %d records", v, len(_vault.Records))
+			appLog("INFO", msg, nil)
+			// refresh ui records
+			if appRecords != nil {
+				appRecords.Refresh()
+			}
+		}
 	}
 	r.app.Preferences().SetString("VaultDirectory", v)
 }
@@ -94,9 +107,9 @@ func (r *Settings) buildUI() *container.Scroll {
 	pref := r.app.Preferences()
 	//     fontSize := pref.String("FontSize")
 	vaultCipher := pref.String("VaultCipher")
-	vaultDirectory := pref.String("VaultDirectory")
 
 	// set initial values of internal data
+	vaultDirectory := pref.String("VaultDirectory")
 	r.vaultDirectory = &widget.Entry{Text: vaultDirectory, OnSubmitted: r.onVaultDirectoryChanged}
 
 	// set autologout settings
@@ -106,14 +119,13 @@ func (r *Settings) buildUI() *container.Scroll {
 	r.vaultCipher = widget.NewSelect(crypt.SupportedCiphers, r.onVaultCipherChanged)
 	r.vaultCipher.SetSelected(vaultCipher)
 
-	//     fontSizes := []string{"Tiny", "Small", "Large", "Normal", "Huge"}
-	//     r.fontSize = widget.NewSelect(fontSizes, r.onFontSizeChanged)
-	//     r.fontSize.SetSelected(fontSize)
+	fontSizes := []string{"Tiny", "Small", "Large", "Normal", "Huge"}
+	r.fontSize = widget.NewSelect(fontSizes, r.onFontSizeChanged)
+	r.fontSize.SetSelected(fontSize)
 
 	themeNames := []string{"dark", "light"}
 	r.theme = widget.NewSelect(themeNames, r.onThemeChanged)
 	r.theme.SetSelected(appTheme)
-	//     r.theme.SetSelected("light")
 
 	// TODO: add selection of font sizes
 
@@ -124,8 +136,8 @@ func (r *Settings) buildUI() *container.Scroll {
 	uiContainer := container.NewVBox(
 		newBoldLabel("Theme"),
 		r.theme,
-		//         newBoldLabel("Font size"),
-		//         r.fontSize,
+		newBoldLabel("Font size"),
+		r.fontSize,
 	)
 
 	vaultContainer := container.NewVBox(
