@@ -38,7 +38,7 @@ type ServerConfiguration struct {
 	RootCA        string   `json:"rootCA"`       // RootCA file
 	CSRFKey       string   `json:"csrfKey"`      // CSRF 32-byte-long-auth-key
 	Production    bool     `json:"production"`   // production server or not
-	VaultArea     string   `json:"vault_area"`   // vault directory
+	VaultArea     string   `json:"vault_area"`   // vault area where we keep vaults
 	LimiterPeriod string   `json:"rate"`         // limiter rate value
 	LogFile       string   `json:"log_file"`     // server log file
 	LetsEncrypt   bool     `json:"lets_encrypt"` // start LetsEncrypt HTTPs server
