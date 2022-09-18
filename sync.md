@@ -1,11 +1,19 @@
 ### ECM sync approach
-The ECM model (based on encrypted files) allows the use of almost any syncing solutions. For instance, if you work on your laptop you may sync your vault to any cloud storage, e.g. Dropbox or PCloud, and ECM built-in usage of [rclone](https://rclone.org/) will allow you to sync files among your tools, e.g. sync files from Dropbox to your mobile phone. Said that, the ECM provides a web server which you may deploy at your premises, e.g. on LAN or WAN, on your laptop, router or remote VirtualMachine, on cloud provider infrastructure or any cluster. And, usage of HTTP protocol will allow you to use web server REST API to fetch or upload your encrypted content to your web server.
+The ECM model (based on encrypted files) allows the use of almost any syncing solutions.
+For instance, if you work on your laptop you may sync your vault records to/from any cloud storage, e.g. Dropbox or PCloud, and ECM built-in usage of [rclone](https://rclone.org/) will allow you to sync files among your tools or application, e.g. sync files from Dropbox to your mobile phone.
+The ECM sync support the following forms of syncing your data:
+- from cloud providers, e.g. Dropbox, pCloud, etc. (the support is limited to rclone capabilities);
+- from any local or remote host using either local copy or SFTP/SSH feature (part of rclone capabilities);
+- using local or remote HTTP server (part of ECM web server implementation).
+Below, we provide some details for specific use-cases. Please refer to individual section for more details.
 
 ### Sync procedure using cloud based provider
 There are many cloud based providers which you can use to store your data, e.g.Dropbox or pCloud. Luckily, ECM provides excellent support to sync your data from cloud based providers back to your app.
-But first we will discuss how to put your data to the cloud provider. There are many ways to do it, e.g. from simple copy procedure to more sophisticated `rsync` tools under UNIX based systems.
-Since ECM stores its data in individual encrypted files you can safely copy it to your favorite cloud based provider, e.g. to Dropbox. For instance, you may install a Dropbox app and use your favorite copy approach to copy your files, e.g. using GUI or CLI interfaces.
-Once data is on a cloud we will show here how to sync it to your app, e.g. mobile phone.
+There are two ways of syncing:
+- from your local storage to cloud provider, this task can be done using native tools such as (rsync, or cloud based app);
+- from your cloud provider to your app (e.g. to your mobile device). For this please use ECM app sync menu where you can use the following methods:
+  - `cloud:/path`, e.g. `dropbox:ECM`, feature allows you to authenticate with you cloud provider and sync your data from it
+  - `local:/path` feature allows you to use either local disk, HTTP server, or SFTP methods from remote node to your device, see sections below for more examples.
 
 ### Sync via SFTP
 The [rclone](https://rclone.org/) provides ability to sync data over sftp
@@ -47,7 +55,6 @@ sftp:/path/to/ECM
 Where `/path/to/ECM` is a path to your ECM area which will be used for sync'ing
 records to your app.
 
-
 ### Sync procedure using Local HTTP server
 To perform sync of your ECM application, e.g. mobile phone or native macOS app, with local HTTP server we need to start HTTP server elsewhere, e.g. on a localhost.
 This can be done as following:
@@ -59,7 +66,7 @@ This can be done as following:
 curl "http://localhost:5888/vault/Primary/records?id=true" | jq
 ```
 Now, switch to your ECM application and provide proper input to your local URI
-![ECM sync menu](pages/images/ecm-sync1.png), then adjust the sync URI to
-`http://localhost:5888` (the default host:port of your server) and click Sync,
+![ECM sync menu](pages/images/ecm-sync1.png),
+then adjust the sync URI to `http://localhost:5888` (the default host:port of your server) and click Sync,
 e.g.
 ![ECM sync](pages/images/ecm-sync2.png)
