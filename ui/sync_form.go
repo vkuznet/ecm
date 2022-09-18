@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -180,11 +179,11 @@ func syncConfig(app fyne.App) {
 	sconf := syncPath(app)
 	if _, err := os.Stat(sconf); errors.Is(err, os.ErrNotExist) {
 		msg := fmt.Sprintf("create %s", sconf)
-		log.Println("INFO: ", msg)
+		appLog("INFO", msg, nil)
 		err := ecmsync.EcmCreateConfig(sconf)
 		if err != nil {
 			msg := fmt.Sprintf("untable to create %s", sconf)
-			log.Println("ERROR: ", msg, " error: ", err)
+			appLog("INFO", msg, err)
 		}
 	}
 }
@@ -331,7 +330,7 @@ func syncFunc(app fyne.App, vdir, src string, local bool) {
 		syncStatus.Set(msg)
 		return
 	}
-	log.Println("records are synced")
+	appLog("INFO", "records are synced", nil)
 	// reset vault records
 	_vault.Records = nil
 	// read again vault records
@@ -387,17 +386,14 @@ func (r *SyncUI) isValidToken(provider string) bool {
 	sconf := syncPath(r.app)
 	file, err := os.Stat(sconf)
 	if err != nil {
-		log.Println("sync path", err)
 		appLog("ERROR", "unable to get file stats", err)
 		return false
 	}
 	mtime := file.ModTime().Unix()
-	//     log.Println("sconf", sconf, "mod time", mtime)
 
 	// read out sync config map
 	sdict, err := syncConfigMap(r.app)
 	if err != nil {
-		log.Println("unable to read sync config map", err)
 		appLog("ERROR", "unable to read sync config map", err)
 		return false
 	}
@@ -504,7 +500,7 @@ func (r *SyncUI) buildUI() *fyne.Container {
 
 	cloudLabel := widget.NewLabel("Cloud to vault")
 	cloudLabel.TextStyle.Bold = true
-	labelName := "local to vault"
+	labelName := "local|http|sftp to vault"
 	localLabel := widget.NewLabel(labelName)
 	localLabel.TextStyle.Bold = true
 
