@@ -343,7 +343,6 @@ func syncFunc(app fyne.App, vdir, src string, local bool) {
 		return
 	}
 	// refresh ui records
-	//     r.vaultRecords.Refresh()
 	if appRecords != nil {
 		appRecords.Refresh()
 	}
