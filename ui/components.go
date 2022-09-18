@@ -45,7 +45,7 @@ func appLog(level, msg string, err error) {
 	if appLogEntry == nil {
 		appLogEntry = binding.NewString()
 	}
-	log.Println(text)
+	log.Println(level, msg, "error:", err)
 
 	// get previous message and keep log growing to some size
 	var messages []string
