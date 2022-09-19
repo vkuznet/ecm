@@ -53,9 +53,10 @@ release_darwin: credentials
 
 build_android: credentials
 	# see additional instructions for Android: https://developer.android.com/studio/publish/app-signing
+	# https://stackoverflow.com/questions/25975320/create-android-keystory-private-key-command-line
 	ANDROID_HOME=/Users/vk/Library/Android/sdk \
 	ANDROID_NDK_HOME=/Users/vk/Library/Android/sdk/ndk/23.1.7779620 \
-	fyne release -os android -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -keyStore /Users/vk/AndroidKeystore
+	fyne release -os android -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -keyStore ecm.keystore -keyName ecm-key
 
 install:
 	go install
