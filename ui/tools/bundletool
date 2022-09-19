@@ -1,0 +1,2 @@
+#!/bin/bash
+java -jar /Users/vk/Work/Languages/Go/ecm/ui/bundletool-all-1.11.2.jar $@
