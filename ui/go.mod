@@ -5,10 +5,10 @@ go 1.19
 require (
 	fyne.io/fyne/v2 v2.2.3
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
-	github.com/vkuznet/ecm/crypt v0.0.0-20220917181756-60c9c5c67894
-	github.com/vkuznet/ecm/sync v0.0.0-20220917181756-60c9c5c67894
-	github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894
-	github.com/vkuznet/ecm/vault v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/crypt v0.0.0-20220918185754-de4b700a6237
+	github.com/vkuznet/ecm/sync v0.0.0-20220918185754-de4b700a6237
+	github.com/vkuznet/ecm/utils v0.0.0-20220918185754-de4b700a6237
+	github.com/vkuznet/ecm/vault v0.0.0-20220918185754-de4b700a6237
 	golang.org/x/exp/errors v0.0.0-20220916125017-b168a2c6b86b
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -73,7 +73,7 @@ require (
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.5.0 // indirect
-	github.com/vkuznet/ecm/storage v0.0.0-20220917181756-60c9c5c67894 // indirect
+	github.com/vkuznet/ecm/storage v0.0.0-20220918185754-de4b700a6237 // indirect
 	github.com/xanzy/ssh-agent v0.3.2 // indirect
 	github.com/yuin/goldmark v1.4.14 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
@@ -93,4 +93,4 @@ require (
 	honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2 // indirect
 )
 
-// replace fyne.io/fyne/v2 => /Users/vk/tmp/fyne
+replace fyne.io/fyne/v2 => /Users/vk/Work/Languages/Go/fyne
