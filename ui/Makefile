@@ -51,7 +51,10 @@ release_darwin: credentials
 	# we need to have signed certificate, so setup IOS_CERT environment and use it
 	fyne release -os darwin -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -profile developer -cert ${IOS_CERT} -category utilities
 
-build_android: credentials
+clean_aab:
+	rm -f ecm.aab
+
+build_android: credentials clean_aab
 	# see additional instructions for Android: https://developer.android.com/studio/publish/app-signing
 	# https://stackoverflow.com/questions/25975320/create-android-keystory-private-key-command-line
 	ANDROID_HOME=/Users/vk/Library/Android/sdk \
