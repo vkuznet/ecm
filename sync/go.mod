@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/rclone/rclone v1.59.2
-	github.com/vkuznet/ecm/utils v0.0.0-20220917181756-60c9c5c67894
+	github.com/vkuznet/ecm/utils v0.0.0-20220920150436-14c90da1146b
 )
 
 require (
@@ -46,15 +46,15 @@ require (
 	github.com/tklauser/numcpus v0.5.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
-	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
+	golang.org/x/crypto v0.0.0-20220919173607-35f4265a4bc0 // indirect
 	golang.org/x/exp/errors v0.0.0-20220916125017-b168a2c6b86b // indirect
-	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
+	golang.org/x/net v0.0.0-20220920152717-4a395b0a80a1 // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804 // indirect
-	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
-	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
+	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8 // indirect
+	golang.org/x/term v0.0.0-20220919170432-7a66f970e087 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
+	golang.org/x/time v0.0.0-20220920022843-2ce7c2934d45 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )

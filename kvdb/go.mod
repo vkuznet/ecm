@@ -18,7 +18,7 @@ require (
 	github.com/klauspost/compress v1.15.10 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
-	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
+	golang.org/x/net v0.0.0-20220920152717-4a395b0a80a1 // indirect
+	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
