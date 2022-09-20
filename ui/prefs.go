@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"os"
+	"strings"
 
 	fyne "fyne.io/fyne/v2"
 	theme "fyne.io/fyne/v2/theme"
@@ -53,9 +54,17 @@ func appSettings(app fyne.App) {
 	// input size represents size of the input field which is shorter by row size
 	inputSize = fyne.NewSize(340, 40)
 
+	// default vault name
+	vname := "Primary"
+
 	// make changes depending on application kind
 	if appKind == "desktop" {
 		windowSize = fyne.NewSize(900, 600)
+		// on desktop app we'll use name of vault dir
+		arr := strings.Split(vdir, "/")
+		if len(arr) > 1 {
+			vname = arr[len(arr)-1]
+		}
 	} else {
 		vdir = app.Storage().RootURI().Path()
 		windowSize = fyne.NewSize(300, 600)
@@ -66,6 +75,7 @@ func appSettings(app fyne.App) {
 	// save preferences
 	pref.SetString("VaultCipher", cipher)
 	pref.SetString("VaultDirectory", vdir)
+	pref.SetString("VaultName", vname)
 	pref.SetString("FontSize", fontSize)
 	pref.SetString("AppTheme", appTheme)
 	if autoThreshold != nil {
