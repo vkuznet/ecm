@@ -26,6 +26,9 @@ var syncStatus, localURI, cloudURI binding.String
 // helper function to get list of supported providers
 func supportedProvider(provider string) bool {
 	var providers []string
+	if appKind != "desktop" && supportedProviders == "" {
+		supportedProviders = "dropbox"
+	}
 	for _, p := range strings.Split(supportedProviders, ",") {
 		providers = append(providers, strings.ToLower(strings.Trim(p, " ")))
 	}
@@ -311,18 +314,18 @@ func syncFunc(app fyne.App, vdir, src string, local bool) {
 	var err error
 	if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
 		pref := app.Preferences()
-		vdir := pref.String("VaultDirectory")
-		arr := strings.Split(vdir, "/")
-		vname := "Primary"
-		if len(arr) > 1 {
-			vname = arr[len(arr)-1]
-		}
+		//         vdir := pref.String("VaultDirectory")
+		vname := pref.String("VaultName")
 		rurl := fmt.Sprintf("%s/vault/%s/records?id=true", src, vname)
 		appLog("INFO", msg, nil)
 		err = ecmsync.SyncFromServer(rurl, dst)
 	} else {
 		appLog("INFO", msg, nil)
-		err = ecmsync.EcmSync(fconf, src, dst)
+		mobile := true
+		if appKind == "desktop" {
+			mobile = false
+		}
+		err = ecmsync.EcmSync(fconf, src, dst, mobile)
 	}
 	if err != nil {
 		msg := fmt.Sprintf("unable to sync from %s to %s", src, dst)
