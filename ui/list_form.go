@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 
 	fyne "fyne.io/fyne/v2"
@@ -94,10 +96,23 @@ func (a *vaultRecords) rowContainer(rec vt.VaultRecord) *fyne.Container {
 			msg := fmt.Sprintf("unable to delete %s", rec.ID)
 			appLog("ERROR", msg, err)
 		}
+		// delete physical record on device
+		pref := a.app.Preferences()
+		vdir := pref.String("VaultDirectory")
+		fname := filepath.Join(vdir, rec.ID)
+		if utils.FileExist(fname) {
+			err := os.Remove(fname)
+			if err != nil {
+				msg := fmt.Sprintf("Unable to remove %s", fname)
+				appLog("ERROR", msg, err)
+			}
+		}
+		// list new records
 		log.Println("new number of records", len(_vault.Records))
 		for _, r := range _vault.Records {
 			fmt.Println("rec", r.ID)
 		}
+		// refresh app widget
 		a.Refresh()
 	}
 	btnContainer := container.NewGridWithColumns(3,
