@@ -140,8 +140,8 @@ func MacAddress() uint64 {
 	return uint64(0)
 }
 
-// FileExists checks if file exists
-func fileExists(path string) bool {
+// FileExist checks if file exists
+func FileExist(path string) bool {
 	_, err := os.Stat(path)
 	return !errors.Is(err, os.ErrNotExist)
 }
