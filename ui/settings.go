@@ -36,6 +36,7 @@ type Settings struct {
 	theme           *widget.Select
 	vaultCipher     *widget.Select
 	vaultDirectory  *widget.Entry
+	vaultName       *widget.Entry
 	vaultAutologout *widget.Entry
 	fontSize        *widget.Select
 }
@@ -101,6 +102,9 @@ func (r *Settings) onVaultDirectoryChanged(v string) {
 	}
 	r.app.Preferences().SetString("VaultDirectory", v)
 }
+func (r *Settings) onVaultNameChanged(v string) {
+	r.app.Preferences().SetString("VaultName", v)
+}
 
 func (r *Settings) buildUI() *container.Scroll {
 
@@ -111,6 +115,9 @@ func (r *Settings) buildUI() *container.Scroll {
 	// set initial values of internal data
 	vaultDirectory := pref.String("VaultDirectory")
 	r.vaultDirectory = &widget.Entry{Text: vaultDirectory, OnSubmitted: r.onVaultDirectoryChanged}
+
+	vaultName := pref.String("VaultName")
+	r.vaultName = &widget.Entry{Text: vaultName, OnSubmitted: r.onVaultNameChanged}
 
 	// set autologout settings
 	r.vaultAutologout = widget.NewEntryWithData(autoThreshold)
@@ -147,6 +154,8 @@ func (r *Settings) buildUI() *container.Scroll {
 		r.vaultCipher,
 		newBoldLabel("Vault directory"),
 		r.vaultDirectory,
+		newBoldLabel("Vault name"),
+		r.vaultName,
 	)
 
 	return container.NewScroll(container.NewVBox(
