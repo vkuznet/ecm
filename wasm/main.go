@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"regexp"
+	"sort"
 	"strings"
 	"syscall/js"
 	"time"
@@ -350,8 +351,18 @@ func updateRecords(url, cipher, passphrase, pattern, pageUrl string, extention b
 	docRecords.Call("appendChild", ul)
 	count := 0
 	nrec := 5 // total number of records to show
+	var mkeys []string
+	for k, _ := range recordsManager.Map {
+		mkeys = append(mkeys, k)
+	}
+	sort.Strings(mkeys)
 
-	for key, lrec := range recordsManager.Map {
+	//         for key, lrec := range recordsManager.Map {
+	for _, key := range mkeys {
+		lrec, ok := recordsManager.Map[key]
+		if !ok {
+			continue
+		}
 		count += 1
 		// skip records which does not match page url
 		if pageUrl != "" && pattern == "" {
@@ -479,7 +490,11 @@ func updateRecords(url, cipher, passphrase, pattern, pageUrl string, extention b
 	}
 	if count > nrec {
 		moreDiv := document.Call("createElement", "div")
-		moreDiv.Set("innerHTML", fmt.Sprintf("Total vault records: %d<br>URL %s<br>Pattern: %s", count, pageUrl, pattern))
+		if extention {
+			moreDiv.Set("innerHTML", fmt.Sprintf("Total vault records: %d<br>URL %s<br>Pattern: %s", count, pageUrl, pattern))
+		} else {
+			moreDiv.Set("innerHTML", fmt.Sprintf("<b>Total vault records: %d</b><br>", count))
+		}
 		docRecords.Call("append", moreDiv)
 	}
 	// if we do not have any records matched above we'll use first nrec ones
