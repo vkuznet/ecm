@@ -24,6 +24,11 @@ make build_ios
 ```
 to build your iOS build.
 
+Notes:
+changed /Users/vk/tmp/fyne-2.2.3/cmd/fyne/internal/mobile/build_iosapp.go to
+add CODE_SIGNING_ALLOWED=NO to xcrun command, see
+https://developer.apple.com/forums/thread/69950
+
 #### Additional notes
   - on macOS we write sync config to `$HOME/Library/Preferences/fyne/io.github.vkuznet`
 - on iOS we need to run Xcode
@@ -45,6 +50,8 @@ to build your iOS build.
        - click on top name of your project which will lead you to its settings
        - in settings you'll find that you may use your development AppleID team
          to codesign the project
+
+https://ioscodesigning.io/creating-code-signing-files/
 
 #### A note about maxOS build
 The process involves the following steps:
