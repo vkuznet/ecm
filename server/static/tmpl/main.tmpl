@@ -14,11 +14,18 @@
             </div>
         </div>
         <div class="is-col is-60">
-            <form>
-                <div id="search" class="form-item">
-                    <input type="text" class="is-search" placeholder="Search">
+<!--            <form action="/search" method="post" name="search" id="search" class="search_form">-->
+<!--            <form action="javascript:ClearFields();asyncRecords()">-->
+                <div id="search-form" class="form-item">
+                    <input type="password" id="password" class="hide" value="test">
+                    <input type="text" id="pageUrl" class="hide" value="">
+                    <input type="text" id="server" value="http://localhost:5888" class="hide">
+                    <input type="text" id="vault" value="Primary" class="hide">
+                    <input type="text" id="cipher" value="aes" class="hide">
+                    <input type="text" id="search" class="is-search" placeholder="Search">
+                    <a href="javascript:ClearFields();showRecords()" class="button is-secondary is-small button-primary">Search</a>
                 </div>
-            </form>
+<!--            </form>-->
         </div>
         <div class="is-col is-15">
         </div>
@@ -130,6 +137,8 @@
                             <div>
                                 Records/page: <input type="text" value="10">
                                 Cipher: <input type="text" value="AES">
+                                PageURL: <input type="text" id="ecm-pageUrl">
+                                Server <input type="text" id="ecm-server" value="http://localhost:5888">
                                 <hr/>
                                 <h3>New password</h3>
                                 Password size: <input id="password-size" type="text" value="16" class="is-small" />
@@ -344,4 +353,11 @@ function Action() {
         ShowPlaceHolder("new-card")
     }
 }
+function saveSettings() {
+    // TODO: I need to implement:
+    // - grap input fields from settings section and vault sections
+    // - set input fields in search section
+    // e.g. take ecm-server and set server in search section
+}
 </script>
+
