@@ -75,8 +75,10 @@ func showRecords() ([]byte, error) {
 	vault, cipher, password := credentials()
 	url := fmt.Sprintf("/vault/%s/records", vault)
 	extention := false
-	pattern := ""
-	pageUrl := ""
+	pattern := document.Call("getElementById", "search").Get("value").String()
+	pageUrl := document.Call("getElementById", "pageUrl").Get("value").String()
+	//     pattern := ""
+	//     pageUrl := ""
 	rids, err := updateRecords(url, cipher, password, pattern, pageUrl, extention)
 	if err != nil {
 		return []byte{}, err
