@@ -39,11 +39,14 @@ build_arm64: credentials
 build_windows: credentials
 	go clean; rm -rf pkg ecm; GOARCH=amd64 GOOS=windows go build -o ecm ${flags}
 
+build_app: credentials
+	fyne build -os darwin -verbose
+
 build_ios: credentials
 	# for macOS provisioning file see instructions here:
 	# https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices
 	# we need to have signed certificate, so setup IOS_CERT environment and use it
-	fyne release -os ios -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -profile developer -cert ${IOS_CERT}
+	fyne release -os iossimulator -verbose -appID io.github.vkuznet -appVersion 1.0 -appBuild 1 -profile developer -cert ${IOS_CERT}
 
 release_darwin: credentials
 	# for macOS provisioning file see instructions here:
