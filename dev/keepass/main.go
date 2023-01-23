@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/user"
 	"regexp"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -16,6 +18,9 @@ import (
 	gokeepasslib "github.com/tobischo/gokeepasslib/v3"
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+// DBRecords defines map of DB records
+type DBRecords map[int]gokeepasslib.Entry
 
 // main function
 func main() {
@@ -27,6 +32,15 @@ func main() {
 	flag.StringVar(&kfile, "kfile", "", "key file name")
 	var interval int
 	flag.IntVar(&interval, "interval", 30, "timeout interval in seconds")
+	flag.Usage = func() {
+		fmt.Println("Usage: kpass [options]")
+		flag.PrintDefaults()
+		fmt.Println("Commands within DB")
+		fmt.Println("cp <ID> <attribute>   # to copy record ID attribute to cpilboard")
+		fmt.Println("rm <ID>               # to remove record ID from database")
+		fmt.Println("add <login|note|card> # to add specific record type")
+		fmt.Println("timeout <int>         # set timeout interval in seconds")
+	}
 	flag.Parse()
 
 	file, err := os.Open(kpath)
@@ -50,7 +64,7 @@ func main() {
 	time0 := time.Now()
 	timeout := time.Duration(interval) * time.Second
 
-	searchMsg := "\nsearch for: "
+	searchMsg := "\ncommand (search by default): "
 	fmt.Printf(searchMsg)
 
 	// we'll read out std input via goroutine
@@ -58,11 +72,48 @@ func main() {
 	go readInputChannel(ch)
 
 	// read stdin and search for DB record
+	patCopy, err := regexp.Compile(`cp [0-9]+`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	patRemove, err := regexp.Compile(`rm [0-9]+`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	patAdd, err := regexp.Compile(`add [login|card|note]`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	patTimeout, err := regexp.Compile(`timeout [0-9]+`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	dbRecords, err := readDB(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// main loop
 	for {
 		select {
 		case input := <-ch:
 			input = strings.Replace(input, "\n", "", -1)
-			search(db, input)
+			if matched := patCopy.MatchString(input); matched {
+				clipboardCopy(input, dbRecords)
+			} else if matched := patRemove.MatchString(input); matched {
+				removeRecord(input, dbRecords)
+			} else if matched := patAdd.MatchString(input); matched {
+				addRecord(input, dbRecords)
+			} else if matched := patTimeout.MatchString(input); matched {
+				vvv := strings.Trim(strings.Replace(input, "timeout ", "", -1), " ")
+				if val, err := strconv.Atoi(vvv); err == nil {
+					timeout = time.Duration(val)
+					fmt.Printf("New DB timeout is set to %d seconds", timeout)
+				}
+				addRecord(input, dbRecords)
+			} else {
+				search(input, dbRecords)
+			}
 			time0 = time.Now()
 			fmt.Printf(searchMsg)
 		default:
@@ -73,6 +124,50 @@ func main() {
 			time.Sleep(time.Duration(100) * time.Millisecond) // wait for new input
 		}
 	}
+}
+
+// helper function to copy to clipboard db record attribute
+func clipboardCopy(input string, records *DBRecords) {
+	// the input here is cp <ID> attribute
+	arr := strings.Split(input, " ")
+	if len(arr) < 2 {
+		log.Printf("WARNING: unable to parse command '%s'", input)
+		return
+	}
+	dbRecords := *records
+	rid, err := strconv.Atoi(arr[1])
+	if err != nil {
+		log.Println("Unable to get record ID", err)
+		return
+	}
+	attr := "password"
+	if len(arr) == 3 {
+		attr = strings.ToLower(arr[2])
+	}
+	var val string
+	if entry, ok := dbRecords[rid]; ok {
+		if attr == "password" {
+			val = entry.GetPassword()
+		} else if attr == "title" {
+			val = getValue(entry, "Title")
+		} else if attr == "username" {
+			val = getValue(entry, "UserName")
+		} else if attr == "url" {
+			val = getValue(entry, "URL")
+		} else if attr == "notes" {
+			val = getValue(entry, "Notes")
+		}
+		if val != "" {
+			if err := clipboard.WriteAll(string(val)); err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("%s copied to clipboard\n", attr)
+		}
+	}
+}
+func removeRecord(input string, dbRecords *DBRecords) {
+}
+func addRecord(input string, dbRecords *DBRecords) {
 }
 
 // helper function to get value of kdbx record
@@ -104,42 +199,48 @@ func readInput() (string, error) {
 	return val, err
 }
 
-// helper function to search for given input
-func search(db *gokeepasslib.Database, input string) {
-	rsearch, _ := regexp.Compile("(?i)" + input)
-	found := make(map[string]string)
+// helper function to read db records
+func readDB(db *gokeepasslib.Database) (*DBRecords, error) {
+	records := make(DBRecords)
 
 	for _, top := range db.Content.Root.Groups {
 		if top.Name == "NewDatabase" {
-			fmt.Println("wrong password or empty database")
-			os.Exit(3)
+			msg := "wrong password or empty database"
+			return nil, errors.New(msg)
 		}
 		for _, groups := range top.Groups {
+			rid := 0
 			for _, entry := range groups.Entries {
-				entry_path := fmt.Sprintf("%s/%s/%s", top.Name, groups.Name, entry.GetTitle())
-				if strings.Compare(entry.GetTitle(), input) == 0 {
-					printRecord(entry)
-					found[entry_path] = entry.GetPassword()
-				} else if rsearch.MatchString(entry_path) {
-					printRecord(entry)
-					found[entry_path] = entry.GetPassword()
-				}
+				records[rid] = entry
+				rid += 1
 			}
 		}
 	}
+	return &records, nil
+}
 
-	if len(found) == 1 {
-		for key, found_pw := range found {
-			if err := clipboard.WriteAll(string(found_pw)); err != nil {
-				log.Fatal(err)
+// helper function to search for given input
+func search(input string, records *DBRecords) {
+	keys := []string{"UserName", "URL", "Notes"}
+	pat := regexp.MustCompile(input)
+	for rid, entry := range *records {
+		if input == entry.GetTitle() || input == entry.Tags {
+			printRecord(rid, entry)
+		} else {
+			for _, k := range keys {
+				val := getValue(entry, k)
+				if pat.MatchString(val) {
+					printRecord(rid, entry)
+				}
 			}
-			fmt.Printf("%s password copied to clipboard\n", key)
 		}
 	}
 }
 
 // helper function to print record
-func printRecord(entry gokeepasslib.Entry) {
+func printRecord(pid int, entry gokeepasslib.Entry) {
+	fmt.Printf("---\n")
+	fmt.Printf("Record   %d\n", pid)
 	fmt.Printf("Title    %s\n", getValue(entry, "Title"))
 	fmt.Printf("UserName %s\n", getValue(entry, "UserName"))
 	fmt.Printf("URL      %s\n", getValue(entry, "URL"))
