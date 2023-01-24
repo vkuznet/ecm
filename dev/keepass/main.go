@@ -26,13 +26,26 @@ type DBRecords map[int]gokeepasslib.Entry
 // Record represent record map
 type Record map[string]string
 
+// keep track if user requested password field
+var inputPwd bool
+
 // helper function to print commands usage
-func cmdUsage() {
+func cmdUsage(dbPath string) {
+	if dbPath != "" {
+		info, err := os.Stat(dbPath)
+		if err == nil {
+			fmt.Println()
+			fmt.Println("Database            : ", dbPath)
+			fmt.Println("Size                : ", sizeFormat(info.Size()))
+			fmt.Println("Modification time   : ", info.ModTime())
+			fmt.Println()
+		}
+	}
 	fmt.Println("Commands within DB")
-	fmt.Println("cp <ID> <attribute>   # to copy record ID attribute to cpilboard")
-	fmt.Println("rm <ID>               # to remove record ID from database")
-	fmt.Println("add <login|note|card> # to add specific record type")
-	fmt.Println("timeout <int>         # set timeout interval in seconds")
+	fmt.Println("cp <ID> <attribute> # to copy record ID attribute to cpilboard")
+	fmt.Println("rm <ID>             # to remove record ID from database")
+	fmt.Println("add <key>           # to add specific record key")
+	fmt.Println("timeout <int>       # set timeout interval in seconds")
 }
 
 // main function
@@ -48,7 +61,7 @@ func main() {
 	flag.Usage = func() {
 		fmt.Println("Usage: kpass [options]")
 		flag.PrintDefaults()
-		cmdUsage()
+		cmdUsage("")
 	}
 	flag.Parse()
 
@@ -58,7 +71,7 @@ func main() {
 	}
 
 	db := gokeepasslib.NewDatabase()
-	pwd := readPassword("Database Password: ")
+	pwd := readPassword("db password: ")
 	if kfile != "" {
 		db.Credentials, err = gokeepasslib.NewPasswordAndKeyCredentials(pwd, kfile)
 		if err != nil {
@@ -72,16 +85,27 @@ func main() {
 
 	time0 := time.Now()
 	timeout := time.Duration(interval) * time.Second
-	cmdUsage()
+	dbRecords, err := readDB(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	inputMsg := "\ncommand (search by default): "
+	// proceed with db records
+	cmdUsage(kpath)
+	var names []string
+	for _, g := range db.Content.Root.Groups {
+		names = append(names, g.Name)
+	}
+	fmt.Printf("Welcome to %s", strings.Join(names, ","))
+
+	inputMsg := "\ndb # "
 	inputMsgOrig := inputMsg
-	inputPwd := false
+	inputPwd = false
 	fmt.Printf(inputMsg)
 
 	// we'll read out std input via goroutine
 	ch := make(chan string)
-	go readInputChannel(&inputPwd, ch)
+	go readInputChannel(ch)
 
 	// read stdin and search for DB record
 	patCopy, err := regexp.Compile(`cp [0-9]+`)
@@ -101,10 +125,6 @@ func main() {
 	//         log.Fatal(err)
 	//     }
 	patTimeout, err := regexp.Compile(`timeout [0-9]+`)
-	if err != nil {
-		log.Fatal(err)
-	}
-	dbRecords, err := readDB(db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -132,6 +152,8 @@ func main() {
 				rec = nil
 				collectKey = ""
 				inputMsg = inputMsgOrig
+			} else if input == "exit" || input == "quit" {
+				os.Exit(0)
 			} else if strings.HasPrefix(input, "WARNING") {
 				inputPwd = false
 				collectKey = ""
@@ -155,12 +177,12 @@ func main() {
 					rec = make(map[string]string)
 				}
 				collectKey = strings.Replace(input, "add ", "", -1)
-				inputMsg = fmt.Sprintf("%s value: ", collectKey)
 				if strings.ToLower(collectKey) == "password" {
 					inputPwd = true
 				} else {
 					inputPwd = false
 				}
+				inputMsg = fmt.Sprintf("%s value: ", collectKey)
 			} else if matched := patTimeout.MatchString(input); matched {
 				inputPwd = false
 				vvv := strings.Trim(strings.Replace(input, "timeout ", "", -1), " ")
@@ -251,13 +273,8 @@ func saveRecord(kind string, rec Record, db *gokeepasslib.Database) {
 	for key, val := range rec {
 		attr := strings.ToLower(key)
 		if attr == "password" {
-			//             val = readPassword("password value: ")
 			entry.Values = append(entry.Values, mkProtectedValue("Password", val))
 		} else {
-			//             val, err = readUserInput(fmt.Sprintf("%s value: ", attr))
-			//             if err != nil {
-			//                 log.Fatal(err)
-			//             }
 			entry.Values = append(entry.Values, mkValue(key, val))
 		}
 	}
@@ -306,12 +323,12 @@ func getValue(entry gokeepasslib.Entry, key string) string {
 
 // helper function to read stdin and send it over provided channel
 // https://stackoverflow.com/questions/50788805/how-to-read-from-stdin-with-goroutines-in-golang
-func readInputChannel(pwd *bool, ch chan<- string) {
+func readInputChannel(ch chan<- string) {
 	var val string
 	var err error
 	for {
 		//         fmt.Print(*msg)
-		if *pwd == true {
+		if inputPwd == true {
 			val = readPassword("")
 			// read password again to match it
 			if v := readPassword("repeat password: "); v != val {
@@ -401,27 +418,16 @@ func readPassword(msg string) string {
 	return strings.TrimSpace(password)
 }
 
-// ReadInput read user input from stdout
-// https://gosamples.dev/read-user-input/
-func readUserInput(msg string) (string, error) {
-	fmt.Print(msg)
-	reader := bufio.NewReader(os.Stdin)
-	line, err := reader.ReadString('\n')
-	if err != nil {
-		return "", err
-	}
-	line = strings.Replace(line, "\n", "", -1)
-	return line, err
-}
-
-/*
-func readUserInput(msg string) (string, error) {
-		scanner := bufio.NewScanner(os.Stdin)
-		scanner.Scan()
-		err := scanner.Err()
-		if err != nil {
-			return "", err
+// helper function to convert size into human readable form
+func sizeFormat(val int64) string {
+	size := float64(val)
+	base := 1000. // CMS convert is to use power of 10
+	xlist := []string{"", "KB", "MB", "GB", "TB", "PB"}
+	for _, vvv := range xlist {
+		if size < base {
+			return fmt.Sprintf("%v (%3.1f%s)", val, size, vvv)
 		}
-		return scanner.Text(), nil
+		size = size / base
+	}
+	return fmt.Sprintf("%v (%3.1f%s)", val, size, xlist[len(xlist)])
 }
-*/
