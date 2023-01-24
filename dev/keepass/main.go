@@ -16,11 +16,24 @@ import (
 
 	"github.com/atotto/clipboard"
 	gokeepasslib "github.com/tobischo/gokeepasslib/v3"
+	wrappers "github.com/tobischo/gokeepasslib/v3/wrappers"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
 // DBRecords defines map of DB records
 type DBRecords map[int]gokeepasslib.Entry
+
+// Record represent record map
+type Record map[string]string
+
+// helper function to print commands usage
+func cmdUsage() {
+	fmt.Println("Commands within DB")
+	fmt.Println("cp <ID> <attribute>   # to copy record ID attribute to cpilboard")
+	fmt.Println("rm <ID>               # to remove record ID from database")
+	fmt.Println("add <login|note|card> # to add specific record type")
+	fmt.Println("timeout <int>         # set timeout interval in seconds")
+}
 
 // main function
 func main() {
@@ -35,11 +48,7 @@ func main() {
 	flag.Usage = func() {
 		fmt.Println("Usage: kpass [options]")
 		flag.PrintDefaults()
-		fmt.Println("Commands within DB")
-		fmt.Println("cp <ID> <attribute>   # to copy record ID attribute to cpilboard")
-		fmt.Println("rm <ID>               # to remove record ID from database")
-		fmt.Println("add <login|note|card> # to add specific record type")
-		fmt.Println("timeout <int>         # set timeout interval in seconds")
+		cmdUsage()
 	}
 	flag.Parse()
 
@@ -49,7 +58,7 @@ func main() {
 	}
 
 	db := gokeepasslib.NewDatabase()
-	pwd := getpass("Database Password: ")
+	pwd := readPassword("Database Password: ")
 	if kfile != "" {
 		db.Credentials, err = gokeepasslib.NewPasswordAndKeyCredentials(pwd, kfile)
 		if err != nil {
@@ -63,13 +72,16 @@ func main() {
 
 	time0 := time.Now()
 	timeout := time.Duration(interval) * time.Second
+	cmdUsage()
 
-	searchMsg := "\ncommand (search by default): "
-	fmt.Printf(searchMsg)
+	inputMsg := "\ncommand (search by default): "
+	inputMsgOrig := inputMsg
+	inputPwd := false
+	fmt.Printf(inputMsg)
 
 	// we'll read out std input via goroutine
 	ch := make(chan string)
-	go readInputChannel(ch)
+	go readInputChannel(&inputPwd, ch)
 
 	// read stdin and search for DB record
 	patCopy, err := regexp.Compile(`cp [0-9]+`)
@@ -80,10 +92,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	patAdd, err := regexp.Compile(`add [login|card|note]`)
+	patAdd, err := regexp.Compile(`add [a-zA-Z]+`)
 	if err != nil {
 		log.Fatal(err)
 	}
+	//     patSave, err := regexp.Compile(`save record`)
+	//     if err != nil {
+	//         log.Fatal(err)
+	//     }
 	patTimeout, err := regexp.Compile(`timeout [0-9]+`)
 	if err != nil {
 		log.Fatal(err)
@@ -94,28 +110,72 @@ func main() {
 	}
 
 	// main loop
+	var rec Record
+	rec = nil
+	collectKey := ""
 	for {
 		select {
 		case input := <-ch:
 			input = strings.Replace(input, "\n", "", -1)
-			if matched := patCopy.MatchString(input); matched {
+			if input == "save record" {
+				inputPwd = false
+				kind := "Record"
+				if v, ok := rec["Login"]; ok {
+					rec["UserName"] = v
+					kind = "Login"
+				} else if _, ok := rec["Card"]; ok {
+					kind = "Card"
+				} else if _, ok := rec["Note"]; ok {
+					kind = "Note"
+				}
+				saveRecord(kind, rec, db)
+				rec = nil
+				collectKey = ""
+				inputMsg = inputMsgOrig
+			} else if strings.HasPrefix(input, "WARNING") {
+				inputPwd = false
+				collectKey = ""
+				fmt.Println(input)
+				inputMsg = inputMsgOrig
+			} else if collectKey != "" {
+				inputPwd = false
+				collectKey = ""
+				rec[collectKey] = input
+				inputMsg = inputMsgOrig
+			} else if matched := patCopy.MatchString(input); matched {
+				inputPwd = false
 				clipboardCopy(input, dbRecords)
+				inputMsg = inputMsgOrig
 			} else if matched := patRemove.MatchString(input); matched {
+				inputPwd = false
 				removeRecord(input, dbRecords)
+				inputMsg = inputMsgOrig
 			} else if matched := patAdd.MatchString(input); matched {
-				addRecord(input, dbRecords)
+				if rec == nil {
+					rec = make(map[string]string)
+				}
+				collectKey = strings.Replace(input, "add ", "", -1)
+				inputMsg = fmt.Sprintf("%s value: ", collectKey)
+				if strings.ToLower(collectKey) == "password" {
+					inputPwd = true
+				} else {
+					inputPwd = false
+				}
 			} else if matched := patTimeout.MatchString(input); matched {
+				inputPwd = false
 				vvv := strings.Trim(strings.Replace(input, "timeout ", "", -1), " ")
 				if val, err := strconv.Atoi(vvv); err == nil {
 					timeout = time.Duration(val)
 					fmt.Printf("New DB timeout is set to %d seconds", timeout)
 				}
-				addRecord(input, dbRecords)
+				inputMsg = inputMsgOrig
 			} else {
+				inputPwd = false
 				search(input, dbRecords)
+				inputMsg = inputMsgOrig
 			}
 			time0 = time.Now()
-			fmt.Printf(searchMsg)
+			fmt.Printf(inputMsg)
 		default:
 			if time.Since(time0) > timeout {
 				fmt.Printf("\nExit after %s of inactivity", time.Since(time0))
@@ -165,9 +225,73 @@ func clipboardCopy(input string, records *DBRecords) {
 		}
 	}
 }
+
+// helper function to remove record from the database
 func removeRecord(input string, dbRecords *DBRecords) {
 }
-func addRecord(input string, dbRecords *DBRecords) {
+
+// helper function to make entry db value
+func mkValue(key string, value string) gokeepasslib.ValueData {
+	return gokeepasslib.ValueData{Key: key, Value: gokeepasslib.V{Content: value}}
+}
+
+// helper function to make protected entry db value
+func mkProtectedValue(key string, value string) gokeepasslib.ValueData {
+	return gokeepasslib.ValueData{
+		Key:   key,
+		Value: gokeepasslib.V{Content: value, Protected: wrappers.NewBoolWrapper(true)},
+	}
+}
+
+// helper function to save record to the database
+func saveRecord(kind string, rec Record, db *gokeepasslib.Database) {
+	group := gokeepasslib.NewGroup()
+	group.Name = kind
+	entry := gokeepasslib.NewEntry()
+	for key, val := range rec {
+		attr := strings.ToLower(key)
+		if attr == "password" {
+			//             val = readPassword("password value: ")
+			entry.Values = append(entry.Values, mkProtectedValue("Password", val))
+		} else {
+			//             val, err = readUserInput(fmt.Sprintf("%s value: ", attr))
+			//             if err != nil {
+			//                 log.Fatal(err)
+			//             }
+			entry.Values = append(entry.Values, mkValue(key, val))
+		}
+	}
+	group.Entries = append(group.Entries, entry)
+	log.Printf("added %s db entry: %+v", kind, entry)
+	// write group entries to DB
+	// https://github.com/tobischo/gokeepasslib/blob/master/examples/writing/example-writing.go
+
+	/*
+
+		// now create the database containing the root group
+		db := &gokeepasslib.Database{
+			Header:      gokeepasslib.NewHeader(),
+			Credentials: gokeepasslib.NewPasswordCredentials(masterPassword),
+			Content: &gokeepasslib.DBContent{
+				Meta: gokeepasslib.NewMetaData(),
+				Root: &gokeepasslib.RootData{
+					Groups: []gokeepasslib.Group{rootGroup},
+				},
+			},
+		}
+
+		// Lock entries using stream cipher
+		db.LockProtectedEntries()
+
+		// and encode it into the file
+		keepassEncoder := gokeepasslib.NewEncoder(file)
+		if err := keepassEncoder.Encode(db); err != nil {
+			panic(err)
+		}
+
+		log.Printf("Wrote kdbx file: %s", filename)
+	*/
+	log.Println("Updated kdbx file")
 }
 
 // helper function to get value of kdbx record
@@ -182,11 +306,24 @@ func getValue(entry gokeepasslib.Entry, key string) string {
 
 // helper function to read stdin and send it over provided channel
 // https://stackoverflow.com/questions/50788805/how-to-read-from-stdin-with-goroutines-in-golang
-func readInputChannel(ch chan<- string) {
+func readInputChannel(pwd *bool, ch chan<- string) {
+	var val string
+	var err error
 	for {
-		val, err := readInput()
-		if err != nil {
-			log.Println("WARNING: wrong input", err)
+		//         fmt.Print(*msg)
+		if *pwd == true {
+			val = readPassword("")
+			// read password again to match it
+			if v := readPassword("repeat password: "); v != val {
+				ch <- fmt.Sprintf("WARNING: password match failed, will discard it ...")
+				continue
+			}
+		} else {
+			val, err = readInput()
+			if err != nil {
+				ch <- fmt.Sprintf("WARNING: wrong input %v", err)
+				continue
+			}
 		}
 		ch <- val
 	}
@@ -249,8 +386,10 @@ func printRecord(pid int, entry gokeepasslib.Entry) {
 }
 
 // helper function to get password from stdin
-func getpass(msg string) string {
-	fmt.Print(msg)
+func readPassword(msg string) string {
+	if msg != "" {
+		fmt.Print(msg)
+	}
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err == nil {
 		fmt.Println("")
@@ -259,6 +398,30 @@ func getpass(msg string) string {
 		os.Exit(1)
 	}
 	password := string(bytePassword)
-
 	return strings.TrimSpace(password)
 }
+
+// ReadInput read user input from stdout
+// https://gosamples.dev/read-user-input/
+func readUserInput(msg string) (string, error) {
+	fmt.Print(msg)
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	line = strings.Replace(line, "\n", "", -1)
+	return line, err
+}
+
+/*
+func readUserInput(msg string) (string, error) {
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		err := scanner.Err()
+		if err != nil {
+			return "", err
+		}
+		return scanner.Text(), nil
+}
+*/
