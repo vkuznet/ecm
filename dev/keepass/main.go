@@ -29,6 +29,9 @@ type Record map[string]string
 // keep track if user requested password field
 var inputPwd bool
 
+// global db records
+var dbRecords DBRecords
+
 // helper function to print commands usage
 func cmdUsage(dbPath string) {
 	if dbPath != "" {
@@ -45,6 +48,7 @@ func cmdUsage(dbPath string) {
 	fmt.Println("cp <ID> <attribute> # to copy record ID attribute to cpilboard")
 	fmt.Println("rm <ID>             # to remove record ID from database")
 	fmt.Println("add <key>           # to add specific record key")
+	fmt.Println("save record         # to save record in DB and write new DB file")
 	fmt.Println("timeout <int>       # set timeout interval in seconds")
 }
 
@@ -81,11 +85,15 @@ func main() {
 		db.Credentials = gokeepasslib.NewPasswordCredentials(pwd)
 	}
 	_ = gokeepasslib.NewDecoder(file).Decode(db)
+	if db.Content.Root == nil {
+		msg := "ERROR: wrong password"
+		log.Fatal(msg)
+	}
 	db.UnlockProtectedEntries()
 
 	time0 := time.Now()
 	timeout := time.Duration(interval) * time.Second
-	dbRecords, err := readDB(db)
+	err = readDB(db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -96,7 +104,7 @@ func main() {
 	for _, g := range db.Content.Root.Groups {
 		names = append(names, g.Name)
 	}
-	fmt.Printf("Welcome to %s", strings.Join(names, ","))
+	fmt.Printf("Welcome to %s (%d records)", strings.Join(names, ","), len(dbRecords))
 
 	inputMsg := "\ndb # "
 	inputMsgOrig := inputMsg
@@ -138,39 +146,25 @@ func main() {
 		case input := <-ch:
 			input = strings.Replace(input, "\n", "", -1)
 			if input == "save record" {
-				inputPwd = false
-				kind := "Record"
-				if v, ok := rec["Login"]; ok {
-					rec["UserName"] = v
-					kind = "Login"
-				} else if _, ok := rec["Card"]; ok {
-					kind = "Card"
-				} else if _, ok := rec["Note"]; ok {
-					kind = "Note"
-				}
-				saveRecord(kind, rec, db)
+				saveRecord(kpath, kfile, pwd, db, rec)
 				rec = nil
 				collectKey = ""
 				inputMsg = inputMsgOrig
 			} else if input == "exit" || input == "quit" {
 				os.Exit(0)
 			} else if strings.HasPrefix(input, "WARNING") {
-				inputPwd = false
 				collectKey = ""
 				fmt.Println(input)
 				inputMsg = inputMsgOrig
 			} else if collectKey != "" {
-				inputPwd = false
-				collectKey = ""
 				rec[collectKey] = input
+				collectKey = ""
 				inputMsg = inputMsgOrig
 			} else if matched := patCopy.MatchString(input); matched {
-				inputPwd = false
-				clipboardCopy(input, dbRecords)
+				clipboardCopy(input)
 				inputMsg = inputMsgOrig
 			} else if matched := patRemove.MatchString(input); matched {
-				inputPwd = false
-				removeRecord(input, dbRecords)
+				removeRecord(input)
 				inputMsg = inputMsgOrig
 			} else if matched := patAdd.MatchString(input); matched {
 				if rec == nil {
@@ -179,12 +173,10 @@ func main() {
 				collectKey = strings.Replace(input, "add ", "", -1)
 				if strings.ToLower(collectKey) == "password" {
 					inputPwd = true
-				} else {
-					inputPwd = false
+					fmt.Println("set encrypted input for password field")
 				}
 				inputMsg = fmt.Sprintf("%s value: ", collectKey)
 			} else if matched := patTimeout.MatchString(input); matched {
-				inputPwd = false
 				vvv := strings.Trim(strings.Replace(input, "timeout ", "", -1), " ")
 				if val, err := strconv.Atoi(vvv); err == nil {
 					timeout = time.Duration(val)
@@ -192,8 +184,7 @@ func main() {
 				}
 				inputMsg = inputMsgOrig
 			} else {
-				inputPwd = false
-				search(input, dbRecords)
+				search(input)
 				inputMsg = inputMsgOrig
 			}
 			time0 = time.Now()
@@ -203,20 +194,19 @@ func main() {
 				fmt.Printf("\nExit after %s of inactivity", time.Since(time0))
 				os.Exit(1)
 			}
-			time.Sleep(time.Duration(100) * time.Millisecond) // wait for new input
+			time.Sleep(time.Duration(1) * time.Millisecond) // wait for new input
 		}
 	}
 }
 
 // helper function to copy to clipboard db record attribute
-func clipboardCopy(input string, records *DBRecords) {
+func clipboardCopy(input string) {
 	// the input here is cp <ID> attribute
 	arr := strings.Split(input, " ")
 	if len(arr) < 2 {
 		log.Printf("WARNING: unable to parse command '%s'", input)
 		return
 	}
-	dbRecords := *records
 	rid, err := strconv.Atoi(arr[1])
 	if err != nil {
 		log.Println("Unable to get record ID", err)
@@ -234,6 +224,10 @@ func clipboardCopy(input string, records *DBRecords) {
 			val = getValue(entry, "Title")
 		} else if attr == "username" {
 			val = getValue(entry, "UserName")
+		} else if attr == "login" {
+			val = getValue(entry, "Login")
+		} else if attr == "email" {
+			val = getValue(entry, "EMail")
 		} else if attr == "url" {
 			val = getValue(entry, "URL")
 		} else if attr == "notes" {
@@ -249,7 +243,7 @@ func clipboardCopy(input string, records *DBRecords) {
 }
 
 // helper function to remove record from the database
-func removeRecord(input string, dbRecords *DBRecords) {
+func removeRecord(input string) {
 }
 
 // helper function to make entry db value
@@ -266,49 +260,88 @@ func mkProtectedValue(key string, value string) gokeepasslib.ValueData {
 }
 
 // helper function to save record to the database
-func saveRecord(kind string, rec Record, db *gokeepasslib.Database) {
+func saveRecord(dbPath, kfile, pwd string, db *gokeepasslib.Database, rec Record) {
+	var err error
+
+	// add Title to record if it is missing
+	if _, ok := rec["Title"]; !ok {
+		rec["Title"] = "Record"
+	}
+
+	// create new group and entry objects
 	group := gokeepasslib.NewGroup()
-	group.Name = kind
 	entry := gokeepasslib.NewEntry()
+
+	// iterate over existing db entries and add it to our group
+	for _, top := range db.Content.Root.Groups {
+		group.Name = top.Name
+		for _, entry := range top.Entries {
+			group.Entries = append(group.Entries, entry)
+		}
+		for _, groups := range top.Groups {
+			for _, entry := range groups.Entries {
+				group.Entries = append(group.Entries, entry)
+			}
+		}
+	}
+
+	// now we'll add our new record to group entries
 	for key, val := range rec {
 		attr := strings.ToLower(key)
 		if attr == "password" {
 			entry.Values = append(entry.Values, mkProtectedValue("Password", val))
 		} else {
+			key = strings.Title(key)
+			if attr == "username" {
+				key = "UserName"
+			}
 			entry.Values = append(entry.Values, mkValue(key, val))
 		}
 	}
+
+	// add entry to our db records object
+	rid := len(dbRecords) + 1
+	dbRecords[rid] = entry
+
+	// update db group entries
 	group.Entries = append(group.Entries, entry)
-	log.Printf("added %s db entry: %+v", kind, entry)
+
 	// write group entries to DB
 	// https://github.com/tobischo/gokeepasslib/blob/master/examples/writing/example-writing.go
-
-	/*
-
-		// now create the database containing the root group
-		db := &gokeepasslib.Database{
-			Header:      gokeepasslib.NewHeader(),
-			Credentials: gokeepasslib.NewPasswordCredentials(masterPassword),
-			Content: &gokeepasslib.DBContent{
-				Meta: gokeepasslib.NewMetaData(),
-				Root: &gokeepasslib.RootData{
-					Groups: []gokeepasslib.Group{rootGroup},
-				},
+	creds := gokeepasslib.NewPasswordCredentials(pwd)
+	if kfile != "" {
+		creds, err = gokeepasslib.NewPasswordAndKeyCredentials(pwd, kfile)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	newdb := &gokeepasslib.Database{
+		Header:      gokeepasslib.NewHeader(),
+		Credentials: creds,
+		Content: &gokeepasslib.DBContent{
+			Meta: gokeepasslib.NewMetaData(),
+			Root: &gokeepasslib.RootData{
+				Groups: []gokeepasslib.Group{group},
 			},
-		}
+		},
+	}
+	filename := fmt.Sprintf("%s-new", dbPath)
+	file, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
 
-		// Lock entries using stream cipher
-		db.LockProtectedEntries()
+	// Lock entries using stream cipher
+	newdb.LockProtectedEntries()
 
-		// and encode it into the file
-		keepassEncoder := gokeepasslib.NewEncoder(file)
-		if err := keepassEncoder.Encode(db); err != nil {
-			panic(err)
-		}
-
-		log.Printf("Wrote kdbx file: %s", filename)
-	*/
-	log.Println("Updated kdbx file")
+	// and encode it into the file
+	keepassEncoder := gokeepasslib.NewEncoder(file)
+	if err := keepassEncoder.Encode(newdb); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Wrote kdbx file: %s", filename)
+	//     db.UnlockProtectedEntries()
 }
 
 // helper function to get value of kdbx record
@@ -327,22 +360,26 @@ func readInputChannel(ch chan<- string) {
 	var val string
 	var err error
 	for {
-		//         fmt.Print(*msg)
+		msg := ""
 		if inputPwd == true {
 			val = readPassword("")
 			// read password again to match it
 			if v := readPassword("repeat password: "); v != val {
-				ch <- fmt.Sprintf("WARNING: password match failed, will discard it ...")
-				continue
+				msg = fmt.Sprintf("WARNING: password match failed, will discard it ...")
 			}
 		} else {
 			val, err = readInput()
 			if err != nil {
-				ch <- fmt.Sprintf("WARNING: wrong input %v", err)
-				continue
+				msg = fmt.Sprintf("WARNING: wrong input %v", err)
 			}
 		}
-		ch <- val
+		inputPwd = false
+		if msg != "" {
+			ch <- msg
+		} else {
+			ch <- val
+		}
+		time.Sleep(time.Duration(1) * time.Millisecond) // wait for new input
 	}
 }
 
@@ -354,31 +391,38 @@ func readInput() (string, error) {
 }
 
 // helper function to read db records
-func readDB(db *gokeepasslib.Database) (*DBRecords, error) {
-	records := make(DBRecords)
+func readDB(db *gokeepasslib.Database) error {
+	if dbRecords == nil {
+		dbRecords = make(DBRecords)
+	}
 
+	rid := 0
 	for _, top := range db.Content.Root.Groups {
 		if top.Name == "NewDatabase" {
-			msg := "wrong password or empty database"
-			return nil, errors.New(msg)
+			msg := "ERROR: wrong password or empty database"
+			return errors.New(msg)
+		}
+		for _, entry := range top.Entries {
+			dbRecords[rid] = entry
+			rid += 1
 		}
 		for _, groups := range top.Groups {
-			rid := 0
 			for _, entry := range groups.Entries {
-				records[rid] = entry
+				dbRecords[rid] = entry
 				rid += 1
 			}
 		}
 	}
-	return &records, nil
+	return nil
 }
 
 // helper function to search for given input
-func search(input string, records *DBRecords) {
-	keys := []string{"UserName", "URL", "Notes"}
+func search(input string) {
+	keys := []string{"UserName", "URL", "Notes", "Login", "Email"}
 	pat := regexp.MustCompile(input)
-	for rid, entry := range *records {
-		if input == entry.GetTitle() || input == entry.Tags {
+	for rid, entry := range dbRecords {
+		if strings.Contains(entry.GetTitle(), input) ||
+			strings.Contains(entry.Tags, input) {
 			printRecord(rid, entry)
 		} else {
 			for _, k := range keys {
@@ -396,6 +440,7 @@ func printRecord(pid int, entry gokeepasslib.Entry) {
 	fmt.Printf("---\n")
 	fmt.Printf("Record   %d\n", pid)
 	fmt.Printf("Title    %s\n", getValue(entry, "Title"))
+	fmt.Printf("Login    %s\n", getValue(entry, "Login"))
 	fmt.Printf("UserName %s\n", getValue(entry, "UserName"))
 	fmt.Printf("URL      %s\n", getValue(entry, "URL"))
 	fmt.Printf("Notes    %s\n", getValue(entry, "Notes"))
