@@ -14,18 +14,19 @@
             </div>
         </div>
         <div class="is-col is-60">
-<!--            <form action="/search" method="post" name="search" id="search" class="search_form">-->
-<!--            <form action="javascript:ClearFields();asyncRecords()">-->
-                <div id="search-form" class="form-item">
+            <div class="is-row is-small">
+                <div class="is-col is-80">
                     <input type="password" id="password" class="hide" value="test">
                     <input type="text" id="pageUrl" class="hide" value="">
                     <input type="text" id="server" value="http://localhost:5888" class="hide">
                     <input type="text" id="vault" value="Primary" class="hide">
                     <input type="text" id="cipher" value="aes" class="hide">
                     <input type="text" id="search" class="is-search" placeholder="Search">
-                    <a href="javascript:ClearFields();showRecords()" class="button is-secondary is-small button-primary">Search</a>
                 </div>
-<!--            </form>-->
+                <div class="is-col is-20">
+                    <a href="javascript:ClearFields();showRecords()" class="button is-secondary">Search</a>
+                </div>
+            </div>
         </div>
         <div class="is-col is-15">
         </div>
@@ -58,12 +59,12 @@
                                 <a href="javascript:ClearFields();ShowPlaceHolder('vault-credentials')">
                                     <img src="static/images/key-up.png" alt="Vault credentials" title="Vault credentials"></a>
                                 &nbsp;
+                                <a href="javascript:ClearFields();generatePassword()">
+                                    <img src="static/images/reset-password.png" alt="New password" title="New password"></a>
+                                &nbsp;
 
                                 <a href="javascript:ClearFields();showRecords()">
                                     <img src="static/images/records.png" alt="Show records" title="Show records"></a>
-                                &nbsp;
-                                <a href="javascript:ClearFields();generatePassword()">
-                                    <img src="static/images/reset-password.png" alt="New password" title="New password"></a>
                                 &nbsp;
                                 {{if .Mobile}}
                                 <a href="javascript:ClearFields();ShowPlaceHolder('actions')">

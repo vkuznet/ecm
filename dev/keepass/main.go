@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/user"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -32,6 +33,16 @@ var inputPwd bool
 // global db records
 var dbRecords DBRecords
 
+// version of the code
+var gitVersion, gitTag string
+
+// ecmInfo function returns version string of the server
+func kpassInfo() string {
+	goVersion := runtime.Version()
+	tstamp := time.Now().Format("2006-02-01")
+	return fmt.Sprintf("kpass git=%s tag=%s go=%s date=%s", gitVersion, gitTag, goVersion, tstamp)
+}
+
 // helper function to print commands usage
 func cmdUsage(dbPath string) {
 	if dbPath != "" {
@@ -43,6 +54,8 @@ func cmdUsage(dbPath string) {
 			fmt.Println("Modification time   : ", info.ModTime())
 			fmt.Println()
 		}
+	} else {
+		fmt.Println()
 	}
 	fmt.Println("Commands within DB")
 	fmt.Println("cp <ID> <attribute> # to copy record ID attribute to cpilboard")
@@ -62,12 +75,39 @@ func main() {
 	flag.StringVar(&kfile, "kfile", "", "key file name")
 	var interval int
 	flag.IntVar(&interval, "interval", 30, "timeout interval in seconds")
+	var pwd string
+	flag.StringVar(&pwd, "pwd", "", "generate password with given length:attributes. Attributes can be 'n' (numbers), s' (symbols) or their combinations), e.g. 16:ns will provide password of length 16 with numbers and symbols in it")
+	var version bool
+	flag.BoolVar(&version, "version", false, "show version")
 	flag.Usage = func() {
 		fmt.Println("Usage: kpass [options]")
 		flag.PrintDefaults()
 		cmdUsage("")
 	}
 	flag.Parse()
+	if version {
+		fmt.Println(kpassInfo())
+		os.Exit(0)
+	}
+
+	// generate password if asked
+	if pwd != "" {
+		arr := strings.Split(pwd, ":")
+		i, e := strconv.Atoi(arr[0])
+		if e != nil {
+			log.Fatal(e)
+		}
+		var numbers, symbols bool
+		if strings.Contains(pwd, "n") {
+			numbers = true
+		}
+		if strings.Contains(pwd, "s") {
+			symbols = true
+		}
+		p := CreatePassword(i, numbers, symbols)
+		copy2clipboard(p, fmt.Sprintf("New password %s copied to clipboard", p))
+		os.Exit(0)
+	}
 
 	file, err := os.Open(kpath)
 	if err != nil {
@@ -75,7 +115,7 @@ func main() {
 	}
 
 	db := gokeepasslib.NewDatabase()
-	pwd := readPassword("db password: ")
+	pwd = readPassword("db password: ")
 	if kfile != "" {
 		db.Credentials, err = gokeepasslib.NewPasswordAndKeyCredentials(pwd, kfile)
 		if err != nil {
@@ -234,11 +274,19 @@ func clipboardCopy(input string) {
 			val = getValue(entry, "Notes")
 		}
 		if val != "" {
-			if err := clipboard.WriteAll(string(val)); err != nil {
-				log.Fatal(err)
-			}
-			fmt.Printf("%s copied to clipboard\n", attr)
+			msg := fmt.Sprintf("%s copied to clipboard", attr)
+			copy2clipboard(string(val), msg)
 		}
+	}
+}
+
+// helper function to copy content to clipboard
+func copy2clipboard(val, msg string) {
+	if err := clipboard.WriteAll(val); err != nil {
+		log.Fatal(err)
+	}
+	if msg != "" {
+		fmt.Println(msg)
 	}
 }
 

@@ -676,8 +676,8 @@ func QRHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("generate user secret")
 		}
 
-		// generate a random string - preferbly 6 or 8 characters
-		randomStr := utils.RandomString(6, "alphanum")
+		// generate a random string: 10 characters will produce non = signs in base32 encoding
+		randomStr := utils.RandomString(10, "alphanum")
 
 		// For Google Authenticator purpose
 		// for more details see
